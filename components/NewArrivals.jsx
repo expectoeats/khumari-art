@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import ArtCard from "./ArtCard";
 import { newArrivals } from "./data";
@@ -22,16 +23,16 @@ export default function NewArrivals() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           {newArrivals.map((art, i) => (
-            <ArtCard key={i} {...art} />
+            <ArtCard key={art.id || i} {...art} />
           ))}
         </div>
 
         {/* CTA */}
         <div className="text-center mt-12">
-          <button className="btn-dark inline-flex items-center gap-3 px-10 py-4">
+          <Link href="/collect" className="btn-dark inline-flex items-center gap-3 px-10 py-4">
             VIEW NEW ARRIVALS
             <FaArrowRight className="text-[10px]" />
-          </button>
+          </Link>
         </div>
       </div>
     </section>

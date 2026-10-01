@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaSearch, FaUser, FaBars, FaTimes } from "react-icons/fa";
+import { useArtModal } from "./ArtModalContext";
 
 // Map each nav label → its route
 const navItems = [
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [visible, setVisible]       = useState(true);
   const pathname                    = usePathname();
+  const { openInquiry }             = useArtModal();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -36,8 +38,23 @@ export default function Navbar() {
     <>
       {/* ── Announcement Bar ── */}
       {visible && (
-        <div className="announcement-bar relative flex items-center justify-center py-2.5 px-10">
-          <span>New collection available — Inquire for pricing</span>
+        <div className="announcement-bar relative flex items-center justify-center py-2.5 px-10 text-center">
+          <span>
+            New collection available —{" "}
+            <button
+              onClick={() =>
+                openInquiry({
+                  title: "New 2024 Studio Collection",
+                  src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg",
+                  artist: "Nancy Sikri",
+                  medium: "Original Acrylic Works",
+                })
+              }
+              className="underline font-medium hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 inline"
+            >
+              Inquire for pricing
+            </button>
+          </span>
           <button
             onClick={() => setVisible(false)}
             className="absolute right-4 text-brand-sand hover:text-white transition-colors"

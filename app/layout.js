@@ -1,4 +1,5 @@
 import "./globals.css";
+import { ArtModalProvider } from "../components/ArtModalContext";
 
 export const metadata = {
   title: "ARTWORK | Nancy Sikri",
@@ -8,7 +9,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ArtModalProvider>
+          {children}
+        </ArtModalProvider>
+      </body>
     </html>
   );
 }

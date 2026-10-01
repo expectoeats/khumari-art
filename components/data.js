@@ -7,12 +7,7 @@ export const heroSlides = [
   { src: "/art/751035238_18109216892070803_7635210586793161675_n.jpg", label: "Raw Expressions" },
 ];
 
-export const newArrivals = [
-  { src: "/art/823606039_18116134385070803_3865341406544213906_n.jpg", artist: "Nancy Sikri", title: "Embracing the Void Within",       medium: "Painting" },
-  { src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg", artist: "Nancy Sikri", title: "A Soul Within and Without",        medium: "Painting" },
-  { src: "/art/818988016_18116134361070803_5613175907062480033_n.jpg", artist: "Nancy Sikri", title: "A Raw Gaze into the Soul",         medium: "Painting" },
-  { src: "/art/817902603_18115636340070803_3091029228027957233_n.jpg", artist: "Nancy Sikri", title: "A Girl with Her Shadowed Thoughts", medium: "Painting" },
-];
+export const navLinks = ["Collect", "Artists", "The Edits", "Journal", "Info"];
 
 export const categories = [
   { label: "Paintings",   src: "/art/813661180_18115305131070803_8784916059366770496_n.jpg" },
@@ -20,26 +15,18 @@ export const categories = [
   { label: "Photography", src: "/art/810148848_18115030028070803_5556986987562606541_n.jpg" },
 ];
 
-export const paintings = [
-  { src: "/art/823606039_18116134385070803_3865341406544213906_n.jpg", artist: "Nancy Sikri", title: "Embracing the Void Within",       medium: "Painting" },
-  { src: "/art/818988016_18116134361070803_5613175907062480033_n.jpg", artist: "Nancy Sikri", title: "A Raw Gaze into the Soul",         medium: "Painting" },
-  { src: "/art/817902603_18115636340070803_3091029228027957233_n.jpg", artist: "Nancy Sikri", title: "A Girl with Her Shadowed Thoughts", medium: "Painting" },
-  { src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg", artist: "Nancy Sikri", title: "A Soul Within and Without",        medium: "Painting" },
-];
-
-export const navLinks = ["Collect", "Artists", "The Edits", "Journal", "Info"];
-
-// ── Full catalogue — all 13 works ────────────────────────────────────────────
+// ── Full catalogue — all 13 works with color tagging & full specs ───────────────
 export const allWorks = [
   {
     id: 1,
     src: "/art/823606039_18116134385070803_3865341406544213906_n.jpg",
     artist: "Nancy Sikri",
     title: "Embracing the Void Within",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2024,
     size: "24 × 30 in",
+    color: "Crimson",
     featured: true,
   },
   {
@@ -47,10 +34,11 @@ export const allWorks = [
     src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg",
     artist: "Nancy Sikri",
     title: "A Soul Within and Without",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2024,
     size: "20 × 24 in",
+    color: "Rose",
     featured: true,
   },
   {
@@ -58,10 +46,11 @@ export const allWorks = [
     src: "/art/818988016_18116134361070803_5613175907062480033_n.jpg",
     artist: "Nancy Sikri",
     title: "A Raw Gaze into the Soul",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2024,
     size: "18 × 24 in",
+    color: "Amber",
     featured: false,
   },
   {
@@ -69,10 +58,11 @@ export const allWorks = [
     src: "/art/817902603_18115636340070803_3091029228027957233_n.jpg",
     artist: "Nancy Sikri",
     title: "A Girl with Her Shadowed Thoughts",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2023,
     size: "24 × 36 in",
+    color: "Amber",
     featured: true,
   },
   {
@@ -80,10 +70,11 @@ export const allWorks = [
     src: "/art/813661180_18115305131070803_8784916059366770496_n.jpg",
     artist: "Nancy Sikri",
     title: "Layers of Silence",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2023,
     size: "16 × 20 in",
+    color: "Blue",
     featured: false,
   },
   {
@@ -91,10 +82,11 @@ export const allWorks = [
     src: "/art/811266960_18115098530070803_4087374646249167423_n.jpg",
     artist: "Nancy Sikri",
     title: "Echoes in Ochre",
-    medium: "Print",
+    medium: "Archival Print on Cotton Rag",
     category: "Prints",
     year: 2023,
     size: "12 × 16 in",
+    color: "Yellow",
     featured: false,
   },
   {
@@ -102,10 +94,11 @@ export const allWorks = [
     src: "/art/810148848_18115030028070803_5556986987562606541_n.jpg",
     artist: "Nancy Sikri",
     title: "The Wandering Eye",
-    medium: "Photography",
+    medium: "Giclée Fine Art Print",
     category: "Photography",
     year: 2023,
     size: "16 × 24 in",
+    color: "Emerald",
     featured: false,
   },
   {
@@ -113,10 +106,11 @@ export const allWorks = [
     src: "/art/794222736_18113991668070803_4825890433763461046_n.jpg",
     artist: "Nancy Sikri",
     title: "Abstract Reverie",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2023,
     size: "20 × 28 in",
+    color: "Teal",
     featured: true,
   },
   {
@@ -124,10 +118,11 @@ export const allWorks = [
     src: "/art/751035238_18109216892070803_7635210586793161675_n.jpg",
     artist: "Nancy Sikri",
     title: "Raw Expressions",
-    medium: "Painting",
+    medium: "Mixed Media on Canvas",
     category: "Paintings",
     year: 2022,
     size: "18 × 22 in",
+    color: "Amber",
     featured: false,
   },
   {
@@ -135,10 +130,11 @@ export const allWorks = [
     src: "/art/727621305_18106189697070803_8331127044024333624_n.jpg",
     artist: "Nancy Sikri",
     title: "Vivid Dreams",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2022,
     size: "24 × 30 in",
+    color: "Emerald",
     featured: false,
   },
   {
@@ -146,10 +142,11 @@ export const allWorks = [
     src: "/art/655428058_18542777713071262_2316752950858361917_n.jpg",
     artist: "Nancy Sikri",
     title: "Chromatic Storm",
-    medium: "Print",
+    medium: "Limited Edition Print",
     category: "Prints",
     year: 2022,
     size: "14 × 18 in",
+    color: "Lavender",
     featured: false,
   },
   {
@@ -157,10 +154,11 @@ export const allWorks = [
     src: "/art/489590201_18062396645070803_1654056798950479995_n.webp",
     artist: "Nancy Sikri",
     title: "Quiet Threshold",
-    medium: "Photography",
+    medium: "Archival Photography",
     category: "Photography",
     year: 2021,
     size: "20 × 30 in",
+    color: "Teal",
     featured: false,
   },
   {
@@ -168,10 +166,14 @@ export const allWorks = [
     src: "/art/489288189_18062396654070803_5449039346745997428_n.webp",
     artist: "Nancy Sikri",
     title: "Between Two Worlds",
-    medium: "Painting",
+    medium: "Acrylic on Canvas",
     category: "Paintings",
     year: 2021,
     size: "16 × 20 in",
+    color: "Lavender",
     featured: false,
   },
 ];
+
+export const newArrivals = allWorks.slice(0, 4);
+export const paintings = allWorks.filter(w => w.category === "Paintings").slice(0, 4);

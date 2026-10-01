@@ -2,32 +2,64 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { FaSearchPlus, FaArrowRight } from "react-icons/fa";
+import { useArtModal } from "./ArtModalContext";
 
 const picks = [
   {
+    id: 5,
     src: "/art/813661180_18115305131070803_8784916059366770496_n.jpg",
+    artist: "Nancy Sikri",
     title: "Layers of Silence",
     subtitle: "An introspective abstract series",
+    medium: "Acrylic on Canvas",
+    size: "16 × 20 in",
+    year: 2023,
+    color: "Blue",
   },
   {
+    id: 6,
     src: "/art/811266960_18115098530070803_4087374646249167423_n.jpg",
+    artist: "Nancy Sikri",
     title: "Echoes in Ochre",
     subtitle: "Warm tones, raw emotion",
+    medium: "Archival Print on Cotton Rag",
+    size: "12 × 16 in",
+    year: 2023,
+    color: "Yellow",
   },
   {
+    id: 2,
     src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg",
+    artist: "Nancy Sikri",
     title: "A Soul Within and Without",
     subtitle: "Duality captured in strokes",
+    medium: "Acrylic on Canvas",
+    size: "20 × 24 in",
+    year: 2024,
+    color: "Rose",
   },
   {
+    id: 4,
     src: "/art/817902603_18115636340070803_3091029228027957233_n.jpg",
+    artist: "Nancy Sikri",
     title: "Shadowed Thoughts",
     subtitle: "Where silence speaks loudest",
+    medium: "Acrylic on Canvas",
+    size: "24 × 36 in",
+    year: 2023,
+    color: "Amber",
   },
   {
+    id: 7,
     src: "/art/810148848_18115030028070803_5556986987562606541_n.jpg",
+    artist: "Nancy Sikri",
     title: "The Wandering Eye",
     subtitle: "Perspectives in abstract form",
+    medium: "Giclée Fine Art Print",
+    size: "16 × 24 in",
+    year: 2023,
+    color: "Emerald",
   },
 ];
 
@@ -54,9 +86,15 @@ function getCardStyle(offset) {
 
 export default function TopPicks() {
   const [active, setActive] = useState(2); // center card
+  const { openArtwork, openInquiry } = useArtModal();
 
-  const prev = () => setActive(p => Math.max(0, p - 1));
-  const next = () => setActive(p => Math.min(picks.length - 1, p + 1));
+  const handleCardClick = (i, isCenter, pick) => {
+    if (isCenter) {
+      openArtwork(pick);
+    } else {
+      setActive(i);
+    }
+  };
 
   return (
     <section className="py-16 md:py-24 bg-brand-cream overflow-hidden">
@@ -73,6 +111,9 @@ export default function TopPicks() {
         >
           Today's top picks
         </h2>
+        <p className="text-xs text-brand-muted font-sans mt-2 tracking-wide">
+          Tap active card to inspect texture with lens zoom
+        </p>
       </div>
 
       {/* Fan carousel */}
@@ -85,7 +126,7 @@ export default function TopPicks() {
           return (
             <div
               key={i}
-              onClick={() => setActive(i)}
+              onClick={() => handleCardClick(i, isCenter, pick)}
               className="absolute cursor-pointer w-[200px] h-[280px] md:w-[260px] md:h-[360px]"
               style={{
                 transition: "transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease, z-index 0s",
@@ -94,7 +135,7 @@ export default function TopPicks() {
             >
               {/* Card */}
               <div
-                className="relative w-full h-full overflow-hidden"
+                className="relative w-full h-full overflow-hidden group"
                 style={{
                   borderRadius: "16px",
                   boxShadow: isCenter
@@ -113,16 +154,16 @@ export default function TopPicks() {
                   className="absolute inset-0"
                   style={{
                     background:
-                      "linear-gradient(to top, rgba(28,28,28,0.75) 0%, rgba(28,28,28,0.1) 50%, transparent 100%)",
+                      "linear-gradient(to top, rgba(28,28,28,0.85) 0%, rgba(28,28,28,0.2) 50%, transparent 100%)",
                   }}
                 />
 
                 {/* Center pill label */}
                 {isCenter && (
                   <div
-                    className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full"
+                    className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full flex items-center gap-1.5 shadow"
                     style={{
-                      background: "rgba(28,28,28,0.55)",
+                      background: "rgba(28,28,28,0.7)",
                       backdropFilter: "blur(6px)",
                       fontFamily: "'DM Serif Display', serif",
                       fontSize: "0.72rem",
@@ -131,21 +172,22 @@ export default function TopPicks() {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    {pick.title}
+                    <FaSearchPlus className="text-brand-accent text-[10px]" />
+                    <span>Click to Zoom</span>
                   </div>
                 )}
 
-                {/* Bottom text — only on center */}
+                {/* Bottom text & action on center card */}
                 {isCenter && (
-                  <div className="absolute bottom-5 left-5 right-5">
+                  <div className="absolute bottom-4 left-4 right-4 text-left">
                     <p
                       style={{
                         fontFamily: "'DM Serif Display', serif",
                         fontWeight: 600,
-                        fontSize: "1.15rem",
+                        fontSize: "1.05rem",
                         color: "#FFFFFF",
-                        lineHeight: 1.25,
-                        marginBottom: "0.3rem",
+                        lineHeight: 1.2,
+                        marginBottom: "0.2rem",
                       }}
                     >
                       {pick.title}
@@ -153,13 +195,37 @@ export default function TopPicks() {
                     <p
                       style={{
                         fontFamily: "'DM Serif Display', serif",
-                        fontSize: "0.82rem",
+                        fontSize: "0.78rem",
                         color: "rgba(255,255,255,0.75)",
                         fontStyle: "italic",
+                        marginBottom: "0.6rem",
                       }}
                     >
                       {pick.subtitle}
                     </p>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openInquiry(pick);
+                        }}
+                        className="px-2.5 py-1 bg-brand-accent hover:bg-white text-brand-dark text-[0.62rem] tracking-wider uppercase font-sans font-semibold rounded transition-colors"
+                      >
+                        Inquire
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openArtwork(pick);
+                        }}
+                        className="px-2.5 py-1 bg-white/20 hover:bg-white/40 text-white text-[0.62rem] tracking-wider uppercase font-sans rounded transition-colors backdrop-blur-sm"
+                      >
+                        Macro View
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
