@@ -53,15 +53,15 @@ const edits = [
 ];
 
 const filterPalette = [
-  { name: "All",      hex: "#1C1C1C" },
-  { name: "Rose",     hex: "#f06292" },
-  { name: "Crimson",  hex: "#e53935" },
-  { name: "Amber",    hex: "#ef8c38" },
-  { name: "Yellow",   hex: "#fdd835" },
-  { name: "Teal",     hex: "#3aafa9" },
-  { name: "Blue",     hex: "#2d9de5" },
-  { name: "Lavender", hex: "#b39ddb" },
-  { name: "Emerald",  hex: "#43a047" },
+  { name: "All",      bg: "#1C1C1C", text: "#FFFFFF", border: "#1C1C1C" },
+  { name: "Rose",     bg: "#C95777", text: "#FFFFFF", border: "#B54565" },
+  { name: "Crimson",  bg: "#C42D2D", text: "#FFFFFF", border: "#AA2020" },
+  { name: "Amber",    bg: "#D97724", text: "#FFFFFF", border: "#BC6014" },
+  { name: "Yellow",   bg: "#E5BA1E", text: "#1C1C1C", border: "#C89E0E" },
+  { name: "Teal",     bg: "#2A8A84", text: "#FFFFFF", border: "#1D706B" },
+  { name: "Blue",     bg: "#2578B0", text: "#FFFFFF", border: "#196090" },
+  { name: "Lavender", bg: "#8A6DB3", text: "#FFFFFF", border: "#73569C" },
+  { name: "Emerald",  bg: "#358A46", text: "#FFFFFF", border: "#257034" },
 ];
 
 export default function EditsPage() {
@@ -278,10 +278,16 @@ export default function EditsPage() {
       </section>
 
       {/* ── Interactive Color Palette Filter Bar ── */}
-      <div className="border-b border-[#E8E1D5] bg-[#F5EFE6]/70 py-4 px-6 md:px-10">
+      <div className="border-b border-[#E8E1D5] bg-transparent py-4 px-6 md:px-10">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-brand-dark font-sans font-medium">
-            <FaPalette className="text-brand-accent text-sm" />
+          <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-brand-dark font-sans font-semibold">
+            <svg className="w-3.5 h-3.5 text-brand-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="13.5" cy="6.5" r=".7" fill="currentColor"/>
+              <circle cx="17.5" cy="10.5" r=".7" fill="currentColor"/>
+              <circle cx="8.5" cy="7.5" r=".7" fill="currentColor"/>
+              <circle cx="6.5" cy="12.5" r=".7" fill="currentColor"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/>
+            </svg>
             <span>Filter Series by Palette:</span>
           </div>
 
@@ -293,17 +299,19 @@ export default function EditsPage() {
                 <button
                   key={p.name}
                   onClick={() => setSelectedColor(p.name)}
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-sans tracking-wide transition-all ${
-                    active
-                      ? "bg-brand-dark text-white font-medium shadow"
-                      : "bg-white/80 hover:bg-white text-brand-muted border border-[#E0D7C9]"
-                  }`}
+                  style={{
+                    backgroundColor: p.bg,
+                    color: p.text,
+                    border: `1px solid ${p.border}`,
+                    boxShadow: active
+                      ? "0 0 0 2px #FDFAF5, 0 0 0 4px #1C1C1C, 0 4px 10px rgba(0,0,0,0.2)"
+                      : "0 1px 3px rgba(0,0,0,0.12)",
+                    transform: active ? "scale(1.06)" : "scale(1)",
+                  }}
+                  className="px-3.5 py-1.5 rounded-full text-xs font-sans tracking-wide transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer font-medium hover:opacity-95"
                 >
-                  {p.name !== "All" && (
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shadow-inner"
-                      style={{ background: p.hex }}
-                    />
+                  {active && (
+                    <span className="text-[10px] font-bold">✓</span>
                   )}
                   <span>{p.name}</span>
                 </button>
