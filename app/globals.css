@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Jost:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FDFAF5;
+  font-family: 'DM Serif Display', Georgia, serif;
+  overflow-x: hidden;
+  color: #1C1C1C;
+}
+
+/* ── Marquee ── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Slow, unhurried — luxury galleries never rush */
+.animate-marquee {
+  animation: marquee 55s linear infinite;
+  will-change: transform;
+}
+.animate-marquee-reverse {
+  animation: marquee-reverse 60s linear infinite;
+  will-change: transform;
+}
+
+/* Pause on hover — feels intentional, not automated */
+.animate-marquee:hover,
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+/* Crisp SVG separators inside marquee */
+.marquee-sep {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* ── Fade in up ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.9s ease-out forwards; }
+
+/* ── Hero Ken-Burns ── */
+@keyframes kenBurns {
+  0%   { transform: scale(1);    }
+  100% { transform: scale(1.06); }
+}
+.ken-burns { animation: kenBurns 8s ease-in-out alternate infinite; }
+
+/* ── Hover lift card ── */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.4s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(28, 28, 28, 0.12);
+}
+
+/* ── Image zoom on hover ── */
+.img-zoom { transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.group:hover .img-zoom { transform: scale(1.06); }
+
+/* ── Category overlay ── */
+.category-overlay {
+  background: linear-gradient(to top, rgba(28,28,28,0.55) 0%, rgba(28,28,28,0.1) 60%, transparent 100%);
+}
+
+/* ── About artist ink blob ── */
+@keyframes blobFloat {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50%       { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+}
+.blob-shape {
+  animation: blobFloat 8s ease-in-out infinite;
+}
+
+/* ── Scribble underline ── */
+.scribble-underline {
+  position: relative;
+  display: inline-block;
+}
+.scribble-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 100%; height: 3px;
+  background: #C9A96E;
+  border-radius: 2px;
+}
+
+/* ── Navbar scrolled shadow ── */
+.navbar-scrolled {
+  box-shadow: 0 2px 20px rgba(28,28,28,0.08);
+  background: rgba(253, 250, 245, 0.97) !important;
+}
+
+/* ── Announcement bar ── */
+.announcement-bar {
+  background: #1C1C1C;
+  color: #E8DDD0;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ── New Arrivals / Paintings card ── */
+.art-card-img {
+  background: #F0EAE0;
+}
+
+/* ── Section title with spaced tracking ── */
+.section-title {
+  font-family: 'Jost', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  color: #6B5F55;
+}
+
+/* ── Divider line ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #C9A96E, transparent);
+}
+
+/* ── CTA button ── */
+.btn-dark {
+  background: #1C1C1C;
+  color: #FDFAF5;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.btn-dark:hover {
+  background: #2A2A2A;
+}
+.btn-outline {
+  border: 1px solid #1C1C1C;
+  color: #1C1C1C;
+  font-family: 'Jost', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.btn-outline:hover {
+  background: #1C1C1C;
+  color: #FDFAF5;
+}
+
+/* ── About artist playful elements ── */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+.float-element { animation: floatY 4s ease-in-out infinite; }
+.float-element-slow { animation: floatY 6s ease-in-out infinite; }
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.rotate-slow { animation: rotateSlow 20s linear infinite; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #F5F0E8; }
+::-webkit-scrollbar-thumb { background: #C9A96E; border-radius: 3px; }
+
+/* ── Skeleton shimmer ── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #EEEBE5 0px,
+    #F5F2ED 200px,
+    #EEEBE5 400px
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 3px;
+}
+.skeleton-dark {
+  background: linear-gradient(
+    90deg,
+    #1e1c1a 0px,
+    #2a2825 200px,
+    #1e1c1a 400px
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 3px;
+}
