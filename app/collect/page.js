@@ -12,15 +12,78 @@ import { useArtModal } from "../../components/ArtModalContext";
 
 const categories = ["All", "Paintings", "Prints", "Photography"];
 const paletteColors = [
-  { name: "All",      bg: "#1C1C1C", text: "#FFFFFF", border: "#1C1C1C" },
-  { name: "Rose",     bg: "#C95777", text: "#FFFFFF", border: "#B54565" },
-  { name: "Crimson",  bg: "#C42D2D", text: "#FFFFFF", border: "#AA2020" },
-  { name: "Amber",    bg: "#D97724", text: "#FFFFFF", border: "#BC6014" },
-  { name: "Yellow",   bg: "#E5BA1E", text: "#1C1C1C", border: "#C89E0E" },
-  { name: "Teal",     bg: "#2A8A84", text: "#FFFFFF", border: "#1D706B" },
-  { name: "Blue",     bg: "#2578B0", text: "#FFFFFF", border: "#196090" },
-  { name: "Lavender", bg: "#8A6DB3", text: "#FFFFFF", border: "#73569C" },
-  { name: "Emerald",  bg: "#358A46", text: "#FFFFFF", border: "#257034" },
+  {
+    name: "All",
+    hex: "#1C1C1C",
+    bg: "conic-gradient(from 200deg at 50% 50%, #d32f2f, #f57c00, #fbc02d, #388e3c, #00acc1, #1976d2, #7b1fa2, #c2185b, #d32f2f)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.08) 48%, rgba(255,255,255,0) 100%)",
+    border: "rgba(28,28,28,0.15)",
+    ring: "#1C1C1C",
+  },
+  {
+    name: "Rose",
+    hex: "#D16282",
+    bg: "linear-gradient(180deg, #E387A0 0%, #D16282 52%, #B94769 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(185,71,105,0.25)",
+    ring: "#B94769",
+  },
+  {
+    name: "Crimson",
+    hex: "#C24141",
+    bg: "linear-gradient(180deg, #D86262 0%, #C24141 52%, #A52828 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(165,40,40,0.25)",
+    ring: "#A52828",
+  },
+  {
+    name: "Amber",
+    hex: "#DD8447",
+    bg: "linear-gradient(180deg, #EDA470 0%, #DD8447 52%, #C56726 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(197,103,38,0.25)",
+    ring: "#C56726",
+  },
+  {
+    name: "Yellow",
+    hex: "#E5B52C",
+    bg: "linear-gradient(180deg, #F2CD57 0%, #E5B52C 52%, #CD9A12 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(205,154,18,0.28)",
+    ring: "#CD9A12",
+  },
+  {
+    name: "Teal",
+    hex: "#3A9A8D",
+    bg: "linear-gradient(180deg, #5CB8AB 0%, #3A9A8D 52%, #257C70 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(37,124,112,0.25)",
+    ring: "#257C70",
+  },
+  {
+    name: "Blue",
+    hex: "#2E7BC6",
+    bg: "linear-gradient(180deg, #579ADB 0%, #2E7BC6 52%, #185FA6 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(24,95,166,0.25)",
+    ring: "#185FA6",
+  },
+  {
+    name: "Lavender",
+    hex: "#8F67B8",
+    bg: "linear-gradient(180deg, #AD88D0 0%, #8F67B8 52%, #724999 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(114,73,153,0.25)",
+    ring: "#724999",
+  },
+  {
+    name: "Emerald",
+    hex: "#3E8C49",
+    bg: "linear-gradient(180deg, #62AF6B 0%, #3E8C49 52%, #287032 100%)",
+    sheen: "linear-gradient(180deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%)",
+    border: "rgba(40,112,50,0.25)",
+    ring: "#287032",
+  },
 ];
 
 function CollectContent() {
@@ -31,6 +94,7 @@ function CollectContent() {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [activeColor, setActiveColor] = useState(initialColor);
   const [hovered, setHovered] = useState(null);
+  const [colorHovered, setColorHovered] = useState(null);
 
   const { openArtwork, openInquiry } = useArtModal();
 
@@ -137,25 +201,71 @@ function CollectContent() {
             </span>
             {paletteColors.map((col) => {
               const isSelected = activeColor === col.name;
+              const isColorHovered = colorHovered === col.name;
               return (
                 <button
                   key={col.name}
+                  aria-label={col.name}
+                  title={col.name}
+                  onMouseEnter={() => setColorHovered(col.name)}
+                  onMouseLeave={() => setColorHovered(null)}
                   onClick={() => setActiveColor(col.name)}
                   style={{
-                    backgroundColor: col.bg,
-                    color: col.text,
-                    border: `1px solid ${col.border}`,
+                    width: "3rem",
+                    height: "1.85rem",
+                    borderRadius: "999px",
+                    padding: 0,
+                    border: isSelected
+                      ? `1.5px solid #FFFFFF`
+                      : `1px solid ${col.border}`,
+                    cursor: "pointer",
+                    flexShrink: 0,
+                    background: col.bg,
+                    position: "relative",
+                    overflow: "hidden",
+                    isolation: "isolate",
                     boxShadow: isSelected
-                      ? "0 0 0 2px #FAFAF8, 0 0 0 4px #1C1C1C, 0 4px 10px rgba(0,0,0,0.2)"
-                      : "0 1px 3px rgba(0,0,0,0.12)",
-                    transform: isSelected ? "scale(1.06)" : "scale(1)",
+                      ? `0 0 0 1px ${col.ring} inset, 0 0 10px ${col.ring}66, 0 3px 7px rgba(0,0,0,0.16)`
+                      : isColorHovered
+                      ? `0 1px 4px rgba(0,0,0,0.14), 0 0 0 1px rgba(255,255,255,0.25) inset`
+                      : `0 1px 2px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2) inset`,
+                    transform: isSelected
+                      ? "translateY(-1px)"
+                      : isColorHovered
+                      ? "translateY(-0.5px)"
+                      : "translateY(0)",
+                    transition:
+                      "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
                   }}
-                  className="px-3.5 py-1.5 rounded-full text-xs font-sans tracking-wide transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer font-medium hover:opacity-95"
+                  className="flex items-center justify-center"
                 >
+                  <span
+                    aria-hidden
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "999px",
+                      background: col.sheen,
+                      mixBlendMode: "screen",
+                      pointerEvents: "none",
+                    }}
+                  />
                   {isSelected && (
-                    <span className="text-[10px] font-bold">✓</span>
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "relative",
+                        zIndex: 2,
+                        color: "#FFFFFF",
+                        fontSize: "0.62rem",
+                        fontWeight: 800,
+                        letterSpacing: "0.05em",
+                        textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      ✓
+                    </span>
                   )}
-                  <span>{col.name}</span>
                 </button>
               );
             })}
