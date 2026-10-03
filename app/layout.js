@@ -2,7 +2,7 @@ import "./globals.css";
 import { ArtModalProvider } from "../components/ArtModalContext";
 
 export const metadata = {
-  title: "ARTWORK | Nancy Sikri",
+  title: "Kala Samputah | Nancy Sikri",
   description: "Self-taught abstract artist based in New Delhi",
 };
 

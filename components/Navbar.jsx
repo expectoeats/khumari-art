@@ -79,7 +79,7 @@ export default function Navbar() {
               className="text-brand-dark tracking-[0.28em] uppercase"
               style={{ fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: "1.15rem" }}
             >
-              KHUMARI
+              KALA SAMPUTAH
             </span>
           </Link>
 

@@ -21,6 +21,19 @@ export default function Footer() {
           <div className="space-y-6">
             <div>
               <p
+                className="text-brand-cream mb-0.5"
+                style={{
+                  fontFamily: "'Jost', sans-serif",
+                  fontWeight: 300,
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.28em",
+                  textTransform: "uppercase",
+                  color: "#C9A96E",
+                }}
+              >
+                Kala Samputah
+              </p>
+              <p
                 className="text-brand-cream mb-1"
                 style={{
                   fontFamily: "'DM Serif Display', serif",
@@ -184,7 +197,7 @@ export default function Footer() {
             letterSpacing: "0.06em",
           }}
         >
-          © 2026 Nancy Sikri
+          © 2026 Kala Samputah · Nancy Sikri
         </p>
         <p
           style={{

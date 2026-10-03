@@ -22,7 +22,7 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `Hello Nancy / Khumari Art Studio,\n\nI am interested in inquiring about the original artwork:\n*${artwork.title}*\nArtist: ${artwork.artist || "Nancy Sikri"}\nMedium: ${artwork.medium || "Painting"}\nDimensions: ${artwork.size || "Original Canvas"}\n\nCould you please share details on availability, pricing, and crating/delivery?`
+    `Hello Nancy / Kala Samputah,\n\nI am interested in inquiring about the original artwork:\n*${artwork.title}*\nArtist: ${artwork.artist || "Nancy Sikri"}\nMedium: ${artwork.medium || "Painting"}\nDimensions: ${artwork.size || "Original Canvas"}\n\nCould you please share details on availability, pricing, and crating/delivery?`
   );
 
   const whatsappUrl = `https://wa.me/919818817291?text=${whatsappMessage}`;
@@ -88,7 +88,7 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
                 Inquiry Received
               </h4>
               <p className="text-sm text-brand-muted font-sans max-w-md mx-auto leading-relaxed mb-6">
-                Thank you for your interest in <em>"{artwork.title}"</em>. Studio Khumari / Nancy Sikri will review your request and get back to you directly within 24 hours.
+                Thank you for your interest in <em>"{artwork.title}"</em>. Kala Samputah / Nancy Sikri will review your request and get back to you directly within 24 hours.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <a
