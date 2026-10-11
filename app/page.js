@@ -7,6 +7,7 @@ import TopPicks       from "../components/TopPicks";
 import ColorPicker    from "../components/ColorPicker";
 import StoryOfTheDay  from "../components/StoryOfTheDay";
 import AboutArtist    from "../components/AboutArtist";
+import Newsletter     from "../components/Newsletter";
 import Footer         from "../components/Footer";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
       <ColorPicker />
       <StoryOfTheDay />
       <AboutArtist />
+      <Newsletter />
       <Footer />
     </main>
   );

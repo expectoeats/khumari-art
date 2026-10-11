@@ -70,7 +70,7 @@ export default function JournalPage() {
       <Navbar />
 
       {/* ── Hero — newspaper masthead over artwork ── */}
-      <section className="relative w-full overflow-hidden" style={{ height: "75vh", minHeight: "480px" }}>
+      <section className="relative w-full overflow-hidden" style={{ height: "60vh", minHeight: "340px" }}>
 
         {/* Background artwork — featured post cover */}
         {featured && (

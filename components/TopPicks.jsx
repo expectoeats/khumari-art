@@ -88,6 +88,9 @@ export default function TopPicks() {
   const [active, setActive] = useState(2); // center card
   const { openArtwork, openInquiry } = useArtModal();
 
+  const prev = () => setActive(p => Math.max(0, p - 1));
+  const next = () => setActive(p => Math.min(picks.length - 1, p + 1));
+
   const handleCardClick = (i, isCenter, pick) => {
     if (isCenter) {
       openArtwork(pick);
@@ -117,7 +120,33 @@ export default function TopPicks() {
       </div>
 
       {/* Fan carousel */}
-      <div className="relative flex items-center justify-center h-[320px] md:h-[420px]">
+      <div className="relative flex items-center justify-center h-[300px] sm:h-[360px] md:h-[420px]">
+
+        {/* Prev arrow — mobile visible */}
+        <button
+          onClick={prev}
+          disabled={active === 0}
+          aria-label="Previous"
+          className="absolute left-3 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-brand-sand/60 bg-white/80 text-brand-dark disabled:opacity-30 transition-opacity md:hidden"
+          style={{ top: "50%", transform: "translateY(-50%)" }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M7.5 2L4 6l3.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
+        {/* Next arrow — mobile visible */}
+        <button
+          onClick={next}
+          disabled={active === picks.length - 1}
+          aria-label="Next"
+          className="absolute right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-brand-sand/60 bg-white/80 text-brand-dark disabled:opacity-30 transition-opacity md:hidden"
+          style={{ top: "50%", transform: "translateY(-50%)" }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M4.5 2L8 6l-3.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
         {picks.map((pick, i) => {
           const offset = i - active;
           const style  = getCardStyle(offset);
@@ -127,7 +156,7 @@ export default function TopPicks() {
             <div
               key={i}
               onClick={() => handleCardClick(i, isCenter, pick)}
-              className="absolute cursor-pointer w-[200px] h-[280px] md:w-[260px] md:h-[360px]"
+              className="absolute cursor-pointer w-[170px] h-[240px] sm:w-[210px] sm:h-[290px] md:w-[260px] md:h-[360px]"
               style={{
                 transition: "transform 0.5s cubic-bezier(0.34,1.2,0.64,1), opacity 0.4s ease, z-index 0s",
                 ...style,

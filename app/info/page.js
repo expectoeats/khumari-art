@@ -7,6 +7,136 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { FaArrowRight, FaInstagram, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 
+// ── Inline contact form ───────────────────────────────────────────────────────
+function ContactForm() {
+  const [form, setForm]     = useState({ name: "", email: "", message: "" });
+  const [sent, setSent]     = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim())    e.name    = "Please enter your name.";
+    if (!form.email.includes("@")) e.email = "Please enter a valid email.";
+    if (!form.message.trim()) e.message = "Please write a message.";
+    return e;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    try {
+      await fetch("/api/inquiries", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:    form.name,
+          email:   form.email,
+          message: form.message,
+          source:  "contact_form",
+        }),
+      });
+    } catch (err) {
+      console.error("[CONTACT FORM]", err);
+    }
+    // Also open mail client as fallback
+    const subject = encodeURIComponent(`Studio Inquiry from ${form.name}`);
+    const body    = encodeURIComponent(`Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`);
+    window.open(`mailto:ratulm28@gmail.com?subject=${subject}&body=${body}`, "_blank");
+    setSent(true);
+  };
+
+  const field = (id, label, type = "text", rows) => (
+    <div key={id}>
+      <label
+        htmlFor={id}
+        style={{
+          fontFamily: "'Jost', sans-serif",
+          fontSize: "0.58rem",
+          letterSpacing: "0.28em",
+          textTransform: "uppercase",
+          color: "rgba(245,240,232,0.35)",
+          display: "block",
+          marginBottom: "0.5rem",
+        }}
+      >
+        {label}
+      </label>
+      {rows ? (
+        <textarea
+          id={id}
+          rows={rows}
+          value={form[id]}
+          onChange={(e) => { setForm(f => ({ ...f, [id]: e.target.value })); setErrors(er => ({ ...er, [id]: "" })); }}
+          style={{
+            width: "100%",
+            background: "rgba(245,240,232,0.05)",
+            border: `1px solid ${errors[id] ? "#C9A96E" : "rgba(245,240,232,0.1)"}`,
+            color: "#F5F0E8",
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: "1rem",
+            padding: "0.8rem 1rem",
+            outline: "none",
+            resize: "vertical",
+            lineHeight: 1.7,
+          }}
+        />
+      ) : (
+        <input
+          id={id}
+          type={type}
+          value={form[id]}
+          onChange={(e) => { setForm(f => ({ ...f, [id]: e.target.value })); setErrors(er => ({ ...er, [id]: "" })); }}
+          style={{
+            width: "100%",
+            background: "rgba(245,240,232,0.05)",
+            border: `1px solid ${errors[id] ? "#C9A96E" : "rgba(245,240,232,0.1)"}`,
+            color: "#F5F0E8",
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: "1rem",
+            padding: "0.8rem 1rem",
+            outline: "none",
+          }}
+        />
+      )}
+      {errors[id] && (
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "0.8rem", color: "rgba(201,169,110,0.7)", marginTop: "0.35rem" }}>
+          {errors[id]}
+        </p>
+      )}
+    </div>
+  );
+
+  if (sent) {
+    return (
+      <div style={{ border: "1px solid rgba(201,169,110,0.2)", padding: "2.5rem", textAlign: "center" }}>
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "1.2rem", color: "#C9A96E", marginBottom: "0.5rem" }}>
+          Message sent.
+        </p>
+        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "0.9rem", color: "rgba(245,240,232,0.35)" }}>
+          Your mail client will open to complete delivery. Nancy usually responds within 24 hours.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      {field("name",    "Your name")}
+      {field("email",   "Your email", "email")}
+      {field("message", "Your message", "text", 5)}
+      <button
+        type="submit"
+        className="btn-dark inline-flex items-center justify-center gap-2 px-10 py-4 mt-2"
+        style={{ background: "#C9A96E", color: "#111010" }}
+      >
+        Send message
+        <FaArrowRight className="text-[10px]" />
+      </button>
+    </form>
+  );
+}
+
 const faqs = [
   {
     q: "How do I inquire about purchasing a work?",
@@ -96,8 +226,8 @@ export default function InfoPage() {
             {steps.map((step, i) => (
               <div
                 key={step.n}
-                className="group relative px-0 md:px-8 py-8"
-                style={{ borderLeft: i > 0 ? "1px solid #E8DDD0" : "none" }}
+                className={`group relative px-0 md:px-8 py-8 
+                  ${i > 0 ? "border-t border-[#E8DDD0] md:border-t-0 md:border-l md:border-[#E8DDD0]" : ""}`}
               >
                 <p style={{
                   fontFamily: "'DM Serif Display', serif",
@@ -264,17 +394,9 @@ export default function InfoPage() {
             </div>
           </div>
 
-          {/* Right — image */}
-          <div className="relative overflow-hidden hidden md:block"
-            style={{ borderRadius: "6px", aspectRatio: "4/3" }}>
-            <Image
-              src="/art/818988016_18116134361070803_5613175907062480033_n.jpg"
-              alt="Studio"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0"
-              style={{ background: "linear-gradient(135deg, rgba(20,18,16,0.3) 0%, transparent 60%)" }} />
+          {/* Right — contact form */}
+          <div>
+            <ContactForm />
           </div>
         </div>
       </section>

@@ -16,8 +16,25 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
 
   if (!isOpen || !artwork) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      await fetch("/api/inquiries", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:         formData.name,
+          email:        formData.email,
+          phone:        formData.phone || "",
+          message:      formData.message || `City: ${formData.city || "—"}`,
+          artworkId:    artwork._id || artwork.id?.toString() || "",
+          artworkTitle: artwork.title,
+          source:       "artwork",
+        }),
+      });
+    } catch (err) {
+      console.error("[INQUIRY SUBMIT]", err);
+    }
     setSubmitted(true);
   };
 

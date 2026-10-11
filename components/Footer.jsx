@@ -6,6 +6,7 @@ const footerNav = [
   { label: "Artists",   href: "/artists" },
   { label: "The Edits", href: "/edits"   },
   { label: "Journal",   href: "/journal" },
+  { label: "Blog",      href: "/blog"    },
   { label: "About",     href: "/info"    },
 ];
 
@@ -73,8 +74,8 @@ export default function Footer() {
             <div className="flex gap-4 pt-2">
               {[
                 { Icon: FaInstagram,  href: "https://www.instagram.com/kala_samputah" },
-                { Icon: FaFacebookF,  href: "#" },
-                { Icon: FaPinterestP, href: "#" },
+                { Icon: FaFacebookF,  href: "https://www.facebook.com/kalasamputah" },
+                { Icon: FaPinterestP, href: "https://www.pinterest.com/kalasamputah" },
               ].map(({ Icon, href }, i) => (
                 <a
                   key={i}

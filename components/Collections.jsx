@@ -18,10 +18,10 @@ export default function Collections() {
           <div className="divider w-24 mx-auto mt-4" />
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+        {/* Grid — horizontal scroll on mobile, 3-col grid on desktop */}
+        <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory pb-2 md:pb-0 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
           {categories.map((cat, i) => (
-            <div key={i} className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden group cursor-pointer">
+            <div key={i} className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden group cursor-pointer flex-shrink-0 w-[75%] md:w-auto snap-start rounded-lg md:rounded-none">
               <Image src={cat.src} alt={cat.label} fill className="object-cover img-zoom" />
 
               {/* Overlays */}
@@ -29,7 +29,7 @@ export default function Collections() {
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
               {/* Label */}
-              <div className="absolute inset-0 flex items-end justify-start p-8">
+              <div className="absolute inset-0 flex items-end justify-start p-6 md:p-8">
                 <div>
                   <p
                     className="text-white tracking-[0.28em] uppercase mb-2"
