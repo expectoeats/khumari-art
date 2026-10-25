@@ -45,7 +45,7 @@ export default function AdminLogin() {
           <p style={{ fontSize: "0.6rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.4rem" }}>
             Kala Samputah
           </p>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontSize: "1.8rem", color: "#F5F0E8" }}>
+          <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.8rem", color: "#F5F0E8" }}>
             Admin
           </h1>
         </div>

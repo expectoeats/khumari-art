@@ -19,7 +19,7 @@ export default function NotFound() {
         <Link
           href="/"
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontStyle: "italic",
             fontSize: "1.35rem",
             color: "#4A2818",
@@ -88,7 +88,7 @@ export default function NotFound() {
                     <span
                       key={i}
                       style={{
-                        fontFamily: "'DM Serif Display', serif",
+                        fontFamily: "'Beausite Classic', serif",
                         fontWeight: 900,
                         fontSize: "18vw",
                         lineHeight: 0.9,
@@ -130,7 +130,7 @@ export default function NotFound() {
         <p
           className="relative z-10 text-center px-6"
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontStyle: "italic",
             fontSize: "clamp(0.88rem, 1.6vw, 1.05rem)",
             color: "rgba(74,40,24,0.55)",

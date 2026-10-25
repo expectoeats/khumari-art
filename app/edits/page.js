@@ -114,7 +114,7 @@ export default function EditsPage() {
           </p>
           <h1
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "clamp(1.8rem, 6vw, 2.8rem)",
               color: "#F5F0E8",
@@ -214,7 +214,7 @@ export default function EditsPage() {
               >
                 <p
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontStyle: "italic",
                     fontSize: "0.78rem",
                     color: "rgba(201,169,110,0.7)",
@@ -232,7 +232,7 @@ export default function EditsPage() {
 
                 <h2
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontWeight: 400,
                     fontSize: isActive ? "clamp(1.4rem, 2.5vw, 2.2rem)" : "0.9rem",
                     color: "#F5F0E8",
@@ -249,7 +249,7 @@ export default function EditsPage() {
 
                 <p
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontStyle: "italic",
                     fontSize: "0.82rem",
                     color: "rgba(245,240,232,0.45)",
@@ -508,7 +508,7 @@ export default function EditsPage() {
       <section className="py-12 md:py-16 px-6 md:px-10 border-t border-brand-sand/50" style={{ background: "#F5F0E8" }}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <p style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontStyle: "italic",
             fontSize: "clamp(1.2rem, 2.5vw, 1.8rem)",
             color: "#1C1C1C",

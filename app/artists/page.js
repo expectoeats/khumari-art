@@ -60,7 +60,7 @@ export default function ArtistsPage() {
           {/* Center — big name */}
           <div className="my-8 md:my-0">
             <h1 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "clamp(3.4rem, 12vw, 8.5rem)",
               lineHeight: 0.9,
@@ -71,7 +71,7 @@ export default function ArtistsPage() {
             </h1>
             {/* Second line — indented, italic gold */}
             <h1 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontStyle: "italic",
               fontSize: "clamp(3.4rem, 12vw, 8.5rem)",
@@ -85,7 +85,7 @@ export default function ArtistsPage() {
 
             {/* Single raw line below name */}
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "clamp(0.9rem, 1.4vw, 1.1rem)",
               color: "rgba(245,240,232,0.35)",
@@ -167,7 +167,7 @@ export default function ArtistsPage() {
           {/* Right — statement text */}
           <div>
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 300,
               fontSize: "clamp(1.4rem, 3.5vw, 2.6rem)",
               lineHeight: 1.45,
@@ -182,7 +182,7 @@ export default function ArtistsPage() {
             <div style={{ height: "1px", background: "#E8DDD0", margin: "2rem 0 md:2.5rem 0" }} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8" style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontSize: "clamp(0.98rem, 2.5vw, 1.05rem)",
               lineHeight: 1.8,
               color: "#2A2A2A",
@@ -214,7 +214,7 @@ export default function ArtistsPage() {
             className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
             aria-hidden="true"
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontWeight: 300,
               fontSize: "clamp(3.5rem, 16vw, 12rem)",
@@ -226,7 +226,7 @@ export default function ArtistsPage() {
           </span>
           <p className="relative section-title mb-2">How it's made</p>
           <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontWeight: 300,
             fontSize: "clamp(1.6rem, 4vw, 3rem)",
             color: "#1C1C1C",
@@ -248,7 +248,7 @@ export default function ArtistsPage() {
             >
               {/* Number */}
               <p style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontWeight: 300,
                 fontSize: "clamp(2.8rem, 6vw, 4rem)",
                 color: "rgba(201,169,110,0.25)",
@@ -262,7 +262,7 @@ export default function ArtistsPage() {
               </p>
 
               <h3 style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontWeight: 500,
                 fontSize: "1.2rem",
                 color: "#1C1C1C",
@@ -273,7 +273,7 @@ export default function ArtistsPage() {
               </h3>
 
               <p style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontSize: "0.95rem",
                 lineHeight: 1.75,
                 color: "#6B5F55",
@@ -318,7 +318,7 @@ export default function ArtistsPage() {
               A life in art
             </p>
             <h2 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 300,
               fontSize: "clamp(1.8rem, 4vw, 3.2rem)",
               color: "#F5F0E8",
@@ -340,7 +340,7 @@ export default function ArtistsPage() {
               >
                 {/* Year */}
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 300,
                   fontSize: "clamp(1.2rem, 3vw, 1.5rem)",
                   color: activeYear === item.year ? "#C9A96E" : "rgba(245,240,232,0.3)",
@@ -365,7 +365,7 @@ export default function ArtistsPage() {
 
                 {/* Event text */}
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontStyle: activeYear === item.year ? "normal" : "italic",
                   fontSize: "clamp(0.92rem, 2.5vw, 1.05rem)",
                   color: activeYear === item.year ? "#F5F0E8" : "rgba(232,221,208,0.45)",
@@ -393,7 +393,7 @@ export default function ArtistsPage() {
             <div>
               <p className="section-title mb-2">Selected works</p>
               <h2 style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontWeight: 300,
                 fontSize: "clamp(1.6rem, 4vw, 3rem)",
                 color: "#1C1C1C",
@@ -438,7 +438,7 @@ export default function ArtistsPage() {
 
                 <div className="absolute bottom-5 left-5 right-5">
                   <p style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontWeight: 500,
                     fontSize: "1rem",
                     color: "#F5F0E8",
@@ -447,7 +447,7 @@ export default function ArtistsPage() {
                     {work.title}
                   </p>
                   <p style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontStyle: "italic",
                     fontSize: "0.8rem",
                     color: "rgba(245,240,232,0.55)",
@@ -476,7 +476,7 @@ export default function ArtistsPage() {
 
           <div>
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "clamp(1.3rem, 3vw, 2rem)",
               color: "#1C1C1C",

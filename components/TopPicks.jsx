@@ -105,7 +105,7 @@ export default function TopPicks() {
       <div className="text-center mb-12 md:mb-16">
         <h2
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontWeight: 400,
             fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
             color: "#1C1C1C",
@@ -194,7 +194,7 @@ export default function TopPicks() {
                     style={{
                       background: "rgba(28,28,28,0.7)",
                       backdropFilter: "blur(6px)",
-                      fontFamily: "'DM Serif Display', serif",
+                      fontFamily: "'Beausite Classic', serif",
                       fontSize: "0.72rem",
                       color: "#F5F0E8",
                       letterSpacing: "0.06em",
@@ -211,7 +211,7 @@ export default function TopPicks() {
                   <div className="absolute bottom-4 left-4 right-4 text-left">
                     <p
                       style={{
-                        fontFamily: "'DM Serif Display', serif",
+                        fontFamily: "'Beausite Classic', serif",
                         fontWeight: 600,
                         fontSize: "1.05rem",
                         color: "#FFFFFF",
@@ -223,7 +223,7 @@ export default function TopPicks() {
                     </p>
                     <p
                       style={{
-                        fontFamily: "'DM Serif Display', serif",
+                        fontFamily: "'Beausite Classic', serif",
                         fontSize: "0.78rem",
                         color: "rgba(255,255,255,0.75)",
                         fontStyle: "italic",

@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { allWorks } from "../../components/data";
 import { FaArrowRight, FaHeart, FaRegHeart, FaSignOutAlt } from "react-icons/fa";
+import { useArtModal } from "../../components/ArtModalContext";
 
 export default function ProfilePage() {
   const [user,      setUser]      = useState(null);
@@ -13,6 +15,8 @@ export default function ProfilePage() {
   const [inquiries, setInquiries] = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [tab,       setTab]       = useState("wishlist");
+  const [saving,    setSaving]    = useState(false);
+  const [savedMsg,  setSavedMsg]  = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -37,6 +41,34 @@ export default function ProfilePage() {
     load();
   }, []);
 
+  const saveProfile = async (e) => {
+    e.preventDefault();
+    if (!user) return;
+    setSaving(true);
+    setSavedMsg("");
+    try {
+      const res = await fetch("/api/user/profile", {
+        method:  "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone:    document.getElementById("profile-phone")?.value || "",
+          whatsapp: document.getElementById("profile-whatsapp")?.value || "",
+          address:  document.getElementById("profile-address")?.value || "",
+          city:     document.getElementById("profile-city")?.value || "",
+          country:  document.getElementById("profile-country")?.value || "",
+        }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const data = await res.json();
+      setUser(data.user);
+      setSavedMsg("Details saved successfully.");
+    } catch {
+      setSavedMsg("Could not save details. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleLogout = async () => {
     await fetch("/api/user/logout", { method: "POST" });
     window.location.href = "/";
@@ -47,7 +79,7 @@ export default function ProfilePage() {
       <div className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", color: "#8B7355", fontSize: "1.1rem" }}>
+          <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", color: "#8B7355", fontSize: "1.1rem" }}>
             Loading…
           </p>
         </div>
@@ -76,7 +108,7 @@ export default function ProfilePage() {
                 background: "#1C1C1C", border: "2px solid #C9A96E",
               }}
             >
-              <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.4rem", color: "#C9A96E", fontStyle: "italic" }}>
+              <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#C9A96E", fontStyle: "italic" }}>
                 {user.name?.charAt(0)?.toUpperCase()}
               </span>
             </div>
@@ -85,10 +117,10 @@ export default function ProfilePage() {
               <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.25rem" }}>
                 Collector
               </p>
-              <h1 style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C", lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C", lineHeight: 1.1 }}>
                 {user.name}
               </h1>
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "0.9rem", color: "#8B7355", marginTop: "0.2rem" }}>
+              <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "0.9rem", color: "#8B7355", marginTop: "0.2rem" }}>
                 {user.email}
               </p>
             </div>
@@ -97,7 +129,7 @@ export default function ProfilePage() {
           {/* Stats + logout */}
           <div className="flex items-center gap-8">
             <div className="text-center">
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontSize: "2rem", color: "#1C1C1C", lineHeight: 1 }}>
+              <p style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "2rem", color: "#1C1C1C", lineHeight: 1 }}>
                 {wishlist.length}
               </p>
               <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
@@ -140,7 +172,7 @@ export default function ProfilePage() {
                 background: "none", border: "none", cursor: "pointer",
               }}
             >
-              {t === "wishlist" ? `Wishlist (${wishlist.length})` : "Inquiries"}
+              {t === "wishlist" ? `Wishlist (${wishlist.length})` : t === "inquiries" ? "Inquiries" : "Account Details"}
               {tab === t && (
                 <span className="absolute bottom-0 left-5 right-5" style={{ height: "2px", background: "#1C1C1C" }} />
               )}
@@ -157,7 +189,7 @@ export default function ProfilePage() {
           wishlist.length === 0 ? (
             <div className="text-center py-20">
               <FaRegHeart style={{ fontSize: "2rem", color: "#E8DDD0", marginBottom: "1rem", display: "block", margin: "0 auto 1rem" }} />
-              <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
+              <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
                 No saved artworks yet.
               </p>
               <Link
@@ -182,12 +214,97 @@ export default function ProfilePage() {
         {/* Inquiries tab */}
         {tab === "inquiries" && (
           <div className="text-center py-20">
-            <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
+            <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
               Inquiry history coming soon.
             </p>
             <Link href="/info" className="btn-outline inline-flex items-center gap-2 px-8 py-3.5 mt-6">
               Contact studio <FaArrowRight className="text-[10px]" />
             </Link>
+          </div>
+        )}
+
+        {/* Account Details tab */}
+        {tab === "account" && (
+          <div className="space-y-6">
+            <p className="section-title mb-8">Collector details</p>
+            <p className="text-sm text-brand-muted font-sans mb-6">
+              Fill these once and they auto-fill across every inquiry form on the site.
+            </p>
+
+            {savedMsg && (
+              <p className="text-sm font-sans text-emerald-700 bg-emerald-50 px-4 py-3 rounded border border-emerald-100">
+                {savedMsg}
+              </p>
+            )}
+
+            <form onSubmit={saveProfile} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">Phone</label>
+                <input
+                  id="profile-phone"
+                  type="tel"
+                  defaultValue={user.phone || ""}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans disabled:bg-[#F2EEE6]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">WhatsApp</label>
+                <input
+                  id="profile-whatsapp"
+                  type="tel"
+                  defaultValue={user.whatsapp || ""}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans disabled:bg-[#F2EEE6]"
+                />
+              </div>
+              <div className="md:col-span-3 space-y-2">
+                <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">Address</label>
+                <input
+                  id="profile-address"
+                  type="text"
+                  defaultValue={user.address || ""}
+                  placeholder="Flat 4B, Rose Apartments, Connaught Place, New Delhi"
+                  className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans disabled:bg-[#F2EEE6]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">City</label>
+                <input
+                  id="profile-city"
+                  type="text"
+                  defaultValue={user.city || ""}
+                  placeholder="New Delhi"
+                  className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans disabled:bg-[#F2EEE6]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">Country</label>
+                <input
+                  id="profile-country"
+                  type="text"
+                  defaultValue={user.country || ""}
+                  placeholder="India"
+                  className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans disabled:bg-[#F2EEE6]"
+                />
+              </div>
+              <div className="md:col-span-3 flex gap-3 pt-1">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="flex-1 py-3 px-6 bg-brand-dark hover:bg-brand-warm text-brand-cream rounded text-xs tracking-widest uppercase font-sans font-medium transition-all shadow hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saving ? "Saving…" : "Save Details"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSavedMsg("")}
+                  className="px-6 py-3 rounded border border-[#DFD6C8] bg-white text-brand-dark text-xs tracking-widest uppercase font-sans font-medium transition-colors hover:bg-[#F2EEE6]"
+                >
+                  Clear message
+                </button>
+              </div>
+            </form>
           </div>
         )}
       </section>
@@ -197,30 +314,99 @@ export default function ProfilePage() {
   );
 }
 
-// ── Wishlist card — fetches artwork by ID from static data ──────────────────
+// ── Wishlist card — fetches artwork by ID from static data or database ──────
 function WishlistCard({ artworkId, onRemove }) {
-  // For now use static data since artworks aren't seeded to MongoDB yet
-  // This will auto-work once seed is done
-  return (
-    <div className="group hover-lift cursor-pointer flex flex-col">
-      <div className="art-card-img relative aspect-[3/4] overflow-hidden mb-0 bg-brand-beige">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "0.8rem", color: "#8B7355" }}>
-            Artwork
+  const { openArtwork } = useArtModal();
+  const idStr = typeof artworkId === "object" && artworkId !== null ? (artworkId._id || artworkId.id) : artworkId;
+
+  const [artwork, setArtwork] = useState(() => {
+    if (typeof artworkId === "object" && artworkId !== null && (artworkId.src || artworkId.title)) {
+      return artworkId;
+    }
+    return allWorks.find(w => String(w.id) === String(idStr) || String(w._id) === String(idStr) || String(w.title) === String(idStr)) || null;
+  });
+
+  useEffect(() => {
+    if (!artwork && idStr) {
+      let active = true;
+      fetch(`/api/artworks/${idStr}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (active && data?.artwork) {
+            setArtwork(data.artwork);
+          }
+        })
+        .catch(() => {});
+      return () => { active = false; };
+    }
+  }, [idStr, artwork]);
+
+  const handleRemove = async (e) => {
+    e.stopPropagation();
+    try {
+      await fetch("/api/user/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artworkId: idStr }),
+      });
+      onRemove();
+    } catch {}
+  };
+
+  if (!artwork) {
+    return (
+      <div className="group hover-lift cursor-pointer flex flex-col">
+        <div className="art-card-img relative aspect-[3/4] overflow-hidden mb-0 bg-brand-beige flex items-center justify-center p-4 text-center">
+          <p style={{ fontStyle: "italic", fontSize: "0.8rem", color: "#8B7355" }}>
+            Loading artwork…
           </p>
         </div>
+        <div className="px-3 pt-3 pb-4 flex items-center justify-between">
+          <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355" }}>
+            Saved
+          </p>
+          <button
+            onClick={handleRemove}
+            className="text-[0.62rem] tracking-widest uppercase"
+            style={{ fontFamily: "'Jost', sans-serif", color: "#C9A96E", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const imageSrc = artwork.src || (artwork.images && artwork.images[0]?.src) || "/art/823606039_18116134385070803_3865341406544213906_n.jpg";
+
+  return (
+    <div
+      className="group hover-lift cursor-pointer flex flex-col"
+      onClick={() => openArtwork(artwork)}
+    >
+      <div className="art-card-img relative aspect-[3/4] overflow-hidden mb-0 bg-brand-beige">
+        <Image
+          src={imageSrc}
+          alt={artwork.title || "Artwork"}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        {/* Remove button overlay */}
+        <button
+          onClick={handleRemove}
+          className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-white/90 hover:bg-red-50 shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+          title="Remove from wishlist"
+        >
+          <FaHeart className="text-red-500 text-xs" />
+        </button>
       </div>
       <div className="px-3 pt-3 pb-4">
-        <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355" }}>
-          Saved artwork
+        <h4 className="font-display text-sm text-brand-dark truncate leading-snug">
+          {artwork.title}
+        </h4>
+        <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
+          {artwork.medium || "Original Artwork"} {artwork.size ? `· ${artwork.size}` : ""}
         </p>
-        <button
-          onClick={onRemove}
-          className="mt-2 text-[0.62rem] tracking-widest uppercase border-b border-brand-accent/40 pb-0.5"
-          style={{ fontFamily: "'Jost', sans-serif", color: "#C9A96E", background: "none", border: "none", cursor: "pointer", padding: 0 }}
-        >
-          Remove
-        </button>
       </div>
     </div>
   );

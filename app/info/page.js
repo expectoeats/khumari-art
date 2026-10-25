@@ -73,7 +73,7 @@ function ContactForm() {
             background: "rgba(245,240,232,0.05)",
             border: `1px solid ${errors[id] ? "#C9A96E" : "rgba(245,240,232,0.1)"}`,
             color: "#F5F0E8",
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontSize: "1rem",
             padding: "0.8rem 1rem",
             outline: "none",
@@ -92,7 +92,7 @@ function ContactForm() {
             background: "rgba(245,240,232,0.05)",
             border: `1px solid ${errors[id] ? "#C9A96E" : "rgba(245,240,232,0.1)"}`,
             color: "#F5F0E8",
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontSize: "1rem",
             padding: "0.8rem 1rem",
             outline: "none",
@@ -100,7 +100,7 @@ function ContactForm() {
         />
       )}
       {errors[id] && (
-        <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "0.8rem", color: "rgba(201,169,110,0.7)", marginTop: "0.35rem" }}>
+        <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "0.8rem", color: "rgba(201,169,110,0.7)", marginTop: "0.35rem" }}>
           {errors[id]}
         </p>
       )}
@@ -110,10 +110,10 @@ function ContactForm() {
   if (sent) {
     return (
       <div style={{ border: "1px solid rgba(201,169,110,0.2)", padding: "2.5rem", textAlign: "center" }}>
-        <p style={{ fontFamily: "'DM Serif Display', serif", fontStyle: "italic", fontSize: "1.2rem", color: "#C9A96E", marginBottom: "0.5rem" }}>
+        <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1.2rem", color: "#C9A96E", marginBottom: "0.5rem" }}>
           Message sent.
         </p>
-        <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "0.9rem", color: "rgba(245,240,232,0.35)" }}>
+        <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "0.9rem", color: "rgba(245,240,232,0.35)" }}>
           Your mail client will open to complete delivery. Nancy usually responds within 24 hours.
         </p>
       </div>
@@ -193,7 +193,7 @@ export default function InfoPage() {
         <div className="absolute bottom-8 left-8 md:left-12 z-10">
           <h1
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "clamp(1.6rem, 4vw, 2.8rem)",
               color: "#F5F0E8",
@@ -212,7 +212,7 @@ export default function InfoPage() {
           <div className="mb-12 md:mb-16">
             <p className="section-title mb-2">Process</p>
             <h2 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 300,
               fontSize: "clamp(1.8rem, 4vw, 3rem)",
               color: "#1C1C1C",
@@ -230,7 +230,7 @@ export default function InfoPage() {
                   ${i > 0 ? "border-t border-[#E8DDD0] md:border-t-0 md:border-l md:border-[#E8DDD0]" : ""}`}
               >
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 300,
                   fontSize: "3rem",
                   color: "rgba(201,169,110,0.25)",
@@ -240,7 +240,7 @@ export default function InfoPage() {
                   {step.n}
                 </p>
                 <h3 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 500,
                   fontSize: "1.15rem",
                   color: "#1C1C1C",
@@ -249,7 +249,7 @@ export default function InfoPage() {
                   {step.title}
                 </h3>
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontSize: "0.95rem",
                   lineHeight: 1.75,
                   color: "#6B5F55",
@@ -267,7 +267,7 @@ export default function InfoPage() {
         <div className="max-w-3xl mx-auto">
           <p className="section-title mb-2 text-center">FAQ</p>
           <h2 className="text-center mb-12 md:mb-16" style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontWeight: 300,
             fontSize: "clamp(1.8rem, 4vw, 3rem)",
             color: "#1C1C1C",
@@ -287,7 +287,7 @@ export default function InfoPage() {
                   style={{ background: "none", border: "none", cursor: "pointer" }}
                 >
                   <p style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontWeight: openFaq === i ? 500 : 400,
                     fontSize: "1.1rem",
                     color: openFaq === i ? "#1C1C1C" : "#2A2A2A",
@@ -346,7 +346,7 @@ export default function InfoPage() {
               Get in touch
             </p>
             <h2 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 300,
               fontSize: "clamp(2rem, 4.5vw, 3.8rem)",
               lineHeight: 1.1,
@@ -369,7 +369,7 @@ export default function InfoPage() {
                     <a href={href} target={href.startsWith("http") ? "_blank" : undefined}
                       rel="noopener noreferrer"
                       style={{
-                        fontFamily: "'DM Serif Display', serif",
+                        fontFamily: "'Beausite Classic', serif",
                         fontSize: "1rem",
                         color: "rgba(245,240,232,0.5)",
                         textDecoration: "none",
@@ -382,7 +382,7 @@ export default function InfoPage() {
                     </a>
                   ) : (
                     <span style={{
-                      fontFamily: "'DM Serif Display', serif",
+                      fontFamily: "'Beausite Classic', serif",
                       fontSize: "1rem",
                       color: "rgba(245,240,232,0.35)",
                     }}>

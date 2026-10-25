@@ -51,7 +51,7 @@ export default function ArtCard(props) {
           </p>
           <p
             className="text-brand-charcoal text-sm italic mb-1 line-clamp-1"
-            style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400 }}
+            style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400 }}
           >
             {title}
           </p>

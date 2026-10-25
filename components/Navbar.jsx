@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaSearch, FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaHeart } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
+import { useUser } from "./UserContext";
 
 const navItems = [
   { label: "Collect",   href: "/collect"  },
@@ -18,20 +19,11 @@ export default function Navbar() {
   const [scrolled,    setScrolled]    = useState(false);
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [visible,     setVisible]     = useState(true);
-  const [user,        setUser]        = useState(null);  // null = not loaded, false = logged out
-  const [userLoaded,  setUserLoaded]  = useState(false);
+  const { user, loaded } = useUser(); // user: object | null; loaded: boolean
   const [dropdown,    setDropdown]    = useState(false);
   const dropRef   = useRef(null);
   const pathname  = usePathname();
   const { openInquiry } = useArtModal();
-
-  // Fetch user session on mount
-  useEffect(() => {
-    fetch("/api/user/me")
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { setUser(d?.user || false); setUserLoaded(true); })
-      .catch(() => { setUser(false); setUserLoaded(true); });
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -55,7 +47,6 @@ export default function Navbar() {
   const handleLogout = async () => {
     setDropdown(false);
     await fetch("/api/user/logout", { method: "POST" });
-    setUser(false);
     window.location.href = "/";
   };
 
@@ -110,7 +101,7 @@ export default function Navbar() {
             </button>
 
             {/* User section — desktop */}
-            {userLoaded && (
+            {loaded && (
               <div className="hidden md:block relative" ref={dropRef}>
                 {user ? (
                   /* Logged in — avatar + dropdown */
@@ -123,7 +114,7 @@ export default function Navbar() {
                       {/* Avatar circle with initial */}
                       <div className="flex items-center justify-center w-7 h-7 rounded-full"
                         style={{ background: "#1C1C1C", border: "1.5px solid #C9A96E" }}>
-                        <span style={{ fontFamily: "'DM Serif Display', serif", fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
+                        <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
                           {user.name?.charAt(0)?.toUpperCase()}
                         </span>
                       </div>

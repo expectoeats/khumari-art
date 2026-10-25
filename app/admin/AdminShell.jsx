@@ -9,6 +9,10 @@ const nav = [
   { label: "Artworks",   href: "/admin/artworks",   icon: "◻" },
   { label: "Blog Posts", href: "/admin/blogs",       icon: "✦" },
   { label: "Inquiries",  href: "/admin/inquiries",  icon: "✉" },
+  { label: "Orders",     href: "/admin/orders",     icon: "₊" },
+  { label: "Categories", href: "/admin/categories", icon: "▢" },
+  { label: "Tags",       href: "/admin/tags",       icon: "◷" },
+  { label: "Analytics",  href: "/admin/analytics",  icon: "↗" },
   { label: "Users",      href: "/admin/users",      icon: "◎" },
 ];
 

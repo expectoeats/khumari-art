@@ -1,24 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useUser } from "./UserContext";
 import { FaTimes, FaEnvelope, FaWhatsapp, FaCheckCircle, FaShieldAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function InquiryModal({ isOpen, onClose, artwork }) {
+  const { user, updateProfile } = useUser();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     city: "",
+    address: "",
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [filling, setFilling] = useState(false);
 
   if (!isOpen || !artwork) return null;
+
+  // Auto-fill form from logged-in user profile when modal opens / user loads
+  useEffect(() => {
+    if (!isOpen || !user) return;
+    setFilling(true);
+    setFormData({
+      name:  user.name  || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      city:  user.city  || "",
+      address: user.address || "",
+      message: "",
+    });
+    setFilling(false);
+  }, [isOpen, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // 1) Save inquiry to server
       await fetch("/api/inquiries", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,6 +52,17 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
           source:       "artwork",
         }),
       });
+
+      // 2) Persist user-filled details to profile so they auto-fill everywhere next time
+      const profileFields = {
+        phone:  formData.phone || "",
+        city:   formData.city || "",
+        address: formData.address || "",
+      };
+      if (user) {
+        const result = await updateProfile(profileFields);
+        if (!result.ok) console.warn("[PROFILE SYNC]", result.error);
+      }
     } catch (err) {
       console.error("[INQUIRY SUBMIT]", err);
     }
@@ -181,6 +212,18 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
                     placeholder="e.g. New Delhi, India"
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[0.68rem] tracking-wider uppercase text-brand-dark font-sans font-medium mb-1">
+                    Address (optional — saved for future inquiries)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Flat 4B, Rose Apartments, Connaught Place"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     className="w-full px-3.5 py-2.5 rounded border border-[#DFD6C8] bg-white focus:outline-none focus:border-brand-accent text-sm text-brand-dark font-sans"
                   />
                 </div>

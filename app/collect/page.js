@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { allWorks } from "../../components/data";
-import { FaSearchPlus, FaTimes, FaPalette, FaArrowRight } from "react-icons/fa";
+import { FaSearchPlus, FaTimes, FaArrowRight } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
 
 const categories = ["All", "Paintings", "Prints", "Photography"];
@@ -96,6 +96,11 @@ function CollectContent() {
   const [hovered, setHovered] = useState(null);
   const [colorHovered, setColorHovered] = useState(null);
 
+  // ── Wishlist state ──
+  const [wishlist, setWishlist] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [animatingHeart, setAnimatingHeart] = useState(null);
+
   const { openArtwork, openInquiry } = useArtModal();
 
   useEffect(() => {
@@ -105,12 +110,56 @@ function CollectContent() {
     if (cat) setActiveCategory(cat);
   }, [searchParams]);
 
+  // Fetch wishlist on mount
+  useEffect(() => {
+    let mounted = true;
+    const fetchWishlist = async () => {
+      try {
+        const res = await fetch("/api/user/wishlist");
+        const data = await res.json();
+        if (mounted && data.wishlist) setWishlist(data.wishlist);
+      } catch { /* ignore */ }
+    };
+    fetchWishlist();
+    return () => { mounted = false; };
+  }, []);
+
   // Combined filter
   const visible = allWorks.filter((work) => {
     const matchCategory = activeCategory === "All" || work.category === activeCategory;
     const matchColor = activeColor === "All" || work.color === activeColor;
     return matchCategory && matchColor;
   });
+
+  const toggleWishlist = async (artworkId, e) => {
+    if (e) e.stopPropagation();
+    setWishlistLoading(true);
+    const isCurrentlyAdded = wishlist.includes(artworkId);
+
+    // Optimistic update + trigger animation
+    setWishlist(prev => (isCurrentlyAdded ? prev.filter(id => id !== artworkId) : [...prev, artworkId]));
+    setAnimatingHeart(artworkId);
+
+    try {
+      const res = await fetch("/api/user/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artworkId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // Revert on failure
+        setWishlist(prev => (isCurrentlyAdded ? [...prev, artworkId] : prev.filter(id => id !== artworkId)));
+      } else {
+        setWishlist(data.wishlist || wishlist);
+      }
+    } catch {
+      setWishlist(prev => (isCurrentlyAdded ? [...prev, artworkId] : prev.filter(id => id !== artworkId)));
+    } finally {
+      setWishlistLoading(false);
+      setTimeout(() => setAnimatingHeart(null), 600);
+    }
+  };
 
   return (
     <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
@@ -137,7 +186,7 @@ function CollectContent() {
           </p>
           <h1
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "clamp(1.8rem, 4vw, 3rem)",
               color: "#F5F0E8",
@@ -312,6 +361,46 @@ function CollectContent() {
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
+                    {/* Heart — restrained, editorial */}
+                    <button
+                      onClick={(e) => toggleWishlist(work.id, e)}
+                      aria-label={wishlist.includes(work.id) ? "Remove from wishlist" : "Save to wishlist"}
+                      style={{
+                        position: "absolute",
+                        top: "0.6rem",
+                        right: "0.6rem",
+                        zIndex: 20,
+                        width: "2rem",
+                        height: "2rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: wishlist.includes(work.id)
+                          ? "rgba(28,28,28,0.85)"
+                          : "rgba(253,250,245,0.82)",
+                        backdropFilter: "blur(6px)",
+                        border: "none",
+                        cursor: "pointer",
+                        borderRadius: "2px",
+                        transition: "background 0.3s ease, transform 0.18s ease",
+                        transform: animatingHeart === work.id ? "scale(0.88)" : "scale(1)",
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill={wishlist.includes(work.id) ? "#C9A96E" : "none"}
+                        stroke={wishlist.includes(work.id) ? "#C9A96E" : "#1C1C1C"}
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ transition: "fill 0.3s ease, stroke 0.3s ease" }}
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2.5 p-4">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 text-brand-dark text-[0.68rem] tracking-wider uppercase font-sans font-medium shadow backdrop-blur-sm">
@@ -395,7 +484,7 @@ function CollectContent() {
           <div>
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontStyle: "italic",
                 fontSize: "0.95rem",
                 color: "#8B7355",
@@ -406,7 +495,7 @@ function CollectContent() {
             </p>
             <h3
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontWeight: 400,
                 fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
                 color: "#1C1C1C",

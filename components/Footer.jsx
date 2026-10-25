@@ -37,7 +37,7 @@ export default function Footer() {
               <p
                 className="text-brand-cream mb-1"
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 400,
                   fontSize: "1.6rem",
                   letterSpacing: "0.04em",
@@ -47,7 +47,7 @@ export default function Footer() {
               </p>
               <p
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontStyle: "italic",
                   fontSize: "0.95rem",
                   color: "#8B7355",
@@ -60,7 +60,7 @@ export default function Footer() {
 
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontSize: "1rem",
                 lineHeight: 1.8,
                 color: "rgba(232,221,208,0.45)",
@@ -95,7 +95,7 @@ export default function Footer() {
             <p
               className="mb-5"
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontStyle: "italic",
                 fontSize: "0.8rem",
                 color: "#8B7355",
@@ -110,7 +110,7 @@ export default function Footer() {
                 href={href}
                 className="block text-brand-sand/30 hover:text-brand-accent transition-colors duration-300"
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontSize: "1.05rem",
                   letterSpacing: "0.04em",
                   textDecoration: "none",
@@ -125,7 +125,7 @@ export default function Footer() {
           <div className="space-y-6">
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontStyle: "italic",
                 fontSize: "0.8rem",
                 color: "#8B7355",
@@ -138,7 +138,7 @@ export default function Footer() {
             <div className="space-y-1">
               <p
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontSize: "1.35rem",
                   fontWeight: 300,
                   color: "rgba(245,240,232,0.75)",
@@ -150,7 +150,7 @@ export default function Footer() {
               </p>
               <p
                 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontSize: "1.35rem",
                   fontWeight: 300,
                   fontStyle: "italic",
@@ -167,7 +167,7 @@ export default function Footer() {
               href="mailto:RATULM28@GMAIL.COM"
               className="inline-block text-brand-sand/40 hover:text-brand-accent border-b border-brand-accent/20 hover:border-brand-accent pb-0.5 transition-all duration-300"
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontSize: "0.85rem",
                 letterSpacing: "0.1em",
               }}
@@ -192,7 +192,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 md:px-16 py-6 flex flex-col sm:flex-row justify-between items-center gap-3">
         <p
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontSize: "0.78rem",
             color: "rgba(232,221,208,0.18)",
             letterSpacing: "0.06em",
@@ -202,7 +202,7 @@ export default function Footer() {
         </p>
         <p
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontStyle: "italic",
             fontSize: "0.78rem",
             color: "rgba(201,169,110,0.25)",

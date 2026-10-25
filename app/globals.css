@@ -1,4 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Jost:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Jost:wght@300;400;500;600;700&display=swap');
+
+/* ── Beausite Classic — local heading font (Light variant) ── */
+@font-face {
+  font-family: 'Beausite Classic';
+  src: url('/fonts/BeausiteClassicTrial-Light.otf') format('opentype');
+  font-weight: 100 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Beausite Classic';
+  src: url('/fonts/BeausiteClassicTrial-LightItalic.otf') format('opentype');
+  font-weight: 100 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Beausite Classic';
+  src: url('/fonts/BeausiteClassicTrial-Regular.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Beausite Classic';
+  src: url('/fonts/BeausiteClassicTrial-Medium.otf') format('opentype');
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -16,7 +49,7 @@ html {
 
 body {
   background-color: #FDFAF5;
-  font-family: 'DM Serif Display', Georgia, serif;
+  font-family: 'Beausite Classic', Georgia, serif;
   overflow-x: hidden;
   color: #1C1C1C;
 }

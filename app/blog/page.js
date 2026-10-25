@@ -80,7 +80,7 @@ export default function BlogPage() {
           <div>
             <div style={{ width: "100%", height: "1px", background: "rgba(245,240,232,0.1)", marginBottom: "1.2rem" }} />
             <h1 style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "clamp(3.5rem, 10vw, 8rem)",
               lineHeight: 0.9,
@@ -96,7 +96,7 @@ export default function BlogPage() {
           {/* Bottom */}
           <div className="flex items-end justify-between">
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "clamp(0.85rem, 1.4vw, 1rem)",
               color: "rgba(245,240,232,0.35)",
@@ -155,7 +155,7 @@ export default function BlogPage() {
           <span
             className="ml-auto flex-shrink-0"
             style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "0.85rem",
               color: "#8B7355",
@@ -219,7 +219,7 @@ export default function BlogPage() {
                 </div>
 
                 <h2 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 400,
                   fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
                   color: "#1C1C1C",
@@ -232,7 +232,7 @@ export default function BlogPage() {
                 </h2>
 
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontStyle: "italic",
                   fontSize: "1.05rem",
                   color: "#6B5F55",
@@ -332,7 +332,7 @@ export default function BlogPage() {
 
                 {/* Title */}
                 <h3 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 400,
                   fontSize: "1.25rem",
                   color: hovered === post.slug ? "#C9A96E" : "#1C1C1C",
@@ -346,7 +346,7 @@ export default function BlogPage() {
 
                 {/* Excerpt */}
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontStyle: "italic",
                   fontSize: "0.9rem",
                   color: "#6B5F55",

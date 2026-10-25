@@ -14,6 +14,8 @@ const ArtworkSchema = new mongoose.Schema(
     featured: { type: Boolean, default: false },
     sold:     { type: Boolean, default: false },
     order:    { type: Number, default: 0 },       // for manual sorting
+    images:   [{ src: String, alt: String, isPrimary: { type: Boolean, default: false } }],
+    tags:     [{ type: String }],
   },
   { timestamps: true }
 );

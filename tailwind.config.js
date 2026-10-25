@@ -20,9 +20,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        display:  ["'DM Serif Display'", "Georgia", "serif"],
-        body:     ["'DM Serif Display'", "Georgia", "serif"],
-        artistic: ["'DM Serif Display'", "Georgia", "serif"],
+        display:  ["'Beausite Classic'", "Georgia", "serif"],
+        body:     ["'Beausite Classic'", "Georgia", "serif"],
+        artistic: ["'Beausite Classic'", "Georgia", "serif"],
         sans:     ["'DM Sans'", "'Jost'", "sans-serif"],
       },
     },

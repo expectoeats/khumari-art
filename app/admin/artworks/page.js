@@ -65,6 +65,7 @@ function ArtworkModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial || EMPTY);
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
@@ -82,6 +83,21 @@ function ArtworkModal({ initial, onSave, onClose }) {
     finally { setSaving(false); }
   };
 
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "Upload failed"); return; }
+      setForm(f => ({ ...f, src: data.url }));
+    } catch { setError("Upload failed"); }
+    finally { setUploading(false); e.target.value = ""; }
+  };
+
   return (
     <div
       style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }}
@@ -89,7 +105,7 @@ function ArtworkModal({ initial, onSave, onClose }) {
     >
       <div style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", width: "100%", maxWidth: "560px", maxHeight: "90vh", overflowY: "auto", padding: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.4rem", color: "#F5F0E8" }}>
+          <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#F5F0E8" }}>
             {form._id ? "Edit Artwork" : "New Artwork"}
           </h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
@@ -107,11 +123,25 @@ function ArtworkModal({ initial, onSave, onClose }) {
             <div><Label>Size</Label><Input value={form.size} onChange={set("size")} placeholder="24 × 30 in" /></div>
             <div><Label>Color</Label><Select value={form.color} onChange={set("color")} options={["", ...COLORS]} /></div>
           </div>
-          <div>
-            <Label>Image Path *</Label>
-            <Input value={form.src} onChange={set("src")} placeholder="/art/filename.jpg" />
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <Label style={{ marginBottom: 0 }}>Image Path *</Label>
+              <Input value={form.src} onChange={set("src")} placeholder="/art/filename.jpg" style={{ flex: 1 }} />
+              <button
+                onClick={handleUpload}
+                disabled={uploading}
+                style={{
+                  background: "rgba(255,255,255,0.06)", border: "none", borderRadius: "6px",
+                  color: "rgba(245,240,232,0.5)", fontSize: "0.65rem", padding: "0.55rem 0.9rem",
+                  cursor: uploading ? "not-allowed" : "pointer", letterSpacing: "0.08em",
+                }}
+              >
+                {uploading ? "Uploading…" : "Upload"}
+              </button>
+            </div>
+            <input type="file" accept="image/*" onChange={handleUpload} style={{ display: "none" }} />
             {form.src && (
-              <div style={{ marginTop: "0.5rem", position: "relative", width: "80px", height: "80px", borderRadius: "4px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ marginTop: "0.25rem", position: "relative", width: "80px", height: "80px", borderRadius: "4px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <Image src={form.src} alt="preview" fill className="object-cover" onError={() => {}} />
               </div>
             )}
@@ -194,7 +224,7 @@ export default function AdminArtworks() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Artworks</h1>
+            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Artworks</h1>
           </div>
           <button
             onClick={() => setModal("new")}
@@ -267,7 +297,7 @@ export default function AdminArtworks() {
                   </div>
                 </div>
                 {/* Title */}
-                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: "'DM Serif Display', serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</div>
+                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</div>
                 {/* Category */}
                 <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.4)", letterSpacing: "0.06em" }}>{a.category}</div>
                 {/* Year */}

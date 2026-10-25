@@ -8,6 +8,11 @@ const UserSchema = new mongoose.Schema(
     password:  { type: String, required: true },
     wishlist:  [{ type: String }], // artwork IDs (mongo _id strings)
     avatar:    { type: String, default: "" },
+    phone:     { type: String, default: "" },
+    whatsapp:  { type: String, default: "" },
+    address:   { type: String, default: "" },
+    city:      { type: String, default: "" },
+    country:   { type: String, default: "" },
   },
   { timestamps: true }
 );

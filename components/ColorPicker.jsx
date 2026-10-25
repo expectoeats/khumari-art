@@ -65,7 +65,7 @@ export default function ColorPicker() {
       <div className="text-center mb-10 md:mb-14">
         <h2
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontWeight: 400,
             fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
             color: "#1C1C1C",
@@ -76,7 +76,7 @@ export default function ColorPicker() {
         </h2>
         <p
           style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontStyle: "italic",
             fontSize: "0.9rem",
             color: "#6B5F55",
@@ -195,7 +195,7 @@ export default function ColorPicker() {
       <div
         className="text-center mt-5"
         style={{
-          fontFamily: "'DM Serif Display', serif",
+          fontFamily: "'Beausite Classic', serif",
           fontStyle: "italic",
           fontSize: "0.9rem",
           color: selected

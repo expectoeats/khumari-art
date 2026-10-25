@@ -138,7 +138,7 @@ export default function JournalPage() {
 
             <h1
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Beausite Classic', serif",
                 fontWeight: 400,
                 fontSize: "clamp(4rem, 12vw, 10rem)",
                 lineHeight: 0.88,
@@ -161,7 +161,7 @@ export default function JournalPage() {
           {/* Bottom — post count + latest label */}
           <div className="flex items-end justify-between">
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "clamp(0.85rem, 1.5vw, 1.05rem)",
               color: "rgba(245,240,232,0.38)",
@@ -220,7 +220,7 @@ export default function JournalPage() {
                 </div>
 
                 <h2 style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontWeight: 400,
                   fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
                   color: "#1C1C1C",
@@ -232,7 +232,7 @@ export default function JournalPage() {
                 </h2>
 
                 <p style={{
-                  fontFamily: "'DM Serif Display', serif",
+                  fontFamily: "'Beausite Classic', serif",
                   fontStyle: "italic",
                   fontSize: "1.1rem",
                   color: "#6B5F55",
@@ -309,7 +309,7 @@ export default function JournalPage() {
                     </span>
                   </div>
                   <h3 style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontWeight: 400,
                     fontSize: "clamp(1.1rem, 2vw, 1.45rem)",
                     color: hovered === post.id ? "#1C1C1C" : "#2A2A2A",
@@ -320,7 +320,7 @@ export default function JournalPage() {
                     {post.title}
                   </h3>
                   <p style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontStyle: "italic",
                     fontSize: "0.9rem",
                     color: "#6B5F55",

@@ -85,7 +85,7 @@ export default function BlogPostPage() {
             </span>
           </div>
           <h1 style={{
-            fontFamily: "'DM Serif Display', serif",
+            fontFamily: "'Beausite Classic', serif",
             fontWeight: 400,
             fontSize: "clamp(1.6rem, 4vw, 3rem)",
             lineHeight: 1.1,
@@ -102,7 +102,7 @@ export default function BlogPostPage() {
 
         {/* Excerpt / lead */}
         <p style={{
-          fontFamily: "'DM Serif Display', serif",
+          fontFamily: "'Beausite Classic', serif",
           fontStyle: "italic",
           fontSize: "clamp(1.1rem, 2.2vw, 1.35rem)",
           color: "#8B7355",
@@ -122,7 +122,7 @@ export default function BlogPostPage() {
                 <p
                   key={i}
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontSize: "clamp(1rem, 1.8vw, 1.12rem)",
                     lineHeight: 1.85,
                     color: "#2A2A2A",
@@ -145,7 +145,7 @@ export default function BlogPostPage() {
                   }}
                 >
                   <p style={{
-                    fontFamily: "'DM Serif Display', serif",
+                    fontFamily: "'Beausite Classic', serif",
                     fontStyle: "italic",
                     fontSize: "clamp(1.15rem, 2vw, 1.35rem)",
                     color: "#8B7355",
@@ -174,7 +174,7 @@ export default function BlogPostPage() {
           </div>
           <div>
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontWeight: 400,
               fontSize: "1rem",
               color: "#1C1C1C",
@@ -182,7 +182,7 @@ export default function BlogPostPage() {
               Nancy Sikri
             </p>
             <p style={{
-              fontFamily: "'DM Serif Display', serif",
+              fontFamily: "'Beausite Classic', serif",
               fontStyle: "italic",
               fontSize: "0.82rem",
               color: "#8B7355",
@@ -217,7 +217,7 @@ export default function BlogPostPage() {
                 <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#8B7355", marginBottom: "0.3rem" }}>
                   Previous
                 </p>
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1rem", color: "#1C1C1C", lineHeight: 1.3 }}>
+                <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1rem", color: "#1C1C1C", lineHeight: 1.3 }}>
                   {prev.title}
                 </p>
               </div>
@@ -241,7 +241,7 @@ export default function BlogPostPage() {
                 <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "#8B7355", marginBottom: "0.3rem" }}>
                   Next
                 </p>
-                <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1rem", color: "#1C1C1C", lineHeight: 1.3 }}>
+                <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1rem", color: "#1C1C1C", lineHeight: 1.3 }}>
                   {next.title}
                 </p>
               </div>
@@ -257,7 +257,7 @@ export default function BlogPostPage() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <p className="section-title mb-1">Keep reading</p>
-              <h3 style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C" }}>
+              <h3 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C" }}>
                 More from the studio
               </h3>
             </div>
@@ -302,7 +302,7 @@ export default function BlogPostPage() {
                   <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.55rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.4rem" }}>
                     {p.category}
                   </p>
-                  <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "1.05rem", color: "#1C1C1C", lineHeight: 1.3 }}>
+                  <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.05rem", color: "#1C1C1C", lineHeight: 1.3 }}>
                     {p.title}
                   </p>
                 </Link>

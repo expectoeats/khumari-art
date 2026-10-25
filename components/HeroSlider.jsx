@@ -45,7 +45,7 @@ export default function HeroSlider() {
         </p>
         <h2
           className="text-white text-3xl md:text-6xl"
-          style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 300, lineHeight: 1.1 }}
+          style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 300, lineHeight: 1.1 }}
         >
           Original Art by<br />Nancy Sikri
         </h2>

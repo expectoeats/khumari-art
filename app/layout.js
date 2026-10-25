@@ -1,6 +1,5 @@
 import "./globals.css";
-import { ArtModalProvider } from "../components/ArtModalContext";
-import PageTransition from "../components/PageTransition";
+import { ClientWrapper } from "../components/ClientWrapper";
 
 export const metadata = {
   title: "Kala Samputah | Nancy Sikri",
@@ -11,11 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <ArtModalProvider>
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </ArtModalProvider>
+        <ClientWrapper>{children}</ClientWrapper>
       </body>
     </html>
   );

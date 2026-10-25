@@ -21,7 +21,7 @@ const S = ({ label, value, sub, href, color = "#C9A96E" }) => (
       <p style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", marginBottom: "0.8rem" }}>
         {label}
       </p>
-      <p style={{ fontFamily: "'DM Serif Display', serif", fontSize: "2.4rem", fontWeight: 400, color, lineHeight: 1 }}>
+      <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "2.4rem", fontWeight: 400, color, lineHeight: 1 }}>
         {value ?? "—"}
       </p>
       {sub && (
@@ -53,7 +53,7 @@ export default function Dashboard() {
           <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.4rem" }}>
             Overview
           </p>
-          <h1 style={{ fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontSize: "1.9rem", color: "#F5F0E8" }}>
+          <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.9rem", color: "#F5F0E8" }}>
             Dashboard
           </h1>
         </div>
@@ -71,6 +71,8 @@ export default function Dashboard() {
           <S label="Inquiries"        value={stats?.inquiries?.total}       sub={`${stats?.inquiries?.new ?? 0} new`}            href="/admin/inquiries" color="#64b5f6" />
           <S label="New Inquiries"    value={stats?.inquiries?.new}         sub="awaiting reply"                                 href="/admin/inquiries" color="#ffb74d" />
           <S label="Users"            value={stats?.users?.total}           sub="registered accounts"                            href="/admin/users"     color="#ce93d8" />
+          <S label="Total Orders"       value={stats?.orders?.total}         sub={`₹ ${stats?.orders?.revenue ?? 0} revenue`}   href="/admin/orders"    color="#C9A96E" />
+          <S label="Pending Orders"     value={stats?.orders?.pending}       sub="awaiting fulfillment"                           href="/admin/orders"    color="#ffb74d" />
         </div>
 
         {/* Quick links */}
