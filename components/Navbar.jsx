@@ -19,11 +19,27 @@ export default function Navbar() {
   const [scrolled,    setScrolled]    = useState(false);
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [visible,     setVisible]     = useState(true);
+  const [announcement, setAnnouncement] = useState({
+    text: "New collection available —",
+    whatsappNumber: "919818817291",
+    isVisible: true,
+  });
   const { user, loaded } = useUser(); // user: object | null; loaded: boolean
   const [dropdown,    setDropdown]    = useState(false);
   const dropRef   = useRef(null);
   const pathname  = usePathname();
   const { openInquiry } = useArtModal();
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.announcement) {
+          setAnnouncement(data.content.announcement);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -53,10 +69,10 @@ export default function Navbar() {
   return (
     <>
       {/* ── Announcement Bar ── */}
-      {visible && (
+      {visible && announcement.isVisible !== false && (
         <div className="announcement-bar relative flex items-center justify-center py-2.5 px-10 text-center flex-wrap gap-x-2 gap-y-1">
           <span className="inline-flex items-center flex-wrap justify-center gap-x-2">
-            <span>New collection available —</span>
+            <span>{announcement.text || "New collection available —"}</span>
             <button
               onClick={() => openInquiry({ title: "New 2024 Studio Collection", src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg", artist: "Nancy Sikri", medium: "Original Acrylic Works" })}
               className="underline font-medium hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 inline"
@@ -65,7 +81,7 @@ export default function Navbar() {
             </button>
             <span className="opacity-40 hidden sm:inline">·</span>
             <a
-              href="https://wa.me/919818817291?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20visiting%20your%20website%20and%20would%20like%20to%20inquire%20about%20your%20art."
+              href={`https://wa.me/${announcement.whatsappNumber || "919818817291"}?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20visiting%20your%20website%20and%20would%20like%20to%20inquire%20about%20your%20art.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 underline hover:text-[#25D366] transition-colors"

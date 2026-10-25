@@ -1,8 +1,38 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaInstagram, FaArrowRight, FaWhatsapp } from "react-icons/fa";
 
+const DEFAULT_ARTIST = {
+  name: "Nancy Sikri",
+  title: "Abstract Painter · New Delhi, India",
+  photo: "/avatar.webp",
+  quote: "I don't paint what I see. I paint what I feel.",
+  bio1: "Art chose Nancy long before she chose it. Growing up surrounded by creative energy, she found her voice in abstract expression — a language beyond words.",
+  bio2: "Every canvas she creates is an invitation: to pause, feel, and discover something honest within yourself. Her work lives in the space between emotion and instinct.",
+  stats: [
+    { value: "256",  label: "Original Works" },
+    { value: "6.9k", label: "Followers"      },
+    { value: "7+",   label: "Years Creating" },
+  ],
+  instagram: "https://www.instagram.com/kala_samputah",
+};
+
 export default function AboutArtist() {
+  const [data, setData] = useState(DEFAULT_ARTIST);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.content?.artist) {
+          setData(prev => ({ ...prev, ...resData.content.artist }));
+        }
+      })
+      .catch(() => {});
+  }, []);
   return (
     <section className="relative py-14 md:py-32 overflow-hidden bg-brand-beige">
 
@@ -76,8 +106,8 @@ export default function AboutArtist() {
             {/* Photo */}
             <div className="relative w-full max-w-[260px] md:max-w-[320px] aspect-[3/4] overflow-hidden z-10">
               <Image
-                src="/avatar.webp"
-                alt="Nancy Sikri — Artist"
+                src={data.photo || "/avatar.webp"}
+                alt={`${data.name || "Nancy Sikri"} — Artist`}
                 fill
                 className="object-cover"
                 priority
@@ -94,9 +124,9 @@ export default function AboutArtist() {
                 className="text-brand-dark text-3xl md:text-4xl mb-1"
                 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 400 }}
               >
-                Nancy Sikri
+                {data.name}
               </h3>
-              <p className="section-title">Abstract Painter · New Delhi, India</p>
+              <p className="section-title">{data.title}</p>
             </div>
 
             <div className="divider w-16" />
@@ -105,28 +135,17 @@ export default function AboutArtist() {
               className="space-y-4 md:space-y-5 text-brand-charcoal"
               style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "clamp(0.95rem, 2.5vw, 1.1rem)", lineHeight: 1.85 }}
             >
-              <p>
-                Art chose Nancy long before she chose it. Growing up surrounded by creative energy,
-                she found her voice in abstract expression — a language beyond words.
-              </p>
-              <p>
-                Every canvas she creates is an invitation: to pause, feel, and discover
-                something honest within yourself. Her work lives in the space between
-                emotion and instinct.
-              </p>
+              <p>{data.bio1}</p>
+              <p>{data.bio2}</p>
               <p className="italic text-brand-warm">
-                "I don't paint what I see. I paint what I feel."
+                "{data.quote}"
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 md:flex md:gap-8 pt-2">
-              {[
-                { value: "256",  label: "Original Works" },
-                { value: "6.9k", label: "Followers"      },
-                { value: "7+",   label: "Years Creating" },
-              ].map((stat, i, arr) => (
-                <div key={stat.label} className="flex gap-4 md:gap-8 items-start">
+              {(data.stats || DEFAULT_ARTIST.stats).map((stat, i, arr) => (
+                <div key={stat.label || i} className="flex gap-4 md:gap-8 items-start">
                   <div>
                     <p
                       className="text-brand-dark text-xl md:text-3xl"
@@ -160,7 +179,7 @@ export default function AboutArtist() {
                 WhatsApp Chat
               </a>
               <a
-                href="https://www.instagram.com/kala_samputah"
+                href={data.instagram || "https://www.instagram.com/kala_samputah"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-outline px-6 py-3.5 inline-flex items-center justify-center gap-2 w-full sm:w-auto"

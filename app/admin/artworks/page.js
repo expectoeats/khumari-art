@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import AdminShell from "../AdminShell";
 
@@ -66,6 +66,7 @@ function ArtworkModal({ initial, onSave, onClose }) {
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState("");
   const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
@@ -87,6 +88,7 @@ function ArtworkModal({ initial, onSave, onClose }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -95,7 +97,10 @@ function ArtworkModal({ initial, onSave, onClose }) {
       if (!res.ok) { setError(data.error || "Upload failed"); return; }
       setForm(f => ({ ...f, src: data.url }));
     } catch { setError("Upload failed"); }
-    finally { setUploading(false); e.target.value = ""; }
+    finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -128,18 +133,26 @@ function ArtworkModal({ initial, onSave, onClose }) {
               <Label style={{ marginBottom: 0 }}>Image Path *</Label>
               <Input value={form.src} onChange={set("src")} placeholder="/art/filename.jpg" style={{ flex: 1 }} />
               <button
-                onClick={handleUpload}
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 style={{
-                  background: "rgba(255,255,255,0.06)", border: "none", borderRadius: "6px",
-                  color: "rgba(245,240,232,0.5)", fontSize: "0.65rem", padding: "0.55rem 0.9rem",
+                  background: "#C9A96E", border: "none", borderRadius: "6px",
+                  color: "#111010", fontSize: "0.65rem", padding: "0.55rem 0.9rem",
                   cursor: uploading ? "not-allowed" : "pointer", letterSpacing: "0.08em",
+                  fontWeight: 600,
                 }}
               >
-                {uploading ? "Uploading…" : "Upload"}
+                {uploading ? "Uploading…" : "Browse File"}
               </button>
             </div>
-            <input type="file" accept="image/*" onChange={handleUpload} style={{ display: "none" }} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleUpload}
+              style={{ display: "none" }}
+            />
             {form.src && (
               <div style={{ marginTop: "0.25rem", position: "relative", width: "80px", height: "80px", borderRadius: "4px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
                 <Image src={form.src} alt="preview" fill className="object-cover" onError={() => {}} />

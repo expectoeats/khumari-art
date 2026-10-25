@@ -1,10 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaArrowRight, FaShareAlt, FaSearchPlus } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
 
-const story = {
+const DEFAULT_STORY = {
   id: 11,
   src: "/art/655428058_18542777713071262_2316752950858361917_n.jpg",
   title: "The Art of Raw Emotion",
@@ -18,6 +19,25 @@ const story = {
 
 export default function StoryOfTheDay() {
   const { openArtwork } = useArtModal();
+  const [currentStory, setCurrentStory] = useState(DEFAULT_STORY);
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.story) {
+          const s = data.content.story;
+          setCurrentStory(prev => ({
+            ...prev,
+            title: s.title || prev.title,
+            subtitle: s.subtitle || prev.subtitle,
+            src: s.src || prev.src,
+            artworkTitle: s.artworkTitle || prev.title,
+          }));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <section className="py-16 md:py-24 bg-brand-beige">
@@ -39,7 +59,7 @@ export default function StoryOfTheDay() {
       {/* Big card */}
       <div className="mx-4 md:mx-10 lg:mx-20 xl:mx-32">
         <div
-          onClick={() => openArtwork(story)}
+          onClick={() => openArtwork(currentStory)}
           className="relative overflow-hidden cursor-pointer group"
           style={{
             borderRadius: "20px",
@@ -48,8 +68,8 @@ export default function StoryOfTheDay() {
           }}
         >
           <Image
-            src={story.src}
-            alt={story.title}
+            src={currentStory.src}
+            alt={currentStory.title}
             fill
             className="object-cover"
             priority
@@ -82,7 +102,7 @@ export default function StoryOfTheDay() {
             onClick={(e) => {
               e.stopPropagation();
               if (navigator.share) {
-                navigator.share({ title: story.title, url: window.location.href });
+                navigator.share({ title: currentStory.title, url: window.location.href });
               } else {
                 navigator.clipboard.writeText(window.location.href);
                 alert("Link copied to clipboard!");
@@ -115,7 +135,7 @@ export default function StoryOfTheDay() {
                 marginBottom: "0.4rem",
               }}
             >
-              {story.title}
+              {currentStory.title}
             </p>
             <p
               style={{
@@ -125,7 +145,7 @@ export default function StoryOfTheDay() {
                 color: "rgba(255,255,255,0.75)",
               }}
             >
-              {story.subtitle}
+              {currentStory.subtitle}
             </p>
           </div>
 
@@ -134,7 +154,7 @@ export default function StoryOfTheDay() {
             aria-label="Read story and zoom"
             onClick={(e) => {
               e.stopPropagation();
-              openArtwork(story);
+              openArtwork(currentStory);
             }}
             className="absolute bottom-6 right-6 flex items-center justify-center"
             style={{
@@ -157,7 +177,7 @@ export default function StoryOfTheDay() {
 
         {/* Tags below card */}
         <div className="flex gap-6 justify-center mt-5">
-          {story.tags.map(tag => (
+          {(currentStory.tags || DEFAULT_STORY.tags).map(tag => (
             <span
               key={tag}
               style={{

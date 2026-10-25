@@ -5,15 +5,16 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const nav = [
-  { label: "Dashboard",  href: "/admin/dashboard",  icon: "◈" },
-  { label: "Artworks",   href: "/admin/artworks",   icon: "◻" },
-  { label: "Blog Posts", href: "/admin/blogs",       icon: "✦" },
-  { label: "Inquiries",  href: "/admin/inquiries",  icon: "✉" },
-  { label: "Orders",     href: "/admin/orders",     icon: "₊" },
-  { label: "Categories", href: "/admin/categories", icon: "▢" },
-  { label: "Tags",       href: "/admin/tags",       icon: "◷" },
-  { label: "Analytics",  href: "/admin/analytics",  icon: "↗" },
-  { label: "Users",      href: "/admin/users",      icon: "◎" },
+  { label: "Dashboard",    href: "/admin/dashboard",  icon: "◈" },
+  { label: "Site Content", href: "/admin/content",    icon: "✎" },
+  { label: "Artworks",     href: "/admin/artworks",   icon: "◻" },
+  { label: "Blog Posts",   href: "/admin/blogs",      icon: "✦" },
+  { label: "Inquiries",    href: "/admin/inquiries",  icon: "✉" },
+  { label: "Orders",       href: "/admin/orders",     icon: "₊" },
+  { label: "Categories",   href: "/admin/categories", icon: "▢" },
+  { label: "Tags",         href: "/admin/tags",       icon: "◷" },
+  { label: "Analytics",    href: "/admin/analytics",  icon: "↗" },
+  { label: "Users",        href: "/admin/users",      icon: "◎" },
 ];
 
 export default function AdminShell({ children }) {

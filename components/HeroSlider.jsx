@@ -6,21 +6,35 @@ import { FaChevronLeft, FaChevronRight, FaPlay, FaPause } from "react-icons/fa";
 import { heroSlides } from "./data";
 
 export default function HeroSlider() {
+  const [slides, setSlides]             = useState(heroSlides);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying]       = useState(true);
 
   useEffect(() => {
-    if (!isPlaying) return;
-    const t = setInterval(() => setCurrentSlide(p => (p + 1) % heroSlides.length), 5000);
-    return () => clearInterval(t);
-  }, [isPlaying]);
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.hero?.slides?.length) {
+          setSlides(data.content.hero.slides);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-  const nextSlide = () => setCurrentSlide(p => (p + 1) % heroSlides.length);
-  const prevSlide = () => setCurrentSlide(p => (p - 1 + heroSlides.length) % heroSlides.length);
+  useEffect(() => {
+    if (!isPlaying || !slides.length) return;
+    const t = setInterval(() => setCurrentSlide(p => (p + 1) % slides.length), 5000);
+    return () => clearInterval(t);
+  }, [isPlaying, slides.length]);
+
+  const nextSlide = () => setCurrentSlide(p => (p + 1) % slides.length);
+  const prevSlide = () => setCurrentSlide(p => (p - 1 + slides.length) % slides.length);
+
+  const activeSlide = slides[currentSlide] || slides[0] || { label: "Original Works", src: "/art/727621305_18106189697070803_8331127044024333624_n.jpg" };
 
   return (
     <section className="relative w-full h-[62vh] md:h-[88vh] overflow-hidden">
-      {heroSlides.map((slide, i) => (
+      {slides.map((slide, i) => (
         <div
           key={i}
           className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -41,7 +55,7 @@ export default function HeroSlider() {
       {/* Bottom label */}
       <div className="absolute bottom-10 left-8 md:left-16 z-10">
         <p className="section-title mb-1" style={{ color: "rgba(255,255,255,0.65)" }}>
-          {heroSlides[currentSlide].label}
+          {activeSlide.label}
         </p>
         <h2
           className="text-white text-3xl md:text-6xl"
@@ -80,7 +94,7 @@ export default function HeroSlider() {
 
       {/* Dot indicators */}
       <div className="absolute bottom-10 right-8 md:right-16 z-10 flex gap-2 items-center">
-        {heroSlides.map((_, i) => (
+        {slides.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrentSlide(i)}

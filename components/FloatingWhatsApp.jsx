@@ -1,12 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { FaWhatsapp, FaTimes } from "react-icons/fa";
 
 export default function FloatingWhatsApp() {
+  const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(true);
+  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
 
-  const whatsappNumber = "919818817291";
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.announcement?.whatsappNumber) {
+          setWhatsappNumber(data.content.announcement.whatsappNumber);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // Do not show on any admin panel page
+  if (pathname && pathname.startsWith("/admin")) {
+    return null;
+  }
   const defaultMessage = encodeURIComponent(
     "Hello Nancy / Kala Samputah, I am visiting your website and would like to inquire about your original paintings & collections."
   );
