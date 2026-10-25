@@ -25,7 +25,7 @@ export default function StoryOfTheDay() {
       <div className="text-center mb-8 md:mb-12">
         <h2
           style={{
-            fontFamily: "'Beausite Classic', serif",
+            fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
             fontWeight: 400,
             fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
             color: "#1C1C1C",
@@ -107,7 +107,7 @@ export default function StoryOfTheDay() {
           <div className="absolute bottom-6 left-6 right-16">
             <p
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontWeight: 600,
                 fontSize: "clamp(1.2rem, 2.8vw, 2rem)",
                 color: "#FFFFFF",
@@ -119,7 +119,7 @@ export default function StoryOfTheDay() {
             </p>
             <p
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontStyle: "italic",
                 fontSize: "clamp(0.8rem, 1.4vw, 1rem)",
                 color: "rgba(255,255,255,0.75)",
@@ -161,7 +161,7 @@ export default function StoryOfTheDay() {
             <span
               key={tag}
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontSize: "0.82rem",
                 color: "#6B5F55",
                 letterSpacing: "0.04em",

@@ -28,7 +28,7 @@ export default function SignupPage() {
 
   const field = (key, label, type = "text", placeholder = "") => (
     <div>
-      <label style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#6B5F55", display: "block", marginBottom: "0.5rem" }}>
+      <label style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#6B5F55", display: "block", marginBottom: "0.5rem" }}>
         {label}
       </label>
       <input
@@ -36,7 +36,7 @@ export default function SignupPage() {
         value={form[key]}
         onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
         placeholder={placeholder}
-        style={{ width: "100%", background: "transparent", border: "1px solid #E8DDD0", color: "#1C1C1C", fontSize: "0.95rem", padding: "0.75rem 1rem", outline: "none", fontFamily: "'Beausite Classic', serif", transition: "border-color 0.2s" }}
+        style={{ width: "100%", background: "transparent", border: "1px solid #E8DDD0", color: "#1C1C1C", fontSize: "0.95rem", padding: "0.75rem 1rem", outline: "none", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', transition: "border-color 0.2s" }}
         onFocus={e => (e.target.style.borderColor = "#C9A96E")}
         onBlur={e  => (e.target.style.borderColor = "#E8DDD0")}
       />
@@ -52,10 +52,10 @@ export default function SignupPage() {
 
           {/* Header */}
           <div className="mb-10">
-            <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.5rem" }}>
+            <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.6rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.5rem" }}>
               Join the studio
             </p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "2.2rem", color: "#1C1C1C", lineHeight: 1.1 }}>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 400, fontSize: "2.2rem", color: "#1C1C1C", lineHeight: 1.1 }}>
               Create your<br /><em style={{ color: "#C9A96E" }}>account.</em>
             </h1>
           </div>
@@ -67,7 +67,7 @@ export default function SignupPage() {
             {field("password", "Password",   "password", "At least 6 characters")}
 
             {error && (
-              <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "0.88rem", color: "#c0392b", padding: "0.6rem 0.8rem", background: "rgba(192,57,43,0.05)", border: "1px solid rgba(192,57,43,0.15)" }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.88rem", color: "#c0392b", padding: "0.6rem 0.8rem", background: "rgba(192,57,43,0.05)", border: "1px solid rgba(192,57,43,0.15)" }}>
                 {error}
               </p>
             )}
@@ -85,7 +85,7 @@ export default function SignupPage() {
           <div className="divider my-8" />
 
           {/* Switch */}
-          <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "0.95rem", color: "#6B5F55", textAlign: "center" }}>
+          <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.95rem", color: "#6B5F55", textAlign: "center" }}>
             Already have an account?{" "}
             <Link href="/login" style={{ color: "#C9A96E", textDecoration: "none" }}>
               Sign in

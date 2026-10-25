@@ -28,7 +28,7 @@ export default function AdminShell({ children }) {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#0F0F0F", fontFamily: "'Jost', sans-serif" }}>
+    <div className="min-h-screen flex" style={{ background: "#0F0F0F", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>
 
       {/* ── Sidebar ── */}
       <aside

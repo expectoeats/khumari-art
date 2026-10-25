@@ -16,12 +16,12 @@ const Label = ({ children }) => (
 );
 const Input = ({ value, onChange, placeholder = "", type = "text" }) => (
   <input type={type} value={value} onChange={onChange} placeholder={placeholder}
-    style={{ width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none", borderRadius: "6px", fontFamily: "'Jost', sans-serif" }}
+    style={{ width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none", borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}
   />
 );
 const Textarea = ({ value, onChange, rows = 3 }) => (
   <textarea value={value} onChange={onChange} rows={rows}
-    style={{ width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none", borderRadius: "6px", fontFamily: "'Jost', sans-serif", resize: "vertical", lineHeight: 1.6 }}
+    style={{ width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)", color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none", borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', resize: "vertical", lineHeight: 1.6 }}
   />
 );
 
@@ -63,7 +63,7 @@ function BlogModal({ initial, onSave, onClose }) {
     >
       <div style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", width: "100%", maxWidth: "640px", padding: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#F5F0E8" }}>
+          <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.4rem", color: "#F5F0E8" }}>
             {form._id ? "Edit Post" : "New Blog Post"}
           </h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
@@ -189,7 +189,7 @@ export default function AdminBlogs() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Blog Posts</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Blog Posts</h1>
           </div>
           <button onClick={() => setModal("new")}
             style={{ background: "#C9A96E", border: "none", borderRadius: "6px", color: "#111010", fontSize: "0.68rem", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600, padding: "0.65rem 1.4rem", cursor: "pointer" }}>
@@ -215,7 +215,7 @@ export default function AdminBlogs() {
           ) : posts.map((post, i) => (
             <div key={post._id} style={{ display: "grid", gridTemplateColumns: "1fr 110px 80px 90px 100px", borderBottom: i < posts.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", alignItems: "center" }}>
               <div style={{ padding: "0.7rem 0.8rem" }}>
-                <p style={{ fontSize: "0.85rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif", marginBottom: "0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>
+                <p style={{ fontSize: "0.85rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', marginBottom: "0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>
                 <p style={{ fontSize: "0.6rem", color: "rgba(245,240,232,0.25)", letterSpacing: "0.06em" }}>{post.slug}</p>
               </div>
               <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.4)" }}>{post.category}</div>

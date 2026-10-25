@@ -19,7 +19,7 @@ export default function NotFound() {
         <Link
           href="/"
           style={{
-            fontFamily: "'Beausite Classic', serif",
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontStyle: "italic",
             fontSize: "1.35rem",
             color: "#4A2818",
@@ -34,7 +34,7 @@ export default function NotFound() {
         <Link
           href="/collect"
           style={{
-            fontFamily: "'Jost', sans-serif",
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontSize: "0.62rem",
             fontWeight: 500,
             letterSpacing: "0.22em",
@@ -88,7 +88,7 @@ export default function NotFound() {
                     <span
                       key={i}
                       style={{
-                        fontFamily: "'Beausite Classic', serif",
+                        fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                         fontWeight: 900,
                         fontSize: "18vw",
                         lineHeight: 0.9,
@@ -130,7 +130,7 @@ export default function NotFound() {
         <p
           className="relative z-10 text-center px-6"
           style={{
-            fontFamily: "'Beausite Classic', serif",
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontStyle: "italic",
             fontSize: "clamp(0.88rem, 1.6vw, 1.05rem)",
             color: "rgba(74,40,24,0.55)",
@@ -149,7 +149,7 @@ export default function NotFound() {
           href="/"
           className="relative z-10"
           style={{
-            fontFamily: "'Jost', sans-serif",
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontSize: "0.65rem",
             fontWeight: 500,
             letterSpacing: "0.28em",

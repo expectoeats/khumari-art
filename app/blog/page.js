@@ -57,7 +57,7 @@ export default function BlogPage() {
           {/* Top */}
           <div className="flex items-center justify-between">
             <p style={{
-              fontFamily: "'Jost', sans-serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               fontSize: "0.58rem",
               letterSpacing: "0.32em",
               textTransform: "uppercase",
@@ -66,7 +66,7 @@ export default function BlogPage() {
               Studio Blog
             </p>
             <p style={{
-              fontFamily: "'Jost', sans-serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               fontSize: "0.58rem",
               letterSpacing: "0.2em",
               textTransform: "uppercase",
@@ -80,7 +80,7 @@ export default function BlogPage() {
           <div>
             <div style={{ width: "100%", height: "1px", background: "rgba(245,240,232,0.1)", marginBottom: "1.2rem" }} />
             <h1 style={{
-              fontFamily: "'Beausite Classic', serif",
+              fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
               fontWeight: 400,
               fontSize: "clamp(3.5rem, 10vw, 8rem)",
               lineHeight: 0.9,
@@ -96,7 +96,7 @@ export default function BlogPage() {
           {/* Bottom */}
           <div className="flex items-end justify-between">
             <p style={{
-              fontFamily: "'Beausite Classic', serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               fontStyle: "italic",
               fontSize: "clamp(0.85rem, 1.4vw, 1rem)",
               color: "rgba(245,240,232,0.35)",
@@ -104,7 +104,7 @@ export default function BlogPage() {
               Thoughts, process, and things worth saying.
             </p>
             <p style={{
-              fontFamily: "'Jost', sans-serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               fontSize: "0.58rem",
               letterSpacing: "0.25em",
               textTransform: "uppercase",
@@ -133,7 +133,7 @@ export default function BlogPage() {
               onClick={() => setActive(cat)}
               className="relative flex-shrink-0 py-4 px-5 transition-colors duration-200"
               style={{
-                fontFamily: "'Jost', sans-serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontSize: "0.65rem",
                 letterSpacing: "0.2em",
                 textTransform: "uppercase",
@@ -155,7 +155,7 @@ export default function BlogPage() {
           <span
             className="ml-auto flex-shrink-0"
             style={{
-              fontFamily: "'Beausite Classic', serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               fontStyle: "italic",
               fontSize: "0.85rem",
               color: "#8B7355",
@@ -199,7 +199,7 @@ export default function BlogPage() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <span style={{
-                    fontFamily: "'Jost', sans-serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontSize: "0.58rem",
                     letterSpacing: "0.22em",
                     textTransform: "uppercase",
@@ -209,7 +209,7 @@ export default function BlogPage() {
                   </span>
                   <span style={{ width: "1px", height: "10px", background: "rgba(201,169,110,0.4)", display: "inline-block" }} />
                   <span style={{
-                    fontFamily: "'Jost', sans-serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontSize: "0.58rem",
                     letterSpacing: "0.15em",
                     color: "#8B7355",
@@ -219,7 +219,7 @@ export default function BlogPage() {
                 </div>
 
                 <h2 style={{
-                  fontFamily: "'Beausite Classic', serif",
+                  fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
                   fontWeight: 400,
                   fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
                   color: "#1C1C1C",
@@ -232,7 +232,7 @@ export default function BlogPage() {
                 </h2>
 
                 <p style={{
-                  fontFamily: "'Beausite Classic', serif",
+                  fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                   fontStyle: "italic",
                   fontSize: "1.05rem",
                   color: "#6B5F55",
@@ -243,7 +243,7 @@ export default function BlogPage() {
                 </p>
 
                 <span style={{
-                  fontFamily: "'Jost', sans-serif",
+                  fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                   fontSize: "0.62rem",
                   letterSpacing: "0.22em",
                   textTransform: "uppercase",
@@ -303,7 +303,7 @@ export default function BlogPage() {
                   <div
                     className="absolute top-3 left-3"
                     style={{
-                      fontFamily: "'Jost', sans-serif",
+                      fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                       fontSize: "0.55rem",
                       letterSpacing: "0.2em",
                       textTransform: "uppercase",
@@ -320,7 +320,7 @@ export default function BlogPage() {
 
                 {/* Meta */}
                 <p style={{
-                  fontFamily: "'Jost', sans-serif",
+                  fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                   fontSize: "0.55rem",
                   letterSpacing: "0.18em",
                   textTransform: "uppercase",
@@ -332,7 +332,7 @@ export default function BlogPage() {
 
                 {/* Title */}
                 <h3 style={{
-                  fontFamily: "'Beausite Classic', serif",
+                  fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
                   fontWeight: 400,
                   fontSize: "1.25rem",
                   color: hovered === post.slug ? "#C9A96E" : "#1C1C1C",
@@ -346,7 +346,7 @@ export default function BlogPage() {
 
                 {/* Excerpt */}
                 <p style={{
-                  fontFamily: "'Beausite Classic', serif",
+                  fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                   fontStyle: "italic",
                   fontSize: "0.9rem",
                   color: "#6B5F55",
@@ -363,7 +363,7 @@ export default function BlogPage() {
                 <div
                   className="mt-4 flex items-center gap-2"
                   style={{
-                    fontFamily: "'Jost', sans-serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontSize: "0.6rem",
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",

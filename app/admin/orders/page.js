@@ -135,10 +135,10 @@ export default function AdminOrders() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Orders</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Orders</h1>
           </div>
           <div style={{ background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: "6px", padding: "0.5rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#C9A96E", lineHeight: 1 }}>{orders.length}</p>
+            <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "1.4rem", color: "#C9A96E", lineHeight: 1 }}>{orders.length}</p>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,169,110,0.6)" }}>Total orders</p>
           </div>
         </div>
@@ -151,7 +151,7 @@ export default function AdminOrders() {
             style={{
               background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
               color: "#F5F0E8", fontSize: "0.82rem", padding: "0.55rem 1rem", outline: "none",
-              borderRadius: "6px", fontFamily: "'Jost', sans-serif", width: "320px",
+              borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', width: "320px",
             }}
           />
           <select
@@ -160,7 +160,7 @@ export default function AdminOrders() {
             style={{
               background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
               color: "#F5F0E8", fontSize: "0.82rem", padding: "0.55rem 1rem", outline: "none",
-              borderRadius: "6px", fontFamily: "'Jost', sans-serif",
+              borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             }}
           >
             <option value="all">All Order Status</option>
@@ -176,7 +176,7 @@ export default function AdminOrders() {
             style={{
               background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
               color: "#F5F0E8", fontSize: "0.82rem", padding: "0.55rem 1rem", outline: "none",
-              borderRadius: "6px", fontFamily: "'Jost', sans-serif",
+              borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             }}
           >
             <option value="all">All Payment Status</option>
@@ -213,9 +213,9 @@ export default function AdminOrders() {
                 }}
                 onClick={() => setOpen(order)}
               >
-                <div style={{ padding: "0.8rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif" }}>{order.orderNumber}</div>
+                <div style={{ padding: "0.8rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>{order.orderNumber}</div>
                 <div style={{ padding: "0.8rem 0.8rem" }}>
-                  <p style={{ fontSize: "0.8rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif", marginBottom: "0.15rem" }}>{order.customerName}</p>
+                  <p style={{ fontSize: "0.8rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', marginBottom: "0.15rem" }}>{order.customerName}</p>
                   <p style={{ fontSize: "0.65rem", color: "rgba(245,240,232,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{order.customerEmail}</p>
                 </div>
                 <div style={{ padding: "0.8rem 0.8rem", fontSize: "0.75rem", color: "#F5F0E8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{order.artworkTitle}</div>
@@ -233,7 +233,7 @@ export default function AdminOrders() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
                   <p style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Order Details</p>
-                  <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.3rem", color: "#F5F0E8" }}>{open.orderNumber}</h2>
+                  <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.3rem", color: "#F5F0E8" }}>{open.orderNumber}</h2>
                 </div>
                 <button onClick={() => setOpen(null)} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
               </div>

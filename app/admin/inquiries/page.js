@@ -47,7 +47,7 @@ function InquiryDrawer({ inquiry, onStatusChange, onDelete, onClose }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Inquiry</p>
-            <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.3rem", color: "#F5F0E8" }}>{inquiry.name}</h2>
+            <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.3rem", color: "#F5F0E8" }}>{inquiry.name}</h2>
           </div>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer", marginTop: "0.1rem" }}>✕</button>
         </div>
@@ -88,7 +88,7 @@ function InquiryDrawer({ inquiry, onStatusChange, onDelete, onClose }) {
         ].map(({ label, value }) => (
           <div key={label}>
             <p style={{ fontSize: "0.55rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(245,240,232,0.3)", marginBottom: "0.3rem" }}>{label}</p>
-            <p style={{ fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", fontFamily: "'Jost', sans-serif" }}>{value}</p>
+            <p style={{ fontSize: "0.85rem", color: "rgba(245,240,232,0.7)", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>{value}</p>
           </div>
         ))}
 
@@ -96,7 +96,7 @@ function InquiryDrawer({ inquiry, onStatusChange, onDelete, onClose }) {
         <div>
           <p style={{ fontSize: "0.55rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(245,240,232,0.3)", marginBottom: "0.6rem" }}>Message</p>
           <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px", padding: "1rem" }}>
-            <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.7)", lineHeight: 1.75 }}>
+            <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "1rem", color: "rgba(245,240,232,0.7)", lineHeight: 1.75 }}>
               {inquiry.message}
             </p>
           </div>
@@ -179,7 +179,7 @@ export default function AdminInquiries() {
       <div style={{ padding: "2.5rem 2rem" }}>
         <div style={{ marginBottom: "2rem" }}>
           <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-          <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Inquiries</h1>
+          <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Inquiries</h1>
         </div>
 
         {/* Filter tabs */}
@@ -227,7 +227,7 @@ export default function AdminInquiries() {
               onMouseLeave={e => (e.currentTarget.style.background = inq.status === "new" ? "rgba(255,183,77,0.02)" : "transparent")}
             >
               <div style={{ padding: "0.8rem 0.8rem" }}>
-                <p style={{ fontSize: "0.85rem", color: inq.status === "new" ? "#F5F0E8" : "rgba(245,240,232,0.65)", fontFamily: "'Beausite Classic', serif", marginBottom: "0.15rem" }}>
+                <p style={{ fontSize: "0.85rem", color: inq.status === "new" ? "#F5F0E8" : "rgba(245,240,232,0.65)", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', marginBottom: "0.15rem" }}>
                   {inq.name}
                 </p>
                 <p style={{ fontSize: "0.65rem", color: "rgba(245,240,232,0.3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inq.email}</p>

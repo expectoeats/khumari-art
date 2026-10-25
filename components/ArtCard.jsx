@@ -45,13 +45,13 @@ export default function ArtCard(props) {
         <div>
           <p
             className="text-brand-dark text-xs font-semibold tracking-widest uppercase mb-0.5 truncate"
-            style={{ fontFamily: "'Jost', sans-serif" }}
+            style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
             {artist}
           </p>
           <p
             className="text-brand-charcoal text-sm italic mb-1 line-clamp-1"
-            style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400 }}
+            style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 400 }}
           >
             {title}
           </p>
@@ -66,7 +66,7 @@ export default function ArtCard(props) {
             type="button"
             onClick={handleInquireClick}
             className="mt-3 text-brand-accent hover:text-brand-dark transition-colors text-[0.68rem] tracking-widest uppercase border-b border-brand-accent/40 hover:border-brand-dark pb-0.5 font-medium"
-            style={{ fontFamily: "'Jost', sans-serif" }}
+            style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}
           >
             Inquire for Quote →
           </button>

@@ -17,12 +17,12 @@ export default function AboutArtist() {
 
       {/* Decorative large text */}
       <div className="absolute top-16 right-8 md:right-24 rotate-12 opacity-10 select-none pointer-events-none">
-        <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "6rem", fontWeight: 300, color: "#8B7355", lineHeight: 1 }}>
+        <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "6rem", fontWeight: 300, color: "#8B7355", lineHeight: 1 }}>
           Art
         </span>
       </div>
       <div className="absolute bottom-16 left-8 md:left-24 -rotate-6 opacity-10 select-none pointer-events-none">
-        <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "4rem", fontWeight: 300, color: "#8B7355", lineHeight: 1 }}>
+        <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "4rem", fontWeight: 300, color: "#8B7355", lineHeight: 1 }}>
           Soul
         </span>
       </div>
@@ -42,7 +42,7 @@ export default function AboutArtist() {
           <p className="section-title mb-3">The Artist</p>
           <h2
             className="text-brand-dark text-4xl md:text-6xl"
-            style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 300, letterSpacing: "0.06em" }}
+            style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 300, letterSpacing: "0.06em" }}
           >
             Meet{" "}
             <span className="relative inline-block italic">
@@ -91,7 +91,7 @@ export default function AboutArtist() {
             <div>
               <h3
                 className="text-brand-dark text-3xl md:text-4xl mb-1"
-                style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400 }}
+                style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 400 }}
               >
                 Nancy Sikri
               </h3>
@@ -102,7 +102,7 @@ export default function AboutArtist() {
 
             <div
               className="space-y-4 md:space-y-5 text-brand-charcoal"
-              style={{ fontFamily: "'Beausite Classic', serif", fontSize: "clamp(0.95rem, 2.5vw, 1.1rem)", lineHeight: 1.85 }}
+              style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "clamp(0.95rem, 2.5vw, 1.1rem)", lineHeight: 1.85 }}
             >
               <p>
                 Art chose Nancy long before she chose it. Growing up surrounded by creative energy,
@@ -129,7 +129,7 @@ export default function AboutArtist() {
                   <div>
                     <p
                       className="text-brand-dark text-xl md:text-3xl"
-                      style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 300 }}
+                      style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 300 }}
                     >
                       {stat.value}
                     </p>

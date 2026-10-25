@@ -79,7 +79,7 @@ export default function ProfilePage() {
       <div className="min-h-screen" style={{ background: "#FDFAF5" }}>
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
-          <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", color: "#8B7355", fontSize: "1.1rem" }}>
+          <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", color: "#8B7355", fontSize: "1.1rem" }}>
             Loading…
           </p>
         </div>
@@ -108,19 +108,19 @@ export default function ProfilePage() {
                 background: "#1C1C1C", border: "2px solid #C9A96E",
               }}
             >
-              <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#C9A96E", fontStyle: "italic" }}>
+              <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "1.4rem", color: "#C9A96E", fontStyle: "italic" }}>
                 {user.name?.charAt(0)?.toUpperCase()}
               </span>
             </div>
 
             <div>
-              <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.25rem" }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.6rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.25rem" }}>
                 Collector
               </p>
-              <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C", lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 400, fontSize: "1.8rem", color: "#1C1C1C", lineHeight: 1.1 }}>
                 {user.name}
               </h1>
-              <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "0.9rem", color: "#8B7355", marginTop: "0.2rem" }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.9rem", color: "#8B7355", marginTop: "0.2rem" }}>
                 {user.email}
               </p>
             </div>
@@ -129,10 +129,10 @@ export default function ProfilePage() {
           {/* Stats + logout */}
           <div className="flex items-center gap-8">
             <div className="text-center">
-              <p style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "2rem", color: "#1C1C1C", lineHeight: 1 }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 400, fontSize: "2rem", color: "#1C1C1C", lineHeight: 1 }}>
                 {wishlist.length}
               </p>
-              <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
                 Saved
               </p>
             </div>
@@ -141,7 +141,7 @@ export default function ProfilePage() {
               onClick={handleLogout}
               className="inline-flex items-center gap-2"
               style={{
-                fontFamily: "'Jost', sans-serif", fontSize: "0.65rem", letterSpacing: "0.18em",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.65rem", letterSpacing: "0.18em",
                 textTransform: "uppercase", color: "#8B7355", background: "none", border: "1px solid #E8DDD0",
                 padding: "0.55rem 1rem", cursor: "pointer", transition: "border-color 0.2s, color 0.2s",
               }}
@@ -167,7 +167,7 @@ export default function ProfilePage() {
               onClick={() => setTab(t)}
               className="relative py-4 px-5"
               style={{
-                fontFamily: "'Jost', sans-serif", fontSize: "0.65rem", letterSpacing: "0.2em",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.65rem", letterSpacing: "0.2em",
                 textTransform: "uppercase", color: tab === t ? "#1C1C1C" : "#8B7355",
                 background: "none", border: "none", cursor: "pointer",
               }}
@@ -189,7 +189,7 @@ export default function ProfilePage() {
           wishlist.length === 0 ? (
             <div className="text-center py-20">
               <FaRegHeart style={{ fontSize: "2rem", color: "#E8DDD0", marginBottom: "1rem", display: "block", margin: "0 auto 1rem" }} />
-              <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
+              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
                 No saved artworks yet.
               </p>
               <Link
@@ -214,7 +214,7 @@ export default function ProfilePage() {
         {/* Inquiries tab */}
         {tab === "inquiries" && (
           <div className="text-center py-20">
-            <p style={{ fontFamily: "'Beausite Classic', serif", fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
+            <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "1.1rem", color: "#8B7355" }}>
               Inquiry history coming soon.
             </p>
             <Link href="/info" className="btn-outline inline-flex items-center gap-2 px-8 py-3.5 mt-6">
@@ -362,13 +362,13 @@ function WishlistCard({ artworkId, onRemove }) {
           </p>
         </div>
         <div className="px-3 pt-3 pb-4 flex items-center justify-between">
-          <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355" }}>
+          <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355" }}>
             Saved
           </p>
           <button
             onClick={handleRemove}
             className="text-[0.62rem] tracking-widest uppercase"
-            style={{ fontFamily: "'Jost', sans-serif", color: "#C9A96E", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', color: "#C9A96E", background: "none", border: "none", cursor: "pointer", padding: 0 }}
           >
             Remove
           </button>
@@ -404,7 +404,7 @@ function WishlistCard({ artworkId, onRemove }) {
         <h4 className="font-display text-sm text-brand-dark truncate leading-snug">
           {artwork.title}
         </h4>
-        <p style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
+        <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", marginTop: "0.25rem" }}>
           {artwork.medium || "Original Artwork"} {artwork.size ? `· ${artwork.size}` : ""}
         </p>
       </div>

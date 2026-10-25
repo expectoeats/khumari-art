@@ -31,7 +31,7 @@ export default function Newsletter() {
       >
         <span
           style={{
-            fontFamily: "'Beausite Classic', serif",
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontWeight: 400,
             fontSize: "clamp(8rem, 28vw, 22rem)",
             color: "rgba(245,240,232,0.025)",
@@ -60,7 +60,7 @@ export default function Newsletter() {
           <div>
             <p
               style={{
-                fontFamily: "'Jost', sans-serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontSize: "0.6rem",
                 letterSpacing: "0.35em",
                 textTransform: "uppercase",
@@ -72,7 +72,7 @@ export default function Newsletter() {
             </p>
             <h2
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
                 fontWeight: 400,
                 fontSize: "clamp(2rem, 5vw, 4rem)",
                 lineHeight: 1.05,
@@ -85,7 +85,7 @@ export default function Newsletter() {
             </h2>
             <p
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontStyle: "italic",
                 fontSize: "1rem",
                 color: "rgba(245,240,232,0.35)",
@@ -112,7 +112,7 @@ export default function Newsletter() {
               >
                 <p
                   style={{
-                    fontFamily: "'Beausite Classic', serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontStyle: "italic",
                     fontSize: "1.2rem",
                     color: "#C9A96E",
@@ -123,7 +123,7 @@ export default function Newsletter() {
                 </p>
                 <p
                   style={{
-                    fontFamily: "'Beausite Classic', serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontSize: "0.9rem",
                     color: "rgba(245,240,232,0.4)",
                   }}
@@ -136,7 +136,7 @@ export default function Newsletter() {
                 <label
                   htmlFor="newsletter-email"
                   style={{
-                    fontFamily: "'Jost', sans-serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontSize: "0.6rem",
                     letterSpacing: "0.3em",
                     textTransform: "uppercase",
@@ -164,7 +164,7 @@ export default function Newsletter() {
                       background: "rgba(245,240,232,0.05)",
                       border: `1px solid ${status === "error" ? "#C9A96E" : "rgba(245,240,232,0.12)"}`,
                       color: "#F5F0E8",
-                      fontFamily: "'Beausite Classic', serif",
+                      fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                       fontSize: "1rem",
                       padding: "0.9rem 1.2rem",
                       outline: "none",
@@ -193,7 +193,7 @@ export default function Newsletter() {
                 {status === "error" && (
                   <p
                     style={{
-                      fontFamily: "'Beausite Classic', serif",
+                      fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                       fontStyle: "italic",
                       fontSize: "0.82rem",
                       color: "rgba(201,169,110,0.7)",
@@ -206,7 +206,7 @@ export default function Newsletter() {
 
                 <p
                   style={{
-                    fontFamily: "'Beausite Classic', serif",
+                    fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                     fontStyle: "italic",
                     fontSize: "0.78rem",
                     color: "rgba(245,240,232,0.2)",

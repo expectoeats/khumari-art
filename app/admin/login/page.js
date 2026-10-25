@@ -36,7 +36,7 @@ export default function AdminLogin() {
   return (
     <div
       className="min-h-screen flex items-center justify-center"
-      style={{ background: "#0F0F0F", fontFamily: "'Jost', sans-serif" }}
+      style={{ background: "#0F0F0F", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}
     >
       <div style={{ width: "100%", maxWidth: "380px", padding: "0 1.5rem" }}>
 
@@ -45,7 +45,7 @@ export default function AdminLogin() {
           <p style={{ fontSize: "0.6rem", letterSpacing: "0.32em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.4rem" }}>
             Kala Samputah
           </p>
-          <h1 style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 400, fontSize: "1.8rem", color: "#F5F0E8" }}>
+          <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 400, fontSize: "1.8rem", color: "#F5F0E8" }}>
             Admin
           </h1>
         </div>
@@ -71,7 +71,7 @@ export default function AdminLogin() {
                 padding: "0.75rem 1rem",
                 outline: "none",
                 borderRadius: "6px",
-                fontFamily: "'Jost', sans-serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               }}
             />
           </div>
@@ -95,7 +95,7 @@ export default function AdminLogin() {
                 padding: "0.75rem 1rem",
                 outline: "none",
                 borderRadius: "6px",
-                fontFamily: "'Jost', sans-serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               }}
             />
           </div>
@@ -121,7 +121,7 @@ export default function AdminLogin() {
               textTransform: "uppercase",
               fontWeight: 600,
               cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "'Jost', sans-serif",
+              fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
               transition: "background 0.2s",
             }}
           >

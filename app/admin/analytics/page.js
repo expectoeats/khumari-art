@@ -11,7 +11,7 @@ const StatCard = ({ label, value, sub, color = "#C9A96E" }) => (
     padding: "1.5rem",
   }}>
     <p style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", marginBottom: "0.8rem" }}>{label}</p>
-    <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "2.4rem", fontWeight: 400, color, lineHeight: 1 }}>{value}</p>
+    <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "2.4rem", fontWeight: 400, color, lineHeight: 1 }}>{value}</p>
     {sub && <p style={{ fontSize: "0.65rem", color: "rgba(245,240,232,0.3)", marginTop: "0.4rem", letterSpacing: "0.08em" }}>{sub}</p>}
   </div>
 );
@@ -58,7 +58,7 @@ export default function AdminAnalytics() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Reports</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Analytics</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Analytics</h1>
           </div>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <input

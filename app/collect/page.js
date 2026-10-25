@@ -186,7 +186,7 @@ function CollectContent() {
           </p>
           <h1
             style={{
-              fontFamily: "'Beausite Classic', serif",
+              fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
               fontWeight: 400,
               fontSize: "clamp(1.8rem, 4vw, 3rem)",
               color: "#F5F0E8",
@@ -484,7 +484,7 @@ function CollectContent() {
           <div>
             <p
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
                 fontStyle: "italic",
                 fontSize: "0.95rem",
                 color: "#8B7355",
@@ -495,7 +495,7 @@ function CollectContent() {
             </p>
             <h3
               style={{
-                fontFamily: "'Beausite Classic', serif",
+                fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif',
                 fontWeight: 400,
                 fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
                 color: "#1C1C1C",

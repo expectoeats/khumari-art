@@ -1,34 +1,110 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&family=Jost:wght@300;400;500;600;700&display=swap');
 
-/* ── Beausite Classic — local heading font (Light variant) ── */
+/* ── BeausiteFit — Heading Font ── */
 @font-face {
-  font-family: 'Beausite Classic';
-  src: url('/fonts/BeausiteClassicTrial-Light.otf') format('opentype');
-  font-weight: 100 400;
+  font-family: 'BeausiteFit';
+  src: url('/fonts/BeausiteFit-Light.otf') format('opentype');
+  font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Beausite Classic';
-  src: url('/fonts/BeausiteClassicTrial-LightItalic.otf') format('opentype');
-  font-weight: 100 400;
-  font-style: italic;
+  font-family: 'BeausiteFit';
+  src: url('/fonts/BeausiteFit-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Beausite Classic';
-  src: url('/fonts/BeausiteClassicTrial-Regular.otf') format('opentype');
+  font-family: 'BeausiteFit';
+  src: url('/fonts/BeausiteFit-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Beausite Classic';
-  src: url('/fonts/BeausiteClassicTrial-Medium.otf') format('opentype');
+  font-family: 'BeausiteFit';
+  src: url('/fonts/BeausiteFit-Bold.otf') format('opentype');
   font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── SF Pro Display — Body & UI Font ── */
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Display';
+  src: url('/fonts/SF-Pro-Display-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── SF Pro ── */
+@font-face {
+  font-family: 'SF Pro';
+  src: url('/fonts/SF-Pro.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── SF Pro Text ── */
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('/fonts/SF-Pro-Text-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url('/fonts/SF-Pro-Text-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback alias for Beausite Classic */
+@font-face {
+  font-family: 'Beausite Classic';
+  src: url('/fonts/BeausiteFit-Light.otf') format('opentype');
+  font-weight: 100 400;
   font-style: normal;
   font-display: swap;
 }
@@ -49,9 +125,19 @@ html {
 
 body {
   background-color: #FDFAF5;
-  font-family: 'Beausite Classic', Georgia, serif;
+  font-family: "SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   color: #1C1C1C;
+}
+
+/* Headings typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: BeausiteFit, "SF Pro Display", sans-serif;
+}
+
+/* Paragraphs & general typography */
+p, span, a, li, input, textarea, button, select, label {
+  font-family: "SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ── Marquee ── */

@@ -11,7 +11,7 @@ export default function Collections() {
           <p className="section-title mb-3">Browse By</p>
           <h2
             className="text-brand-dark text-3xl md:text-5xl"
-            style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 300, letterSpacing: "0.1em" }}
+            style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 300, letterSpacing: "0.1em" }}
           >
             COLLECTIONS
           </h2>
@@ -33,7 +33,7 @@ export default function Collections() {
                 <div>
                   <p
                     className="text-white tracking-[0.28em] uppercase mb-2"
-                    style={{ fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: "0.85rem" }}
+                    style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 300, fontSize: "0.85rem" }}
                   >
                     {cat.label}
                   </p>

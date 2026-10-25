@@ -13,7 +13,7 @@ export default function NewArrivals() {
           <p className="section-title mb-3">Just In</p>
           <h2
             className="text-brand-dark text-3xl md:text-5xl"
-            style={{ fontFamily: "'Beausite Classic', serif", fontWeight: 300, letterSpacing: "0.1em" }}
+            style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontWeight: 300, letterSpacing: "0.1em" }}
           >
             NEW ARRIVALS
           </h2>

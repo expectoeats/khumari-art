@@ -77,7 +77,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 min-w-0">
             <span className="text-brand-dark tracking-[0.18em] uppercase block truncate"
-              style={{ fontFamily: "'Jost', sans-serif", fontWeight: 300, fontSize: "clamp(0.7rem, 2.5vw, 1.05rem)", letterSpacing: "clamp(0.08em, 0.5vw, 0.22em)" }}>
+              style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 300, fontSize: "clamp(0.7rem, 2.5vw, 1.05rem)", letterSpacing: "clamp(0.08em, 0.5vw, 0.22em)" }}>
               KALA SAMPUTAH
             </span>
           </Link>
@@ -86,7 +86,7 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-8 lg:gap-10">
             {navItems.map(({ label, href }) => (
               <Link key={label} href={href} className="relative transition-colors duration-300 group"
-                style={{ fontFamily: "'Jost', sans-serif", fontWeight: 400, fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: isActive(href) ? "#1C1C1C" : "#8B7355", textDecoration: "none" }}>
+                style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 400, fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: isActive(href) ? "#1C1C1C" : "#8B7355", textDecoration: "none" }}>
                 {label}
                 <span style={{ position: "absolute", bottom: "-4px", left: 0, right: 0, height: "1px", background: "#C9A96E", transform: isActive(href) ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left", transition: "transform 0.3s ease" }}
                   className="group-hover:[transform:scaleX(1)]" />
@@ -114,11 +114,11 @@ export default function Navbar() {
                       {/* Avatar circle with initial */}
                       <div className="flex items-center justify-center w-7 h-7 rounded-full"
                         style={{ background: "#1C1C1C", border: "1.5px solid #C9A96E" }}>
-                        <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
+                        <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
                           {user.name?.charAt(0)?.toUpperCase()}
                         </span>
                       </div>
-                      <span style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.68rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7355" }}>
+                      <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B7355" }}>
                         {user.name?.split(" ")[0]}
                       </span>
                     </button>
@@ -135,20 +135,20 @@ export default function Navbar() {
                       >
                         <Link href="/profile" onClick={() => setDropdown(false)}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-brand-beige transition-colors"
-                          style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#1C1C1C", textDecoration: "none" }}>
+                          style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#1C1C1C", textDecoration: "none" }}>
                           <FaUserCircle className="text-brand-accent text-sm flex-shrink-0" />
                           My Profile
                         </Link>
                         <Link href="/profile?tab=wishlist" onClick={() => setDropdown(false)}
                           className="flex items-center gap-3 px-4 py-3 hover:bg-brand-beige transition-colors"
-                          style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#1C1C1C", textDecoration: "none" }}>
+                          style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#1C1C1C", textDecoration: "none" }}>
                           <FaHeart className="text-brand-accent text-sm flex-shrink-0" />
                           Wishlist
                         </Link>
                         <div style={{ height: "1px", background: "#E8DDD0", margin: "0 1rem" }} />
                         <button onClick={handleLogout}
                           className="flex items-center gap-3 px-4 py-3 w-full hover:bg-brand-beige transition-colors text-left"
-                          style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B7355", background: "none", border: "none", cursor: "pointer" }}>
+                          style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B7355", background: "none", border: "none", cursor: "pointer" }}>
                           <FaSignOutAlt className="text-sm flex-shrink-0" />
                           Sign Out
                         </button>
@@ -159,7 +159,7 @@ export default function Navbar() {
                   /* Not logged in — Login + Signup links */
                   <div className="flex items-center gap-4">
                     <Link href="/login"
-                      style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none", transition: "color 0.2s" }}
+                      style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none", transition: "color 0.2s" }}
                       onMouseEnter={e => (e.currentTarget.style.color = "#1C1C1C")}
                       onMouseLeave={e => (e.currentTarget.style.color = "#8B7355")}>
                       Login
@@ -185,7 +185,7 @@ export default function Navbar() {
           <div className="md:hidden bg-brand-cream border-t border-brand-sand px-6 py-6 flex flex-col gap-5">
             {navItems.map(({ label, href }) => (
               <Link key={label} href={href} className="transition-colors duration-300"
-                style={{ fontFamily: "'Jost', sans-serif", fontWeight: 400, fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: isActive(href) ? "#1C1C1C" : "#8B7355", textDecoration: "none" }}>
+                style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontWeight: 400, fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: isActive(href) ? "#1C1C1C" : "#8B7355", textDecoration: "none" }}>
                 {label}
               </Link>
             ))}
@@ -194,17 +194,17 @@ export default function Navbar() {
             <div style={{ height: "1px", background: "#E8DDD0" }} />
             {user ? (
               <>
-                <Link href="/profile" style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none" }}>
+                <Link href="/profile" style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none" }}>
                   My Profile
                 </Link>
                 <button onClick={handleLogout}
-                  style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>
+                  style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: 0 }}>
                   Sign Out
                 </button>
               </>
             ) : (
               <div className="flex gap-4">
-                <Link href="/login" style={{ fontFamily: "'Jost', sans-serif", fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none" }}>Login</Link>
+                <Link href="/login" style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.78rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#8B7355", textDecoration: "none" }}>Login</Link>
                 <Link href="/signup" className="btn-dark px-4 py-2" style={{ fontSize: "0.65rem" }}>Sign Up</Link>
               </div>
             )}

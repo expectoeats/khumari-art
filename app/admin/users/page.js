@@ -30,11 +30,11 @@ export default function AdminUsers() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Users</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Users</h1>
           </div>
           {/* Total count badge */}
           <div style={{ background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.2)", borderRadius: "6px", padding: "0.5rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <p style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#C9A96E", lineHeight: 1 }}>{users.length}</p>
+            <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "1.4rem", color: "#C9A96E", lineHeight: 1 }}>{users.length}</p>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(201,169,110,0.6)" }}>Total users</p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function AdminUsers() {
             style={{
               background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
               color: "#F5F0E8", fontSize: "0.82rem", padding: "0.55rem 1rem", outline: "none",
-              borderRadius: "6px", fontFamily: "'Jost', sans-serif", width: "280px",
+              borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', width: "280px",
             }}
           />
         </div>
@@ -86,31 +86,31 @@ export default function AdminUsers() {
                   background: "#1C1C1C", border: "1.5px solid rgba(201,169,110,0.4)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <span style={{ fontFamily: "'Beausite Classic', serif", fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
+                  <span style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.75rem", color: "#C9A96E", fontStyle: "italic" }}>
                     {user.name?.charAt(0)?.toUpperCase()}
                   </span>
                 </div>
               </div>
 
               {/* Name */}
-              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.85rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif" }}>
+              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.85rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>
                 {user.name}
               </div>
 
               {/* Email */}
-              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.72rem", color: "rgba(245,240,232,0.45)", fontFamily: "'Jost', sans-serif", letterSpacing: "0.04em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.72rem", color: "rgba(245,240,232,0.45)", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', letterSpacing: "0.04em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {user.email}
               </div>
 
               {/* Wishlist count */}
               <div style={{ padding: "0.7rem 0.8rem" }}>
-                <span style={{ fontSize: "0.68rem", background: "rgba(201,169,110,0.1)", color: "#C9A96E", borderRadius: "4px", padding: "0.15rem 0.5rem", fontFamily: "'Jost', sans-serif" }}>
+                <span style={{ fontSize: "0.68rem", background: "rgba(201,169,110,0.1)", color: "#C9A96E", borderRadius: "4px", padding: "0.15rem 0.5rem", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>
                   {user.wishlist?.length || 0}
                 </span>
               </div>
 
               {/* Joined date */}
-              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.3)", fontFamily: "'Jost', sans-serif" }}>
+              <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.3)", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>
                 {new Date(user.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" })}
               </div>
             </div>

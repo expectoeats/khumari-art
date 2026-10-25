@@ -15,7 +15,7 @@ const Input = ({ value, onChange, placeholder = "" }) => (
     style={{
       width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
       color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none",
-      borderRadius: "6px", fontFamily: "'Jost', sans-serif",
+      borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
     }}
   />
 );
@@ -52,7 +52,7 @@ function TagModal({ initial, onSave, onClose }) {
     >
       <div style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", width: "100%", maxWidth: "520px", padding: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#F5F0E8" }}>{form._id ? "Edit Tag" : "New Tag"}</h2>
+          <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.4rem", color: "#F5F0E8" }}>{form._id ? "Edit Tag" : "New Tag"}</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
         </div>
         {error && <p style={{ fontSize: "0.75rem", color: "#e57373", marginBottom: "1rem", padding: "0.5rem 0.75rem", background: "rgba(229,115,115,0.08)", borderRadius: "4px" }}>{error}</p>}
@@ -119,7 +119,7 @@ export default function AdminTags() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Tags</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Tags</h1>
           </div>
           <button onClick={() => setModal(null)} style={{ background: "#C9A96E", color: "#111010", border: "none", borderRadius: "6px", fontSize: "0.7rem", padding: "0.55rem 1rem", cursor: "pointer", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" }}>+ New Tag</button>
         </div>
@@ -143,8 +143,8 @@ export default function AdminTags() {
             tags.map((tag, i) => (
               <div key={tag._id} style={{ display: "grid", gridTemplateColumns: "44px 1fr 120px 100px 100px", borderBottom: i < tags.length - 1 ? "1px solid rgba(255,255,255,0.04)" : "none", alignItems: "center" }}>
                 <div style={{ padding: "0.7rem 0.8rem" }}>{i + 1}</div>
-                <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.85rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif" }}>{tag.name}</div>
-                <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.7rem", color: "rgba(245,240,232,0.4)", fontFamily: "'Jost', sans-serif" }}>{tag.slug}</div>
+                <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.85rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>{tag.name}</div>
+                <div style={{ padding: "0.7rem 0.8rem", fontSize: "0.7rem", color: "rgba(245,240,232,0.4)", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif' }}>{tag.slug}</div>
                 <div style={{ padding: "0.7rem 0.8rem" }}>
                   <div style={{ width: "24px", height: "24px", borderRadius: "4px", background: tag.color || "#C9A96E", border: "1px solid rgba(255,255,255,0.2)" }}></div>
                 </div>

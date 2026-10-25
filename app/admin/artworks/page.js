@@ -28,7 +28,7 @@ const Input = ({ value, onChange, type = "text", placeholder = "" }) => (
     style={{
       width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
       color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none",
-      borderRadius: "6px", fontFamily: "'Jost', sans-serif",
+      borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
     }}
   />
 );
@@ -40,7 +40,7 @@ const Select = ({ value, onChange, options }) => (
     style={{
       width: "100%", background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)",
       color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none",
-      borderRadius: "6px", fontFamily: "'Jost', sans-serif", cursor: "pointer",
+      borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', cursor: "pointer",
     }}
   >
     {options.map(o => <option key={o} value={o}>{o}</option>)}
@@ -55,7 +55,7 @@ const Textarea = ({ value, onChange, rows = 3 }) => (
     style={{
       width: "100%", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
       color: "#F5F0E8", fontSize: "0.85rem", padding: "0.6rem 0.8rem", outline: "none",
-      borderRadius: "6px", fontFamily: "'Jost', sans-serif", resize: "vertical", lineHeight: 1.6,
+      borderRadius: "6px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', resize: "vertical", lineHeight: 1.6,
     }}
   />
 );
@@ -105,7 +105,7 @@ function ArtworkModal({ initial, onSave, onClose }) {
     >
       <div style={{ background: "#1A1A1A", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", width: "100%", maxWidth: "560px", maxHeight: "90vh", overflowY: "auto", padding: "2rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <h2 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.4rem", color: "#F5F0E8" }}>
+          <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.4rem", color: "#F5F0E8" }}>
             {form._id ? "Edit Artwork" : "New Artwork"}
           </h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
@@ -224,7 +224,7 @@ export default function AdminArtworks() {
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "0.58rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "#C9A96E", marginBottom: "0.3rem" }}>Manage</p>
-            <h1 style={{ fontFamily: "'Beausite Classic', serif", fontSize: "1.9rem", color: "#F5F0E8" }}>Artworks</h1>
+            <h1 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.9rem", color: "#F5F0E8" }}>Artworks</h1>
           </div>
           <button
             onClick={() => setModal("new")}
@@ -257,7 +257,7 @@ export default function AdminArtworks() {
             style={{
               marginLeft: "auto", background: "rgba(245,240,232,0.05)", border: "1px solid rgba(255,255,255,0.08)",
               color: "#F5F0E8", fontSize: "0.78rem", padding: "0.4rem 0.8rem", borderRadius: "6px",
-              outline: "none", width: "180px", fontFamily: "'Jost', sans-serif",
+              outline: "none", width: "180px", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             }}
           />
         </div>
@@ -297,7 +297,7 @@ export default function AdminArtworks() {
                   </div>
                 </div>
                 {/* Title */}
-                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: "'Beausite Classic', serif", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</div>
+                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</div>
                 {/* Category */}
                 <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.4)", letterSpacing: "0.06em" }}>{a.category}</div>
                 {/* Year */}
