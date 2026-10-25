@@ -30,7 +30,7 @@ export default function AdminContentPage() {
   const [announcement, setAnnouncement] = useState({
     text: "",
     whatsappNumber: "919818817291",
-    studioEmail: "ratulm28@gmail.com",
+    studioEmail: "contact@kalasamputah.com",
     isVisible: true,
   });
   const [story, setStory] = useState({
@@ -564,7 +564,7 @@ export default function AdminContentPage() {
                       type="email"
                       value={announcement.studioEmail}
                       onChange={(e) => setAnnouncement({ ...announcement, studioEmail: e.target.value })}
-                      placeholder="e.g. ratulm28@gmail.com"
+                      placeholder="e.g. contact@kalasamputah.com"
                       style={{ width: "100%", background: "#1E1E1E", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "6px", padding: "0.7rem", color: "#F5F0E8" }}
                     />
                   </div>

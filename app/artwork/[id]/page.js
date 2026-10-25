@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -14,24 +14,127 @@ import { FaArrowLeft, FaWhatsapp, FaShieldAlt, FaAward, FaTruck, FaArrowRight } 
 
 export default function ArtworkDetailPage() {
   const params = useParams();
-  const workId = parseInt(params.id, 10);
-  const artwork = allWorks.find((w) => w.id === workId) || allWorks[0];
+  const rawId = params?.id ? decodeURIComponent(params.id) : "";
+
+  // 1. Initial fallback search in static allWorks
+  const staticFound = allWorks.find(
+    (w) => w.id?.toString() === rawId || w._id === rawId || (parseInt(rawId, 10) && w.id === parseInt(rawId, 10))
+  );
+
+  const [artwork, setArtwork] = useState(staticFound || null);
+  const [loading, setLoading] = useState(!staticFound);
+  const [allDbWorks, setAllDbWorks] = useState(allWorks);
+  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
   const { openInquiry } = useArtModal();
 
-  if (!artwork) {
+  useEffect(() => {
+    // Fetch WhatsApp number from CMS content
+    fetch("/api/content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.content?.contact?.whatsappNumber) {
+          setWhatsappNumber(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
+        }
+      })
+      .catch(() => {});
+
+    // Fetch artwork from DB
+    let isMounted = true;
+    const fetchArtwork = async () => {
+      try {
+        const res = await fetch(`/api/artworks/${rawId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.artwork && isMounted) {
+            const dbArt = data.artwork;
+            const normalized = {
+              id: dbArt._id,
+              _id: dbArt._id,
+              title: dbArt.title,
+              artist: dbArt.artist || "Nancy Sikri",
+              medium: dbArt.medium || "Mixed Media on Canvas",
+              size: dbArt.dimensions || dbArt.size || "Original Size",
+              year: dbArt.year || new Date().getFullYear(),
+              color: dbArt.color || "Amber",
+              category: dbArt.category?.name || dbArt.category || "Paintings",
+              src: dbArt.images?.[0] || dbArt.image || staticFound?.src || "/art/placeholder.jpg",
+              story: dbArt.story || dbArt.description || "Original Studio Work by Nancy Sikri.",
+              featured: dbArt.featured || false,
+            };
+            setArtwork(normalized);
+          }
+        }
+      } catch (err) {
+        console.warn("[ARTWORK DETAIL] Fallback to static archive", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchArtwork();
+
+    // Fetch full catalogue for curated pairings
+    fetch("/api/artworks")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.artworks && d.artworks.length > 0 && isMounted) {
+          const formatted = d.artworks.map((a) => ({
+            id: a._id,
+            _id: a._id,
+            title: a.title,
+            artist: a.artist || "Nancy Sikri",
+            medium: a.medium || "Mixed Media on Canvas",
+            size: a.dimensions || a.size || "",
+            year: a.year || new Date().getFullYear(),
+            color: a.color || "Neutral",
+            category: a.category?.name || a.category || "Paintings",
+            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          }));
+          setAllDbWorks(formatted);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [rawId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFAF5]">
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-4 py-24 text-center">
+          <div className="w-12 h-12 border-2 border-brand-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-xs uppercase tracking-widest text-brand-muted font-sans">
+            Opening Artwork Archive...
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const currentWork = artwork || staticFound || allWorks[0];
+  if (!currentWork) {
     return notFound();
   }
 
-  const relatedWorks = allWorks
-    .filter((w) => w.id !== artwork.id && (w.category === artwork.category || w.color === artwork.color))
+  const relatedWorks = allDbWorks
+    .filter(
+      (w) =>
+        (w.id?.toString() !== currentWork.id?.toString() && w._id !== currentWork._id) &&
+        (w.category === currentWork.category || w.color === currentWork.color)
+    )
     .slice(0, 4);
+
+  const archiveCode = `KS-${currentWork.year || 2024}-${(currentWork.id?.toString() || "01").slice(-2).toUpperCase()}`;
 
   return (
     <div className="min-h-screen bg-[#FDFAF5]">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-8 md:py-14">
-        
         {/* Breadcrumb & Navigation Back */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#EAE2D5]">
           <Link
@@ -43,19 +146,18 @@ export default function ArtworkDetailPage() {
           </Link>
 
           <span className="text-[0.65rem] uppercase tracking-widest text-brand-accent font-sans font-semibold">
-            Provenance Archive · KS-{artwork.year}-{artwork.id.toString().padStart(2, "0")}
+            Provenance Archive · {archiveCode}
           </span>
         </div>
 
         {/* Main Artwork Detail Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
-          {/* Left Column: Amazon/Flipkart Lens Zoom Viewer (7 cols) */}
+          {/* Left Column: Lens Zoom Viewer (7 cols) */}
           <div className="lg:col-span-7">
             <LensZoom
-              src={artwork.src}
-              alt={artwork.title}
-              title={artwork.title}
+              src={currentWork.src}
+              alt={currentWork.title}
+              title={currentWork.title}
             />
           </div>
 
@@ -63,13 +165,13 @@ export default function ArtworkDetailPage() {
           <div className="lg:col-span-5 space-y-6">
             <div>
               <span className="text-[0.68rem] tracking-[0.25em] uppercase text-brand-accent font-sans font-semibold block mb-1">
-                Original Studio Work · Nancy Sikri
+                Original Studio Work · {currentWork.artist || "Nancy Sikri"}
               </span>
               <h1 className="font-display text-3xl md:text-4xl text-brand-dark leading-tight">
-                {artwork.title}
+                {currentWork.title}
               </h1>
               <p className="text-sm text-brand-warm font-sans mt-1">
-                New Delhi Atelier · Created {artwork.year}
+                New Delhi Atelier · Created {currentWork.year}
               </p>
             </div>
 
@@ -80,7 +182,7 @@ export default function ArtworkDetailPage() {
                   Medium
                 </span>
                 <p className="text-xs font-semibold text-brand-dark font-sans mt-0.5 truncate">
-                  {artwork.medium}
+                  {currentWork.medium || "Acrylic on Canvas"}
                 </p>
               </div>
               <div>
@@ -88,7 +190,7 @@ export default function ArtworkDetailPage() {
                   Dimensions
                 </span>
                 <p className="text-xs font-semibold text-brand-dark font-sans mt-0.5">
-                  {artwork.size || "Original Size"}
+                  {currentWork.size || "Original Size"}
                 </p>
               </div>
               <div>
@@ -96,7 +198,7 @@ export default function ArtworkDetailPage() {
                   Dominant Palette
                 </span>
                 <p className="text-xs font-semibold text-brand-dark font-sans mt-0.5">
-                  {artwork.color}
+                  {currentWork.color || "Neutral"}
                 </p>
               </div>
             </div>
@@ -104,7 +206,8 @@ export default function ArtworkDetailPage() {
             {/* Curatorial Text */}
             <div className="text-sm text-[#4E443B] font-sans font-light leading-relaxed space-y-3">
               <p>
-                This work explores emotional presence through layered textures, raw pigments, and intuitive gesture. No preliminary sketch was made; every line and surface builds upon previous states of paint, creating a tangible dialogue with light and physical space.
+                {currentWork.story ||
+                  "This work explores emotional presence through layered textures, raw pigments, and intuitive gesture. No preliminary sketch was made; every line and surface builds upon previous states of paint, creating a tangible dialogue with light and physical space."}
               </p>
               <p className="text-xs text-brand-muted italic font-display">
                 "Paintings are conversations that never end. Each piece is placed directly with the person who feels drawn to its rhythm."
@@ -127,7 +230,7 @@ export default function ArtworkDetailPage() {
 
               <div className="space-y-3 pt-2">
                 <button
-                  onClick={() => openInquiry(artwork)}
+                  onClick={() => openInquiry(currentWork)}
                   className="w-full py-3.5 px-6 bg-brand-dark hover:bg-brand-warm text-brand-cream rounded-lg text-xs tracking-widest uppercase font-sans font-medium transition-all shadow hover:shadow-md flex items-center justify-center gap-2"
                 >
                   <span>Inquire for Quote</span>
@@ -135,8 +238,8 @@ export default function ArtworkDetailPage() {
                 </button>
 
                 <a
-                  href={`https://wa.me/919818817291?text=${encodeURIComponent(
-                    `Hello Nancy, I am inquiring for quote on the painting: ${artwork.title} (ID: ${artwork.id})`
+                  href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                    `Hello Nancy, I am inquiring for quote on the painting: "${currentWork.title}" (Provenance: ${archiveCode})`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -163,9 +266,7 @@ export default function ArtworkDetailPage() {
                 <span>Insured Global Crating</span>
               </div>
             </div>
-
           </div>
-
         </div>
 
         {/* Related Works Grid */}
@@ -188,12 +289,11 @@ export default function ArtworkDetailPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedWorks.map((work) => (
-                <ArtCard key={work.id} {...work} />
+                <ArtCard key={work.id || work._id} {...work} />
               ))}
             </div>
           </section>
         )}
-
       </main>
 
       <Footer />

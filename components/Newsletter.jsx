@@ -7,16 +7,28 @@ export default function Newsletter() {
   const [email, setEmail]       = useState("");
   const [status, setStatus]     = useState("idle"); // idle | success | error
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       setStatus("error");
       return;
     }
-    // Opens mail client with pre-filled subscription request
-    window.location.href = `mailto:ratulm28@gmail.com?subject=Newsletter%20Subscription&body=Please%20add%20me%20to%20your%20mailing%20list.%0A%0AEmail%3A%20${encodeURIComponent(email)}`;
-    setStatus("success");
-    setEmail("");
+    try {
+      await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "Newsletter Subscriber",
+          email: email.trim(),
+          message: "Subscribed to Studio Newsletter updates & exhibition previews.",
+          source: "newsletter",
+        }),
+      });
+      setStatus("success");
+      setEmail("");
+    } catch {
+      setStatus("error");
+    }
   };
 
   return (

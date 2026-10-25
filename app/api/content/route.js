@@ -25,7 +25,7 @@ const DEFAULT_CONTENT = {
   announcement: {
     text: "New collection available — Inquire for pricing",
     whatsappNumber: "919818817291",
-    studioEmail: "ratulm28@gmail.com",
+    studioEmail: "contact@kalasamputah.com",
     isVisible: true,
   },
   story: {

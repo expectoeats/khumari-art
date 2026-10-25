@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { allWorks } from "../../components/data";
-import { FaSearchPlus, FaTimes, FaArrowRight } from "react-icons/fa";
+import { FaSearchPlus, FaTimes, FaArrowRight, FaPalette } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
 
 const categories = ["All", "Paintings", "Prints", "Photography"];
@@ -95,6 +95,7 @@ function CollectContent() {
   const [activeColor, setActiveColor] = useState(initialColor);
   const [hovered, setHovered] = useState(null);
   const [colorHovered, setColorHovered] = useState(null);
+  const [works, setWorks] = useState(allWorks);
 
   // ── Wishlist state ──
   const [wishlist, setWishlist] = useState([]);
@@ -102,6 +103,44 @@ function CollectContent() {
   const [animatingHeart, setAnimatingHeart] = useState(null);
 
   const { openArtwork, openInquiry } = useArtModal();
+
+  // Fetch live artworks from MongoDB
+  useEffect(() => {
+    let mounted = true;
+    fetch("/api/artworks")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.artworks && data.artworks.length > 0 && mounted) {
+          const formatted = data.artworks.map((a) => ({
+            id: a._id,
+            _id: a._id,
+            title: a.title,
+            artist: a.artist || "Nancy Sikri",
+            medium: a.medium || "Mixed Media on Canvas",
+            size: a.dimensions || a.size || "",
+            year: a.year || new Date().getFullYear(),
+            color: a.color || "Neutral",
+            category: a.category?.name || a.category || "Paintings",
+            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+            featured: a.featured,
+          }));
+
+          // Merge DB items with fallback static items avoiding duplicates
+          const combined = [...formatted];
+          allWorks.forEach((w) => {
+            if (!combined.some((c) => c.title?.toLowerCase() === w.title?.toLowerCase())) {
+              combined.push(w);
+            }
+          });
+          setWorks(combined);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const col = searchParams.get("color");
@@ -125,7 +164,7 @@ function CollectContent() {
   }, []);
 
   // Combined filter
-  const visible = allWorks.filter((work) => {
+  const visible = works.filter((work) => {
     const matchCategory = activeCategory === "All" || work.category === activeCategory;
     const matchColor = activeColor === "All" || work.color === activeColor;
     return matchCategory && matchColor;
@@ -455,19 +494,48 @@ function CollectContent() {
             })}
           </div>
         ) : (
-          <div className="text-center py-20 bg-white rounded-xl border border-[#EAE2D5]">
-            <p className="font-display text-2xl text-brand-dark mb-2">
-              No works found matching your filter
+          <div className="py-20 px-6 text-center max-w-lg mx-auto bg-white rounded-2xl border border-[#EAE2D5] shadow-sm">
+            <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-4 bg-[#F5EFE6] border border-[#E2D8C9]">
+              <FaPalette className="text-xl text-brand-accent" />
+            </div>
+            <p className="font-display text-2xl md:text-3xl text-brand-dark mb-2">
+              No works in this selection
             </p>
-            <p className="text-sm text-brand-muted font-sans mb-6">
-              Try choosing another color palette or category.
+            <p className="text-xs sm:text-sm text-brand-muted font-sans mb-6 leading-relaxed">
+              We couldn't find any studio artworks matching{" "}
+              {activeCategory !== "All" && <span className="font-semibold text-brand-dark">"{activeCategory}"</span>}
+              {activeCategory !== "All" && activeColor !== "All" && " and "}
+              {activeColor !== "All" && (
+                <span>
+                  palette <span className="font-semibold text-brand-dark">"{activeColor}"</span>
+                </span>
+              )}
+              . Try picking another palette or category.
             </p>
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {activeCategory !== "All" && (
+                <button
+                  onClick={() => setActiveCategory("All")}
+                  className="text-xs px-3 py-1.5 rounded-full bg-[#F5EFE6] hover:bg-brand-accent hover:text-white border border-[#E2D8C9] text-brand-dark font-sans transition-colors"
+                >
+                  All Categories
+                </button>
+              )}
+              {activeColor !== "All" && (
+                <button
+                  onClick={() => setActiveColor("All")}
+                  className="text-xs px-3 py-1.5 rounded-full bg-[#F5EFE6] hover:bg-brand-accent hover:text-white border border-[#E2D8C9] text-brand-dark font-sans transition-colors"
+                >
+                  All Palettes
+                </button>
+              )}
+            </div>
             <button
               onClick={() => {
                 setActiveColor("All");
                 setActiveCategory("All");
               }}
-              className="btn-dark px-6 py-3"
+              className="btn-dark px-8 py-3.5 text-xs tracking-widest uppercase font-sans font-medium"
             >
               Reset All Filters
             </button>

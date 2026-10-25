@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaSearchPlus, FaArrowRight } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
@@ -86,10 +86,44 @@ function getCardStyle(offset) {
 
 export default function TopPicks() {
   const [active, setActive] = useState(2); // center card
+  const [workList, setWorkList] = useState(picks);
   const { openArtwork, openInquiry } = useArtModal();
 
+  useEffect(() => {
+    fetch("/api/artworks")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.artworks && data.artworks.length > 0) {
+          const featuredOrRecent = data.artworks.filter(a => a.featured).length > 0
+            ? data.artworks.filter(a => a.featured)
+            : data.artworks;
+          const formatted = featuredOrRecent.map((a) => ({
+            id: a._id,
+            _id: a._id,
+            title: a.title,
+            artist: a.artist || "Nancy Sikri",
+            subtitle: a.story || a.description || "Original studio piece",
+            medium: a.medium || "Mixed Media on Canvas",
+            size: a.dimensions || a.size || "",
+            year: a.year || new Date().getFullYear(),
+            color: a.color || "Amber",
+            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          }));
+
+          const combined = [...formatted];
+          picks.forEach((p) => {
+            if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
+              combined.push(p);
+            }
+          });
+          setWorkList(combined.slice(0, 5));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const prev = () => setActive(p => Math.max(0, p - 1));
-  const next = () => setActive(p => Math.min(picks.length - 1, p + 1));
+  const next = () => setActive(p => Math.min(workList.length - 1, p + 1));
 
   const handleCardClick = (i, isCenter, pick) => {
     if (isCenter) {
@@ -138,7 +172,7 @@ export default function TopPicks() {
         {/* Next arrow — mobile visible */}
         <button
           onClick={next}
-          disabled={active === picks.length - 1}
+          disabled={active === workList.length - 1}
           aria-label="Next"
           className="absolute right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full border border-brand-sand/60 bg-white/80 text-brand-dark disabled:opacity-30 transition-opacity md:hidden"
           style={{ top: "50%", transform: "translateY(-50%)" }}
@@ -147,7 +181,7 @@ export default function TopPicks() {
             <path d="M4.5 2L8 6l-3.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-        {picks.map((pick, i) => {
+        {workList.map((pick, i) => {
           const offset = i - active;
           const style  = getCardStyle(offset);
           const isCenter = offset === 0;
@@ -265,7 +299,7 @@ export default function TopPicks() {
 
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 mt-8">
-        {picks.map((_, i) => (
+        {workList.map((_, i) => (
           <button
             key={i}
             onClick={() => setActive(i)}

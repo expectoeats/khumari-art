@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -12,13 +12,61 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 export default function BlogPostPage() {
   const { slug } = useParams();
-  const post     = blogPosts.find(p => p.slug === slug);
+  const staticPost = blogPosts.find(p => p.slug === slug);
+  const [post, setPost] = useState(staticPost || null);
+  const [loading, setLoading] = useState(!staticPost);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!staticPost) {
+      fetch(`/api/blogs/${slug}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.post && mounted) {
+            setPost({
+              id: data.post._id,
+              slug: data.post.slug,
+              title: data.post.title,
+              category: data.post.category,
+              excerpt: data.post.excerpt,
+              cover: data.post.cover || "/art/placeholder.jpg",
+              readTime: data.post.readTime || "5 min",
+              date: new Date(data.post.createdAt || Date.now()).toLocaleDateString("en-US", {
+                month: "short",
+                year: "numeric",
+              }),
+              content: data.post.content || [],
+            });
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (mounted) setLoading(false);
+        });
+    }
+    return () => { mounted = false; };
+  }, [slug, staticPost]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FDFAF5]">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 py-28 text-center">
+          <div className="w-10 h-10 border-2 border-brand-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-xs uppercase tracking-widest text-brand-muted font-sans">
+            Loading Studio Journal...
+          </p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!post) return notFound();
 
   const currentIndex = blogPosts.findIndex(p => p.slug === slug);
-  const prev = blogPosts[currentIndex - 1] || null;
-  const next = blogPosts[currentIndex + 1] || null;
+  const prev = currentIndex > 0 ? blogPosts[currentIndex - 1] : null;
+  const next = currentIndex >= 0 && currentIndex < blogPosts.length - 1 ? blogPosts[currentIndex + 1] : null;
 
   return (
     <div className="min-h-screen" style={{ background: "#FDFAF5" }}>

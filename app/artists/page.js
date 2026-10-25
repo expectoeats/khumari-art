@@ -505,13 +505,13 @@ export default function ArtistsPage() {
               <FaInstagram style={{ color: "#C9A96E" }} />
               Follow @kala_samputah
             </a>
-            <a
-              href="mailto:RATULM28@GMAIL.COM"
+            <Link
+              href="/info"
               className="btn-dark w-full md:w-auto inline-flex items-center justify-center gap-3 px-8 py-3.5"
             >
               Inquire about a commission
               <FaArrowRight className="text-[10px]" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>

@@ -1,13 +1,48 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import ArtCard from "./ArtCard";
 import { paintings } from "./data";
 
 export default function Paintings() {
+  const [works, setWorks] = useState(paintings);
+
+  useEffect(() => {
+    fetch("/api/artworks")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.artworks && data.artworks.length > 0) {
+          const formatted = data.artworks.map((a) => ({
+            id: a._id,
+            _id: a._id,
+            title: a.title,
+            artist: a.artist || "Nancy Sikri",
+            medium: a.medium || "Mixed Media on Canvas",
+            size: a.dimensions || a.size || "",
+            year: a.year || new Date().getFullYear(),
+            color: a.color || "Amber",
+            category: a.category?.name || a.category || "Paintings",
+            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+            featured: a.featured,
+          }));
+
+          const combined = [...formatted];
+          paintings.forEach((p) => {
+            if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
+              combined.push(p);
+            }
+          });
+          setWorks(combined.slice(0, 8));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="py-16 md:py-24 px-4 md:px-10 bg-brand-cream">
       <div className="max-w-7xl mx-auto">
-
         {/* Title */}
         <div className="text-center mb-10 md:mb-14">
           <p className="section-title mb-3">Explore</p>
@@ -22,8 +57,8 @@ export default function Paintings() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
-          {paintings.map((art, i) => (
-            <ArtCard key={art.id || i} {...art} />
+          {works.map((art, i) => (
+            <ArtCard key={art.id || art._id || i} {...art} />
           ))}
         </div>
 
@@ -34,7 +69,6 @@ export default function Paintings() {
             <FaArrowRight className="text-[10px]" />
           </Link>
         </div>
-
       </div>
     </section>
   );

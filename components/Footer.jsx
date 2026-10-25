@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaPinterestP, FaWhatsapp } from "react-icons/fa";
 
@@ -11,6 +14,23 @@ const footerNav = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("contact@kalasamputah.com");
+  const [whatsapp, setWhatsapp] = useState("919818817291");
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.contact?.studioEmail) {
+          setEmail(data.content.contact.studioEmail);
+        }
+        if (data.content?.contact?.whatsappNumber) {
+          setWhatsapp(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <footer id="connect" className="bg-brand-dark">
 
@@ -73,7 +93,7 @@ export default function Footer() {
             {/* Social */}
             <div className="flex gap-4 pt-2">
               {[
-                { Icon: FaWhatsapp,   href: "https://wa.me/919818817291?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20interested%20in%20your%20artworks." },
+                { Icon: FaWhatsapp,   href: `https://wa.me/${whatsapp}?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20interested%20in%20your%20artworks.` },
                 { Icon: FaInstagram,  href: "https://www.instagram.com/kala_samputah" },
                 { Icon: FaFacebookF,  href: "https://www.facebook.com/kalasamputah" },
                 { Icon: FaPinterestP, href: "https://www.pinterest.com/kalasamputah" },
@@ -165,7 +185,7 @@ export default function Footer() {
             </div>
 
             <a
-              href="mailto:RATULM28@GMAIL.COM"
+              href={`mailto:${email}`}
               className="inline-block text-brand-sand/40 hover:text-brand-accent border-b border-brand-accent/20 hover:border-brand-accent pb-0.5 transition-all duration-300"
               style={{
                 fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
@@ -173,7 +193,7 @@ export default function Footer() {
                 letterSpacing: "0.1em",
               }}
             >
-              ratulm28@gmail.com
+              {email}
             </a>
           </div>
 
@@ -183,34 +203,30 @@ export default function Footer() {
       {/* ── Gold rule ── */}
       <div
         className="mx-6 md:mx-16"
-        style={{
-          height: "1px",
-          background: "linear-gradient(to right, transparent, rgba(201,169,110,0.3), transparent)",
-        }}
+        style={{ height: "1px", background: "rgba(201,169,110,0.15)" }}
       />
 
       {/* ── Bottom bar ── */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 py-6 flex flex-col sm:flex-row justify-between items-center gap-3">
+      <div className="max-w-7xl mx-auto px-6 md:px-16 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-brand-sand/25">
         <p
           style={{
             fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
             fontSize: "0.78rem",
-            color: "rgba(232,221,208,0.18)",
-            letterSpacing: "0.06em",
-          }}
-        >
-          © 2026 Kala Samputah · Nancy Sikri
-        </p>
-        <p
-          style={{
-            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
-            fontStyle: "italic",
-            fontSize: "0.78rem",
-            color: "rgba(201,169,110,0.25)",
             letterSpacing: "0.04em",
           }}
         >
-          @kala_samputah
+          © {new Date().getFullYear()} Nancy Sikri · Kala Samputah. All rights reserved.
+        </p>
+
+        <p
+          style={{
+            fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif',
+            fontSize: "0.75rem",
+            color: "#8B7355",
+            letterSpacing: "0.08em",
+          }}
+        >
+          Original Acrylic Works · New Delhi, India
         </p>
       </div>
 

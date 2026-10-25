@@ -1,4 +1,5 @@
 import { NextResponse }   from "next/server";
+import mongoose           from "mongoose";
 import { connectDB }       from "../../../../lib/mongodb";
 import { getAdminSession } from "../../../../lib/auth";
 import BlogPost            from "../../../../models/BlogPost";
@@ -6,7 +7,13 @@ import BlogPost            from "../../../../models/BlogPost";
 export async function GET(_, { params }) {
   try {
     await connectDB();
-    const post = await BlogPost.findById(params.id);
+    let post = null;
+    if (mongoose.Types.ObjectId.isValid(params.id)) {
+      post = await BlogPost.findById(params.id);
+    }
+    if (!post) {
+      post = await BlogPost.findOne({ slug: params.id });
+    }
     if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ post });
   } catch {

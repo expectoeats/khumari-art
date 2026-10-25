@@ -1,25 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { blogPosts } from "../../components/data";
 
-const categories = ["All", ...Array.from(new Set(blogPosts.map(p => p.category)))];
-
 export default function BlogPage() {
+  const [posts, setPosts] = useState(blogPosts);
   const [active, setActive] = useState("All");
   const [hovered, setHovered] = useState(null);
 
-  const visible = active === "All"
-    ? blogPosts
-    : blogPosts.filter(p => p.category === active);
+  useEffect(() => {
+    fetch("/api/blogs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.posts && data.posts.length > 0) {
+          const formatted = data.posts.map((p) => ({
+            id: p._id,
+            slug: p.slug,
+            title: p.title,
+            category: p.category,
+            excerpt: p.excerpt,
+            cover: p.cover || "/art/placeholder.jpg",
+            readTime: p.readTime || "5 min",
+            date: new Date(p.createdAt || Date.now()).toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            }),
+            content: p.content || [],
+          }));
 
-  const featured = blogPosts[0];
-  const rest     = blogPosts.slice(1);
-  const visibleRest = active === "All" ? rest : visible;
+          const combined = [...formatted];
+          blogPosts.forEach((bp) => {
+            if (!combined.some((c) => c.slug === bp.slug)) {
+              combined.push(bp);
+            }
+          });
+          setPosts(combined);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const categories = ["All", ...Array.from(new Set(posts.map((p) => p.category)))];
+
+  const visible = active === "All"
+    ? posts
+    : posts.filter((p) => p.category === active);
+
+  const featured = visible[0] || posts[0] || blogPosts[0];
+  const rest     = visible.slice(1);
+  const visibleRest = rest;
 
   return (
     <div className="min-h-screen" style={{ background: "#FDFAF5" }}>

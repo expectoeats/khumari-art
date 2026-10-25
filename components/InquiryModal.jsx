@@ -17,6 +17,18 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [filling, setFilling] = useState(false);
+  const [studioEmail, setStudioEmail] = useState("contact@kalasamputah.com");
+  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
+
+  useEffect(() => {
+    fetch("/api/content")
+      .then(res => res.json())
+      .then(data => {
+        if (data.content?.contact?.studioEmail) setStudioEmail(data.content.contact.studioEmail);
+        if (data.content?.contact?.whatsappNumber) setWhatsappNumber(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
+      })
+      .catch(() => {});
+  }, []);
 
   // Auto-fill form from logged-in user profile when modal opens / user loads
   useEffect(() => {
@@ -78,8 +90,8 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
     `Hello Nancy / Kala Samputah,\n\nI am interested in inquiring about the original artwork:\n*${artwork.title}*\nArtist: ${artwork.artist || "Nancy Sikri"}\nMedium: ${artwork.medium || "Painting"}\nDimensions: ${artwork.size || "Original Canvas"}\n\nCould you please share details on availability, pricing, and crating/delivery?`
   );
 
-  const whatsappUrl = `https://wa.me/919818817291?text=${whatsappMessage}`;
-  const mailtoUrl = `mailto:ratulm28@gmail.com?subject=Inquiry for Quote: ${encodeURIComponent(artwork.title)}&body=${whatsappMessage}`;
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+  const mailtoUrl = `mailto:${studioEmail}?subject=Inquiry for Quote: ${encodeURIComponent(artwork.title)}&body=${whatsappMessage}`;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-sm overflow-y-auto animate-fadeIn">
