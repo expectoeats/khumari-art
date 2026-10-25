@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaInstagram, FaFacebookF, FaPinterestP } from "react-icons/fa";
+import { FaInstagram, FaFacebookF, FaPinterestP, FaWhatsapp } from "react-icons/fa";
 
 const footerNav = [
   { label: "Collect",   href: "/collect" },
@@ -73,6 +73,7 @@ export default function Footer() {
             {/* Social */}
             <div className="flex gap-4 pt-2">
               {[
+                { Icon: FaWhatsapp,   href: "https://wa.me/919818817291?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20interested%20in%20your%20artworks." },
                 { Icon: FaInstagram,  href: "https://www.instagram.com/kala_samputah" },
                 { Icon: FaFacebookF,  href: "https://www.facebook.com/kalasamputah" },
                 { Icon: FaPinterestP, href: "https://www.pinterest.com/kalasamputah" },

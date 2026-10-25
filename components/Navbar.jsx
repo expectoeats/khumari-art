@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaSearch, FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaHeart } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaHeart, FaWhatsapp } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
 import { useUser } from "./UserContext";
 
@@ -54,15 +54,25 @@ export default function Navbar() {
     <>
       {/* ── Announcement Bar ── */}
       {visible && (
-        <div className="announcement-bar relative flex items-center justify-center py-2.5 px-10 text-center">
-          <span>
-            New collection available —{" "}
+        <div className="announcement-bar relative flex items-center justify-center py-2.5 px-10 text-center flex-wrap gap-x-2 gap-y-1">
+          <span className="inline-flex items-center flex-wrap justify-center gap-x-2">
+            <span>New collection available —</span>
             <button
               onClick={() => openInquiry({ title: "New 2024 Studio Collection", src: "/art/822454183_18116058677070803_7997214052897677537_n.jpg", artist: "Nancy Sikri", medium: "Original Acrylic Works" })}
               className="underline font-medium hover:text-white transition-colors cursor-pointer bg-transparent border-none p-0 inline"
             >
               Inquire for pricing
             </button>
+            <span className="opacity-40 hidden sm:inline">·</span>
+            <a
+              href="https://wa.me/919818817291?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20visiting%20your%20website%20and%20would%20like%20to%20inquire%20about%20your%20art."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 underline hover:text-[#25D366] transition-colors"
+            >
+              <FaWhatsapp className="text-[#25D366] text-xs" />
+              Chat on WhatsApp
+            </a>
           </span>
           <button onClick={() => setVisible(false)} className="absolute right-4 text-brand-sand hover:text-white transition-colors" aria-label="Close">
             <FaTimes className="text-xs" />

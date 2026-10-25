@@ -22,13 +22,21 @@ export async function POST(req) {
   try {
     await connectDB();
     const body    = await req.json();
-    const { name, email, message, artworkId, artworkTitle, source } = body;
+    const { name, email, phone, message, artworkId, artworkTitle, source } = body;
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: "name, email and message are required" }, { status: 400 });
     }
 
-    const inquiry = await Inquiry.create({ name, email, message, artworkId, artworkTitle, source });
+    const inquiry = await Inquiry.create({
+      name,
+      email,
+      phone: phone || "",
+      message,
+      artworkId,
+      artworkTitle,
+      source,
+    });
     return NextResponse.json({ inquiry }, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: err.message || "Server error" }, { status: 500 });

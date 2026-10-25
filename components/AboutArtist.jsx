@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { FaInstagram, FaArrowRight } from "react-icons/fa";
+import Link from "next/link";
+import { FaInstagram, FaArrowRight, FaWhatsapp } from "react-icons/fa";
 
 export default function AboutArtist() {
   return (
@@ -141,16 +142,28 @@ export default function AboutArtist() {
             </div>
 
             {/* Buttons */}
-            <div className="flex flex-col md:flex-row gap-3 md:gap-4 pt-2">
-              <button className="btn-dark px-8 py-3.5 inline-flex items-center justify-center gap-2.5 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3 md:gap-4 pt-2">
+              <Link
+                href="/collect"
+                className="btn-dark px-7 py-3.5 inline-flex items-center justify-center gap-2.5 w-full sm:w-auto"
+              >
                 View Portfolio
                 <FaArrowRight className="text-[10px]" />
-              </button>
+              </Link>
+              <a
+                href="https://wa.me/919818817291?text=Hello%20Nancy%20%2F%20Kala%20Samputah%2C%20I%20am%20interested%20in%20your%20artworks%20and%20would%20like%20to%20connect."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline px-6 py-3.5 inline-flex items-center justify-center gap-2 w-full sm:w-auto hover:border-[#25D366] hover:text-[#128C7E] transition-colors"
+              >
+                <FaWhatsapp className="text-[#25D366] text-base" />
+                WhatsApp Chat
+              </a>
               <a
                 href="https://www.instagram.com/kala_samputah"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-outline px-8 py-3.5 inline-flex items-center justify-center gap-2.5 w-full md:w-auto"
+                className="btn-outline px-6 py-3.5 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
               >
                 <FaInstagram />
                 @kala_samputah
