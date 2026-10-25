@@ -18,22 +18,27 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
   const [submitted, setSubmitted] = useState(false);
   const [filling, setFilling] = useState(false);
 
-  if (!isOpen || !artwork) return null;
-
   // Auto-fill form from logged-in user profile when modal opens / user loads
   useEffect(() => {
-    if (!isOpen || !user) return;
-    setFilling(true);
-    setFormData({
-      name:  user.name  || "",
-      email: user.email || "",
-      phone: user.phone || "",
-      city:  user.city  || "",
-      address: user.address || "",
-      message: "",
-    });
-    setFilling(false);
+    if (!isOpen) {
+      setSubmitted(false);
+      return;
+    }
+    if (user) {
+      setFilling(true);
+      setFormData({
+        name:  user.name  || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        city:  user.city  || "",
+        address: user.address || "",
+        message: "",
+      });
+      setFilling(false);
+    }
   }, [isOpen, user]);
+
+  if (!isOpen || !artwork) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
