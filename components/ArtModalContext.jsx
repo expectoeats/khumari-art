@@ -1,8 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import ArtworkDetailModal from "./ArtworkDetailModal";
-import InquiryModal from "./InquiryModal";
+import dynamic from "next/dynamic";
+
+const ArtworkDetailModal = dynamic(() => import("./ArtworkDetailModal"), {
+  ssr: false,
+});
+
+const InquiryModal = dynamic(() => import("./InquiryModal"), {
+  ssr: false,
+});
 
 const ArtModalContext = createContext({
   openArtwork: () => {},
@@ -35,20 +42,24 @@ export function ArtModalProvider({ children }) {
     <ArtModalContext.Provider value={{ openArtwork, openInquiry, closeAll }}>
       {children}
       
-      {/* Global Interactive Artwork Detail Viewer with Lens Zoom */}
-      <ArtworkDetailModal
-        isOpen={isArtworkModalOpen}
-        artwork={selectedArtwork}
-        onClose={() => setIsArtworkModalOpen(false)}
-        onInquire={(art) => openInquiry(art || selectedArtwork)}
-      />
+      {/* Lazy-loaded Interactive Artwork Detail Viewer */}
+      {isArtworkModalOpen && (
+        <ArtworkDetailModal
+          isOpen={isArtworkModalOpen}
+          artwork={selectedArtwork}
+          onClose={() => setIsArtworkModalOpen(false)}
+          onInquire={(art) => openInquiry(art || selectedArtwork)}
+        />
+      )}
 
-      {/* Global Price Quote & Acquisition Inquiry Modal */}
-      <InquiryModal
-        isOpen={isInquiryModalOpen}
-        artwork={inquiryArtwork}
-        onClose={() => setIsInquiryModalOpen(false)}
-      />
+      {/* Lazy-loaded Acquisition Inquiry Modal */}
+      {isInquiryModalOpen && (
+        <InquiryModal
+          isOpen={isInquiryModalOpen}
+          artwork={inquiryArtwork}
+          onClose={() => setIsInquiryModalOpen(false)}
+        />
+      )}
     </ArtModalContext.Provider>
   );
 }

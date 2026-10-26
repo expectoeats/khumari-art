@@ -99,8 +99,9 @@ export default function AboutArtist() {
                 src={data.photo || "/avatar.webp"}
                 alt={`${data.name || "Nancy Sikri"} — Artist`}
                 fill
+                loading="lazy"
+                sizes="(max-width: 768px) 260px, 320px"
                 className="object-cover"
-                priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/20 to-transparent" />
             </div>

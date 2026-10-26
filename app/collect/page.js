@@ -97,6 +97,7 @@ function CollectContent() {
   const [hovered, setHovered] = useState(null);
   const [colorHovered, setColorHovered] = useState(null);
   const [works, setWorks] = useState(allWorks);
+  const [displayCount, setDisplayCount] = useState(12);
 
   // ── Wishlist state ──
   const [wishlist, setWishlist] = useState([]);
@@ -104,6 +105,10 @@ function CollectContent() {
   const [animatingHeart, setAnimatingHeart] = useState(null);
 
   const { openArtwork, openInquiry } = useArtModal();
+
+  useEffect(() => {
+    setDisplayCount(12);
+  }, [activeCategory, activeColor]);
 
   // Fetch live artworks from MongoDB (shared cache)
   useEffect(() => {
@@ -375,28 +380,31 @@ function CollectContent() {
       {/* ── GRID — 3 col on desktop, 2 col on mobile ── */}
       <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 md:py-16">
         {visible.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-10 md:gap-x-8 md:gap-y-14">
-            {visible.map((work) => {
-              const isHov = hovered === work.id;
-              return (
-                <div
-                  key={work.id}
-                  className="flex flex-col group cursor-pointer"
-                  onMouseEnter={() => setHovered(work.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  onClick={() => openArtwork(work)}
-                >
-                  {/* Image box with Zoom & Inquire Overlays */}
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-5 gap-y-10 md:gap-x-8 md:gap-y-14">
+              {visible.slice(0, displayCount).map((work) => {
+                const isHov = hovered === work.id;
+                return (
                   <div
-                    className="relative overflow-hidden w-full rounded-sm bg-[#EEEBE5]"
-                    style={{ aspectRatio: "3 / 4" }}
+                    key={work.id}
+                    className="flex flex-col group cursor-pointer"
+                    onMouseEnter={() => setHovered(work.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() => openArtwork(work)}
                   >
-                    <Image
-                      src={work.src}
-                      alt={work.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {/* Image box with Zoom & Inquire Overlays */}
+                    <div
+                      className="relative overflow-hidden w-full rounded-sm bg-[#EEEBE5]"
+                      style={{ aspectRatio: "3 / 4" }}
+                    >
+                      <Image
+                        src={work.src}
+                        alt={work.title}
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 768px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
 
                     {/* Heart — restrained, editorial */}
                     <button
@@ -491,7 +499,21 @@ function CollectContent() {
               );
             })}
           </div>
-        ) : (
+
+          {/* Lazy Loading More Works Trigger */}
+          {visible.length > displayCount && (
+            <div className="text-center mt-12 mb-4">
+              <button
+                onClick={() => setDisplayCount((prev) => prev + 12)}
+                className="btn-outline inline-flex items-center gap-2.5 px-8 py-3.5 text-xs tracking-widest uppercase font-sans hover:bg-brand-dark hover:text-white transition-all shadow-sm"
+              >
+                <span>Load More Works ({visible.length - displayCount} remaining)</span>
+                <FaArrowRight className="text-[10px]" />
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
           <div className="py-20 px-6 text-center max-w-lg mx-auto bg-white rounded-2xl border border-[#EAE2D5] shadow-sm">
             <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-4 bg-[#F5EFE6] border border-[#E2D8C9]">
               <FaPalette className="text-xl text-brand-accent" />

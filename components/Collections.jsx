@@ -22,7 +22,14 @@ export default function Collections() {
         <div className="flex md:grid md:grid-cols-3 gap-3 md:gap-4 overflow-x-auto md:overflow-x-visible snap-x snap-mandatory pb-2 md:pb-0 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
           {categories.map((cat, i) => (
             <div key={i} className="relative aspect-[4/5] md:aspect-[3/4] overflow-hidden group cursor-pointer flex-shrink-0 w-[75%] md:w-auto snap-start rounded-lg md:rounded-none">
-              <Image src={cat.src} alt={cat.label} fill className="object-cover img-zoom" />
+              <Image
+                src={cat.src}
+                alt={cat.label}
+                fill
+                loading="lazy"
+                sizes="(max-width: 768px) 75vw, 33vw"
+                className="object-cover img-zoom"
+              />
 
               {/* Overlays */}
               <div className="absolute inset-0 category-overlay transition-opacity duration-500 group-hover:opacity-80" />

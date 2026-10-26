@@ -4,10 +4,19 @@ import { useState, useEffect } from "react";
 import { useParams, notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
-import LensZoom from "../../../components/LensZoom";
 import ArtCard from "../../../components/ArtCard";
+
+const LensZoom = dynamic(() => import("../../../components/LensZoom"), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-[4/5] w-full bg-[#EFECE6] animate-pulse rounded-lg flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+});
 import { allWorks } from "../../../components/data";
 import { useArtModal } from "../../../components/ArtModalContext";
 import { useSiteContent } from "../../../components/SiteContentContext";

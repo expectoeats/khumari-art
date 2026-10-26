@@ -1,7 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { FaTimes, FaWhatsapp, FaArrowRight, FaShieldAlt, FaAward, FaTruck, FaBrush } from "react-icons/fa";
-import LensZoom from "./LensZoom";
+
+const LensZoom = dynamic(() => import("./LensZoom"), {
+  ssr: false,
+});
 
 export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire }) {
   if (!isOpen || !artwork) return null;

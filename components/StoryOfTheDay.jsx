@@ -61,8 +61,9 @@ export default function StoryOfTheDay() {
             src={currentStory.src}
             alt={currentStory.title}
             fill
+            loading="lazy"
+            sizes="(max-width: 1200px) 100vw, 1200px"
             className="object-cover"
-            priority
           />
 
           {/* Dark gradient overlay — stronger at bottom */}
