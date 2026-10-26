@@ -41,17 +41,31 @@ const DEFAULT_CONTENT = {
 export async function GET() {
   try {
     await connectDB();
-    const docs = await SiteContent.find();
+    const docs = await SiteContent.find().lean();
     const content = { ...DEFAULT_CONTENT };
 
     docs.forEach(doc => {
       content[doc.key] = doc.value;
     });
 
-    return NextResponse.json({ content });
+    return NextResponse.json(
+      { content },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+        },
+      }
+    );
   } catch {
     // If DB unavailable, return defaults safely
-    return NextResponse.json({ content: DEFAULT_CONTENT });
+    return NextResponse.json(
+      { content: DEFAULT_CONTENT },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+        },
+      }
+    );
   }
 }
 

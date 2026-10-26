@@ -344,11 +344,9 @@ p, span, a, li, input, textarea, button, select, label {
 /* ── Page transition fade ── */
 @keyframes pageFadeIn {
   from {
-    opacity: 0;
-    transform: translateY(12px);
+    opacity: 0.85;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }

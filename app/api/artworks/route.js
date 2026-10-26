@@ -10,13 +10,25 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "60", 10), 100);
 
     const filter = {};
-    if (category) filter.category = category;
-    if (featured)  filter.featured = featured === "true";
+    if (category && category !== "All") filter.category = category;
+    if (featured) filter.featured = featured === "true";
 
-    const artworks = await Artwork.find(filter).sort({ order: 1, createdAt: -1 });
-    return NextResponse.json({ artworks });
+    const artworks = await Artwork.find(filter)
+      .sort({ order: 1, createdAt: -1 })
+      .limit(limit)
+      .lean();
+
+    return NextResponse.json(
+      { artworks },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (err) {
     console.error("[GET /api/artworks]", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

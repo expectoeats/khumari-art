@@ -4,22 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight, FaPlay, FaPause } from "react-icons/fa";
 import { heroSlides } from "./data";
+import { useSiteContent } from "./SiteContentContext";
 
 export default function HeroSlider() {
-  const [slides, setSlides]             = useState(heroSlides);
+  const { content } = useSiteContent();
+  const slides = content?.hero?.slides?.length ? content.hero.slides : heroSlides;
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying]       = useState(true);
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.hero?.slides?.length) {
-          setSlides(data.content.hero.slides);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (!isPlaying || !slides.length) return;

@@ -8,6 +8,7 @@ import Footer from "../../components/Footer";
 import { allWorks } from "../../components/data";
 import { FaArrowRight, FaHeart, FaRegHeart, FaSignOutAlt, FaWhatsapp, FaClock, FaCheckCircle, FaInbox } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
+import { useSiteContent } from "../../components/SiteContentContext";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -18,16 +19,16 @@ export default function ProfilePage() {
   const [tab, setTab] = useState("wishlist");
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
-  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
+  const { content } = useSiteContent();
+  const whatsappNumber = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
 
   useEffect(() => {
     const load = async () => {
       try {
-        const [meRes, wlRes, ordRes, cntRes] = await Promise.all([
+        const [meRes, wlRes, ordRes] = await Promise.all([
           fetch("/api/user/me"),
           fetch("/api/user/wishlist"),
           fetch("/api/user/orders").catch(() => ({ ok: false })),
-          fetch("/api/content").catch(() => ({ ok: false })),
         ]);
 
         if (!meRes.ok) {
@@ -43,13 +44,6 @@ export default function ProfilePage() {
           const ordData = await ordRes.json();
           setOrders(ordData.orders || []);
           setInquiries(ordData.inquiries || []);
-        }
-
-        if (cntRes.ok) {
-          const cntData = await cntRes.json();
-          if (cntData.content?.contact?.whatsappNumber) {
-            setWhatsappNumber(cntData.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
-          }
         }
       } catch {
         window.location.href = "/login";

@@ -10,6 +10,8 @@ import LensZoom from "../../../components/LensZoom";
 import ArtCard from "../../../components/ArtCard";
 import { allWorks } from "../../../components/data";
 import { useArtModal } from "../../../components/ArtModalContext";
+import { useSiteContent } from "../../../components/SiteContentContext";
+import { getCachedArtworks } from "../../../lib/artworksCache";
 import { FaArrowLeft, FaWhatsapp, FaShieldAlt, FaAward, FaTruck, FaArrowRight } from "react-icons/fa";
 
 export default function ArtworkDetailPage() {
@@ -24,20 +26,11 @@ export default function ArtworkDetailPage() {
   const [artwork, setArtwork] = useState(staticFound || null);
   const [loading, setLoading] = useState(!staticFound);
   const [allDbWorks, setAllDbWorks] = useState(allWorks);
-  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
+  const { content } = useSiteContent();
+  const whatsappNumber = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
   const { openInquiry } = useArtModal();
 
   useEffect(() => {
-    // Fetch WhatsApp number from CMS content
-    fetch("/api/content")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.content?.contact?.whatsappNumber) {
-          setWhatsappNumber(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
-        }
-      })
-      .catch(() => {});
-
     // Fetch artwork from DB
     let isMounted = true;
     const fetchArtwork = async () => {
@@ -73,27 +66,24 @@ export default function ArtworkDetailPage() {
 
     fetchArtwork();
 
-    // Fetch full catalogue for curated pairings
-    fetch("/api/artworks")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.artworks && d.artworks.length > 0 && isMounted) {
-          const formatted = d.artworks.map((a) => ({
-            id: a._id,
-            _id: a._id,
-            title: a.title,
-            artist: a.artist || "Nancy Sikri",
-            medium: a.medium || "Mixed Media on Canvas",
-            size: a.dimensions || a.size || "",
-            year: a.year || new Date().getFullYear(),
-            color: a.color || "Neutral",
-            category: a.category?.name || a.category || "Paintings",
-            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
-          }));
-          setAllDbWorks(formatted);
-        }
-      })
-      .catch(() => {});
+    // Fetch full catalogue for curated pairings from shared cache
+    getCachedArtworks().then((artworks) => {
+      if (artworks && artworks.length > 0 && isMounted) {
+        const formatted = artworks.map((a) => ({
+          id: a._id,
+          _id: a._id,
+          title: a.title,
+          artist: a.artist || "Nancy Sikri",
+          medium: a.medium || "Mixed Media on Canvas",
+          size: a.dimensions || a.size || "",
+          year: a.year || new Date().getFullYear(),
+          color: a.color || "Neutral",
+          category: a.category?.name || a.category || "Paintings",
+          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+        }));
+        setAllDbWorks(formatted);
+      }
+    });
 
     return () => {
       isMounted = false;

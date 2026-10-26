@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaInstagram, FaArrowRight, FaWhatsapp } from "react-icons/fa";
+import { useSiteContent } from "./SiteContentContext";
 
 const DEFAULT_ARTIST = {
   name: "Nancy Sikri",
@@ -21,18 +21,8 @@ const DEFAULT_ARTIST = {
 };
 
 export default function AboutArtist() {
-  const [data, setData] = useState(DEFAULT_ARTIST);
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.content?.artist) {
-          setData(prev => ({ ...prev, ...resData.content.artist }));
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const data = content?.artist ? { ...DEFAULT_ARTIST, ...content.artist } : DEFAULT_ARTIST;
   return (
     <section className="relative py-14 md:py-32 overflow-hidden bg-brand-beige">
 

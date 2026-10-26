@@ -9,8 +9,15 @@ export async function GET(req) {
     await connectDB();
     const session = getAdminSession();
     const filter  = session ? {} : { published: true };
-    const posts   = await BlogPost.find(filter).sort({ createdAt: -1 });
-    return NextResponse.json({ posts });
+    const posts   = await BlogPost.find(filter).sort({ createdAt: -1 }).limit(30).lean();
+    return NextResponse.json(
+      { posts },
+      {
+        headers: session
+          ? { "Cache-Control": "private, no-cache" }
+          : { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
+      }
+    );
   } catch (err) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }

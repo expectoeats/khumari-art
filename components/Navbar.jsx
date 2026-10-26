@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { FaSearch, FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaHeart, FaWhatsapp } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
 import { useUser } from "./UserContext";
+import { useSiteContent } from "./SiteContentContext";
 
 const navItems = [
   { label: "Collect",   href: "/collect"  },
@@ -19,27 +20,17 @@ export default function Navbar() {
   const [scrolled,    setScrolled]    = useState(false);
   const [mobileOpen,  setMobileOpen]  = useState(false);
   const [visible,     setVisible]     = useState(true);
-  const [announcement, setAnnouncement] = useState({
+  const { content } = useSiteContent();
+  const announcement = content?.announcement || {
     text: "New collection available —",
     whatsappNumber: "919818817291",
     isVisible: true,
-  });
+  };
   const { user, loaded } = useUser(); // user: object | null; loaded: boolean
   const [dropdown,    setDropdown]    = useState(false);
   const dropRef   = useRef(null);
   const pathname  = usePathname();
   const { openInquiry } = useArtModal();
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.announcement) {
-          setAnnouncement(data.content.announcement);
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

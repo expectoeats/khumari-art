@@ -5,39 +5,37 @@ import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 import ArtCard from "./ArtCard";
 import { newArrivals } from "./data";
+import { getCachedArtworks } from "../lib/artworksCache";
 
 export default function NewArrivals() {
   const [works, setWorks] = useState(newArrivals);
 
   useEffect(() => {
-    fetch("/api/artworks")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.artworks && data.artworks.length > 0) {
-          const formatted = data.artworks.map((a) => ({
-            id: a._id,
-            _id: a._id,
-            title: a.title,
-            artist: a.artist || "Nancy Sikri",
-            medium: a.medium || "Mixed Media on Canvas",
-            size: a.dimensions || a.size || "",
-            year: a.year || new Date().getFullYear(),
-            color: a.color || "Neutral",
-            category: a.category?.name || a.category || "Paintings",
-            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
-            featured: a.featured,
-          }));
+    getCachedArtworks().then((artworks) => {
+      if (artworks && artworks.length > 0) {
+        const formatted = artworks.map((a) => ({
+          id: a._id,
+          _id: a._id,
+          title: a.title,
+          artist: a.artist || "Nancy Sikri",
+          medium: a.medium || "Mixed Media on Canvas",
+          size: a.dimensions || a.size || "",
+          year: a.year || new Date().getFullYear(),
+          color: a.color || "Neutral",
+          category: a.category?.name || a.category || "Paintings",
+          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          featured: a.featured,
+        }));
 
-          const combined = [...formatted];
-          newArrivals.forEach((p) => {
-            if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
-              combined.push(p);
-            }
-          });
-          setWorks(combined.slice(0, 4));
-        }
-      })
-      .catch(() => {});
+        const combined = [...formatted];
+        newArrivals.forEach((p) => {
+          if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
+            combined.push(p);
+          }
+        });
+        setWorks(combined.slice(0, 4));
+      }
+    });
   }, []);
 
   return (

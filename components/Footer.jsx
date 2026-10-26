@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaInstagram, FaFacebookF, FaPinterestP, FaWhatsapp } from "react-icons/fa";
+import { useSiteContent } from "./SiteContentContext";
 
 const footerNav = [
   { label: "Collect",   href: "/collect" },
@@ -14,22 +14,9 @@ const footerNav = [
 ];
 
 export default function Footer() {
-  const [email, setEmail] = useState("contact@kalasamputah.com");
-  const [whatsapp, setWhatsapp] = useState("919818817291");
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.contact?.studioEmail) {
-          setEmail(data.content.contact.studioEmail);
-        }
-        if (data.content?.contact?.whatsappNumber) {
-          setWhatsapp(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const email = content?.contact?.studioEmail || content?.announcement?.studioEmail || "contact@kalasamputah.com";
+  const whatsapp = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
 
   return (
     <footer id="connect" className="bg-brand-dark">

@@ -1,24 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { FaWhatsapp, FaTimes } from "react-icons/fa";
+import { useSiteContent } from "./SiteContentContext";
 
 export default function FloatingWhatsApp() {
   const pathname = usePathname();
   const [showTooltip, setShowTooltip] = useState(true);
-  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.announcement?.whatsappNumber) {
-          setWhatsappNumber(data.content.announcement.whatsappNumber);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const whatsappNumber = (
+    content?.announcement?.whatsappNumber ||
+    content?.contact?.whatsappNumber ||
+    "919818817291"
+  ).replace(/[^0-9]/g, "");
 
   // Do not show on any admin panel page
   if (pathname && pathname.startsWith("/admin")) {
@@ -61,18 +56,12 @@ export default function FloatingWhatsApp() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group relative w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20ba5a] text-white flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95"
-        aria-label="Chat on WhatsApp with Nancy Sikri"
+        aria-label="Open WhatsApp conversation with Nancy Sikri"
+        className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 group relative"
+        style={{ width: "3.5rem", height: "3.5rem" }}
       >
-        {/* Subtle breathing ripple */}
-        <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping -z-10" />
-
-        <FaWhatsapp className="text-3xl text-white drop-shadow" />
-
-        {/* Small tooltip on hover */}
-        <span className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-brand-dark text-white text-xs font-sans whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-md hidden sm:block">
-          Direct WhatsApp Chat
-        </span>
+        <FaWhatsapp className="text-2.5xl sm:text-3xl text-white group-hover:rotate-6 transition-transform" />
+        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-brand-accent rounded-full border-2 border-white" />
       </a>
     </aside>
   );

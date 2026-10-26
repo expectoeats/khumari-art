@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useUser } from "./UserContext";
+import { useSiteContent } from "./SiteContentContext";
 import { FaTimes, FaEnvelope, FaWhatsapp, FaCheckCircle, FaShieldAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function InquiryModal({ isOpen, onClose, artwork }) {
@@ -17,18 +18,9 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [filling, setFilling] = useState(false);
-  const [studioEmail, setStudioEmail] = useState("contact@kalasamputah.com");
-  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.contact?.studioEmail) setStudioEmail(data.content.contact.studioEmail);
-        if (data.content?.contact?.whatsappNumber) setWhatsappNumber(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const studioEmail = content?.contact?.studioEmail || content?.announcement?.studioEmail || "contact@kalasamputah.com";
+  const whatsappNumber = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
 
   // Auto-fill form from logged-in user profile when modal opens / user loads
   useEffect(() => {

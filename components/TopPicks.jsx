@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaSearchPlus, FaArrowRight } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
+import { getCachedArtworks } from "../lib/artworksCache";
 
 const picks = [
   {
@@ -90,36 +91,33 @@ export default function TopPicks() {
   const { openArtwork, openInquiry } = useArtModal();
 
   useEffect(() => {
-    fetch("/api/artworks")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.artworks && data.artworks.length > 0) {
-          const featuredOrRecent = data.artworks.filter(a => a.featured).length > 0
-            ? data.artworks.filter(a => a.featured)
-            : data.artworks;
-          const formatted = featuredOrRecent.map((a) => ({
-            id: a._id,
-            _id: a._id,
-            title: a.title,
-            artist: a.artist || "Nancy Sikri",
-            subtitle: a.story || a.description || "Original studio piece",
-            medium: a.medium || "Mixed Media on Canvas",
-            size: a.dimensions || a.size || "",
-            year: a.year || new Date().getFullYear(),
-            color: a.color || "Amber",
-            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
-          }));
+    getCachedArtworks().then((artworks) => {
+      if (artworks && artworks.length > 0) {
+        const featuredOrRecent = artworks.filter(a => a.featured).length > 0
+          ? artworks.filter(a => a.featured)
+          : artworks;
+        const formatted = featuredOrRecent.map((a) => ({
+          id: a._id,
+          _id: a._id,
+          title: a.title,
+          artist: a.artist || "Nancy Sikri",
+          subtitle: a.story || a.description || "Original studio piece",
+          medium: a.medium || "Mixed Media on Canvas",
+          size: a.dimensions || a.size || "",
+          year: a.year || new Date().getFullYear(),
+          color: a.color || "Amber",
+          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+        }));
 
-          const combined = [...formatted];
-          picks.forEach((p) => {
-            if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
-              combined.push(p);
-            }
-          });
-          setWorkList(combined.slice(0, 5));
-        }
-      })
-      .catch(() => {});
+        const combined = [...formatted];
+        picks.forEach((p) => {
+          if (!combined.some((c) => c.title?.toLowerCase() === p.title?.toLowerCase())) {
+            combined.push(p);
+          }
+        });
+        setWorkList(combined.slice(0, 5));
+      }
+    });
   }, []);
 
   const prev = () => setActive(p => Math.max(0, p - 1));

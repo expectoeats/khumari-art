@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FaArrowRight, FaShareAlt, FaSearchPlus } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
+import { useSiteContent } from "./SiteContentContext";
 
 const DEFAULT_STORY = {
   id: 11,
@@ -19,25 +19,15 @@ const DEFAULT_STORY = {
 
 export default function StoryOfTheDay() {
   const { openArtwork } = useArtModal();
-  const [currentStory, setCurrentStory] = useState(DEFAULT_STORY);
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.story) {
-          const s = data.content.story;
-          setCurrentStory(prev => ({
-            ...prev,
-            title: s.title || prev.title,
-            subtitle: s.subtitle || prev.subtitle,
-            src: s.src || prev.src,
-            artworkTitle: s.artworkTitle || prev.title,
-          }));
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const s = content?.story;
+  const currentStory = s ? {
+    ...DEFAULT_STORY,
+    title: s.title || DEFAULT_STORY.title,
+    subtitle: s.subtitle || DEFAULT_STORY.subtitle,
+    src: s.src || DEFAULT_STORY.src,
+    artworkTitle: s.artworkTitle || DEFAULT_STORY.title,
+  } : DEFAULT_STORY;
 
   return (
     <section className="py-16 md:py-24 bg-brand-beige">

@@ -9,7 +9,7 @@ export async function GET() {
 
   try {
     await connectDB();
-    const user = await User.findById(session.id).select("-password");
+    const user = await User.findById(session.id).select("-password").lean();
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
     return NextResponse.json({ user });
   } catch {

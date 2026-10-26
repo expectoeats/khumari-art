@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useSiteContent } from "../../components/SiteContentContext";
 import { FaArrowRight, FaInstagram, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaWhatsapp } from "react-icons/fa";
 
 // ── Inline contact form ───────────────────────────────────────────────────────
@@ -207,18 +208,9 @@ function ContactForm({ studioEmail, whatsappNumber }) {
 
 export default function InfoPage() {
   const [openFaq, setOpenFaq] = useState(null);
-  const [studioEmail, setStudioEmail] = useState("contact@kalasamputah.com");
-  const [whatsappNumber, setWhatsappNumber] = useState("919818817291");
-
-  useEffect(() => {
-    fetch("/api/content")
-      .then(res => res.json())
-      .then(data => {
-        if (data.content?.contact?.studioEmail) setStudioEmail(data.content.contact.studioEmail);
-        if (data.content?.contact?.whatsappNumber) setWhatsappNumber(data.content.contact.whatsappNumber.replace(/[^0-9]/g, ""));
-      })
-      .catch(() => {});
-  }, []);
+  const { content } = useSiteContent();
+  const studioEmail = content?.contact?.studioEmail || content?.announcement?.studioEmail || "contact@kalasamputah.com";
+  const whatsappNumber = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
 
   const faqs = [
     {

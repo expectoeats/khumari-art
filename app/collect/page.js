@@ -9,6 +9,7 @@ import Footer from "../../components/Footer";
 import { allWorks } from "../../components/data";
 import { FaSearchPlus, FaTimes, FaArrowRight, FaPalette } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
+import { getCachedArtworks } from "../../lib/artworksCache";
 
 const categories = ["All", "Paintings", "Prints", "Photography"];
 const paletteColors = [
@@ -104,38 +105,35 @@ function CollectContent() {
 
   const { openArtwork, openInquiry } = useArtModal();
 
-  // Fetch live artworks from MongoDB
+  // Fetch live artworks from MongoDB (shared cache)
   useEffect(() => {
     let mounted = true;
-    fetch("/api/artworks")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.artworks && data.artworks.length > 0 && mounted) {
-          const formatted = data.artworks.map((a) => ({
-            id: a._id,
-            _id: a._id,
-            title: a.title,
-            artist: a.artist || "Nancy Sikri",
-            medium: a.medium || "Mixed Media on Canvas",
-            size: a.dimensions || a.size || "",
-            year: a.year || new Date().getFullYear(),
-            color: a.color || "Neutral",
-            category: a.category?.name || a.category || "Paintings",
-            src: a.images?.[0] || a.image || "/art/placeholder.jpg",
-            featured: a.featured,
-          }));
+    getCachedArtworks().then((artworks) => {
+      if (artworks && artworks.length > 0 && mounted) {
+        const formatted = artworks.map((a) => ({
+          id: a._id,
+          _id: a._id,
+          title: a.title,
+          artist: a.artist || "Nancy Sikri",
+          medium: a.medium || "Mixed Media on Canvas",
+          size: a.dimensions || a.size || "",
+          year: a.year || new Date().getFullYear(),
+          color: a.color || "Neutral",
+          category: a.category?.name || a.category || "Paintings",
+          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          featured: a.featured,
+        }));
 
-          // Merge DB items with fallback static items avoiding duplicates
-          const combined = [...formatted];
-          allWorks.forEach((w) => {
-            if (!combined.some((c) => c.title?.toLowerCase() === w.title?.toLowerCase())) {
-              combined.push(w);
-            }
-          });
-          setWorks(combined);
-        }
-      })
-      .catch(() => {});
+        // Merge DB items with fallback static items avoiding duplicates
+        const combined = [...formatted];
+        allWorks.forEach((w) => {
+          if (!combined.some((c) => c.title?.toLowerCase() === w.title?.toLowerCase())) {
+            combined.push(w);
+          }
+        });
+        setWorks(combined);
+      }
+    });
 
     return () => {
       mounted = false;
