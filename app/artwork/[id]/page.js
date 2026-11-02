@@ -22,7 +22,7 @@ import { useArtModal } from "../../../components/ArtModalContext";
 import { useSiteContent } from "../../../components/SiteContentContext";
 import { getCachedArtworks } from "../../../lib/artworksCache";
 import { angleViews } from "../../../lib/artworkViews";
-import { FaArrowLeft, FaWhatsapp, FaShieldAlt, FaAward, FaTruck, FaArrowRight } from "react-icons/fa";
+import { FaArrowLeft, FaWhatsapp, FaShieldAlt, FaAward, FaTruck, FaArrowRight, FaHome } from "react-icons/fa";
 
 export default function ArtworkDetailPage() {
   const params = useParams();
@@ -239,6 +239,14 @@ export default function ArtworkDetailPage() {
               </div>
 
               <div className="space-y-3 pt-2">
+                <Link
+                  href={`/view-on-wall?id=${currentWork._id || currentWork.id}`}
+                  className="w-full py-3.5 px-6 bg-gradient-to-r from-[#1E1B18] to-[#2B2622] hover:from-[#C9A96E] hover:to-[#B38F52] text-[#F5EFE6] hover:text-[#181410] border border-[#C9A96E]/40 rounded-lg text-xs tracking-widest uppercase font-sans font-semibold transition-all shadow-md flex items-center justify-center gap-2.5 group"
+                >
+                  <FaHome className="text-sm text-[#C9A96E] group-hover:text-[#181410] transition-colors" />
+                  <span>Preview on Wall (Full-Screen Studio)</span>
+                </Link>
+
                 <button
                   onClick={() => openInquiry(currentWork)}
                   className="w-full py-3.5 px-6 bg-brand-dark hover:bg-brand-warm text-brand-cream rounded-lg text-xs tracking-widest uppercase font-sans font-medium transition-all shadow hover:shadow-md flex items-center justify-center gap-2"

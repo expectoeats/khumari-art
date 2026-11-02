@@ -9,11 +9,12 @@ import { useUser, markSessionUnknown } from "./UserContext";
 import { useSiteContent } from "./SiteContentContext";
 
 const navItems = [
-  { label: "Collect",   href: "/collect"  },
-  { label: "Artists",   href: "/artists"  },
-  { label: "The Edits", href: "/edits"    },
-  { label: "Journal",   href: "/journal"  },
-  { label: "Info",      href: "/info"     },
+  { label: "Collect",         href: "/collect"      },
+  { label: "Room Visualizer", href: "/view-on-wall" },
+  { label: "Artists",         href: "/artists"      },
+  { label: "The Edits",       href: "/edits"        },
+  { label: "Journal",         href: "/journal"      },
+  { label: "Info",            href: "/info"         },
 ];
 
 export default function Navbar() {

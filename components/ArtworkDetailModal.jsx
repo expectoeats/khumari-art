@@ -1,31 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { FaTimes, FaWhatsapp, FaArrowRight, FaShieldAlt, FaAward, FaTruck, FaBrush, FaHome } from "react-icons/fa";
 
 const LensZoom = dynamic(() => import("./LensZoom"), {
   ssr: false,
 });
 
-const WallVisualizer = dynamic(() => import("./WallVisualizer"), {
-  ssr: false,
-  loading: () => (
-    <div style={{ padding: "3rem", textAlign: "center", color: "rgba(74,40,24,0.35)", fontSize: "0.85rem", fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif' }}>
-      Loading visualizer…
-    </div>
-  ),
-});
-
-const TABS = [
-  { id: "canvas", label: "Canvas Inspection" },
-  { id: "wall",   label: "See on Wall"        },
-];
-
 export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire }) {
-  const [activeTab, setActiveTab] = useState("canvas");
-
   if (!isOpen || !artwork) return null;
+
+  const artworkId = artwork._id || artwork.id;
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
@@ -43,56 +29,30 @@ export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire
               {artwork.title}
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-brand-muted hover:text-brand-dark hover:bg-white/80 transition-all"
-            aria-label="Close Artwork Viewer"
-          >
-            <FaTimes className="text-base" />
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/view-on-wall?id=${artworkId}`}
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1C1C1C] hover:bg-[#C9A96E] text-[#F5EFE6] hover:text-[#181410] text-[0.62rem] tracking-wider uppercase font-sans font-semibold transition-all shadow-sm"
+              title="Open Full Screen Room Visualizer"
+            >
+              <FaHome className="text-[11px]" />
+              <span className="hidden sm:inline">View in Room (Full Screen)</span>
+            </Link>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-brand-muted hover:text-brand-dark hover:bg-white/80 transition-all"
+              aria-label="Close Artwork Viewer"
+            >
+              <FaTimes className="text-base" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content Body */}
         <div className="p-5 sm:p-8 overflow-y-auto flex-1 space-y-8">
-
-          {/* ── Tab bar ── */}
-          <div style={{
-            display:      "flex",
-            gap:          "0",
-            borderBottom: "1.5px solid #EAE2D5",
-            marginBottom: "0.5rem",
-          }}>
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                style={{
-                  padding:       "0.6rem 1.4rem",
-                  fontSize:      "0.62rem",
-                  letterSpacing: "0.2em",
-                  textTransform: "uppercase",
-                  fontFamily:    '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
-                  fontWeight:    500,
-                  color:         activeTab === tab.id ? "#C9A96E" : "rgba(74,40,24,0.4)",
-                  background:    "transparent",
-                  border:        "none",
-                  borderBottom:  activeTab === tab.id ? "2px solid #C9A96E" : "2px solid transparent",
-                  marginBottom:  "-1.5px",
-                  cursor:        "pointer",
-                  transition:    "color 0.2s ease, border-color 0.2s ease",
-                  display:       "flex",
-                  alignItems:    "center",
-                  gap:           "0.4rem",
-                }}
-              >
-                {tab.id === "wall" && <FaHome size={10} />}
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* ── Tab: Canvas Inspection ── */}
-          {activeTab === "canvas" && (
+          
+          {/* Interactive Canvas Inspection Feature */}
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-brand-warm font-sans font-medium">
@@ -110,22 +70,6 @@ export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire
               views={artwork.views}
             />
           </div>
-          )}
-
-          {/* ── Tab: Wall Visualizer ── */}
-          {activeTab === "wall" && (
-          <div>
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs uppercase tracking-widest text-brand-warm font-sans font-medium">
-                Room Visualizer
-              </span>
-              <span className="text-[0.7rem] text-brand-muted font-sans hidden sm:inline-block">
-                Pick wall colour · Adjust size · Change room style
-              </span>
-            </div>
-            <WallVisualizer artwork={artwork} />
-          </div>
-          )}
 
           {/* Details & Inquire Panel */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6 border-t border-[#EAE2D5] items-start">
@@ -211,6 +155,15 @@ export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire
               </div>
 
               <div className="space-y-3">
+                <Link
+                  href={`/view-on-wall?id=${artworkId}`}
+                  onClick={onClose}
+                  className="w-full py-3.5 px-5 bg-gradient-to-r from-[#1E1B18] to-[#2B2622] hover:from-[#C9A96E] hover:to-[#B38F52] text-[#F5EFE6] hover:text-[#181410] border border-[#C9A96E]/40 rounded-lg text-xs tracking-widest uppercase font-sans font-semibold transition-all shadow-md flex items-center justify-center gap-2.5 group"
+                >
+                  <FaHome className="text-sm text-[#C9A96E] group-hover:text-[#181410] transition-colors" />
+                  <span>View in Room (Full-Screen Studio)</span>
+                </Link>
+
                 <button
                   onClick={() => {
                     onClose();

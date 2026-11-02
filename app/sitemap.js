@@ -5,9 +5,10 @@ const BASE_URL = "https://kalasamputah.com";
 
 // Static routes with their priorities and change frequency
 const STATIC_ROUTES = [
-  { path: "/",        priority: 1.0, changefreq: "daily"   },
-  { path: "/collect", priority: 0.9, changefreq: "daily"   },
-  { path: "/info",    priority: 0.7, changefreq: "monthly" },
+  { path: "/",             priority: 1.0, changefreq: "daily"   },
+  { path: "/collect",      priority: 0.9, changefreq: "daily"   },
+  { path: "/view-on-wall", priority: 0.9, changefreq: "daily"   },
+  { path: "/info",         priority: 0.7, changefreq: "monthly" },
   { path: "/blog",    priority: 0.7, changefreq: "weekly"  },
   { path: "/artists", priority: 0.6, changefreq: "monthly" },
   { path: "/journal", priority: 0.6, changefreq: "weekly"  },
