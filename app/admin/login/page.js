@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "../../../components/ToastProvider";
 
 export default function AdminLogin() {
   const router       = useRouter();
@@ -9,12 +10,11 @@ export default function AdminLogin() {
   const from         = searchParams.get("from") || "/admin/dashboard";
 
   const [form, setForm]   = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
     try {
       const res  = await fetch("/api/auth/login", {
@@ -23,11 +23,15 @@ export default function AdminLogin() {
         body:    JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Login failed"); return; }
+      if (!res.ok) {
+        toast.error("Sign in unsuccessful", data.error || "Please check your email and password, then try again.");
+        return;
+      }
+      toast.success("Welcome back", "Entering the studio dashboard…");
       // Hard redirect so middleware picks up the new cookie
       window.location.href = from;
     } catch {
-      setError("Network error. Try again.");
+      toast.error("Connection problem", "We couldn't reach the studio. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -99,12 +103,6 @@ export default function AdminLogin() {
               }}
             />
           </div>
-
-          {error && (
-            <p style={{ fontSize: "0.75rem", color: "#e57373", padding: "0.5rem 0.75rem", background: "rgba(229,115,115,0.08)", borderRadius: "4px", letterSpacing: "0.04em" }}>
-              {error}
-            </p>
-          )}
 
           <button
             type="submit"

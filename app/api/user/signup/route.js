@@ -2,9 +2,30 @@ import { NextResponse }                  from "next/server";
 import { connectDB }                      from "../../../../lib/mongodb";
 import User                               from "../../../../models/User";
 import { signUserToken, USER_TOKEN_NAME, USER_MAX_AGE } from "../../../../lib/userAuth";
+import { getClientIp, checkRateLimit } from "../../../../lib/rateLimit";
 
 export async function POST(req) {
   try {
+    const ip = getClientIp(req);
+
+    // Rate Limit: Maximum 5 account creations per 1 hour per IP (anti-bot account creation)
+    const rateLimit = checkRateLimit(`user-signup:${ip}`, 5, 60 * 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `Too many signups from this IP. Please try again in ${Math.ceil(
+            rateLimit.resetSeconds / 60
+          )} minutes.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.resetSeconds),
+          },
+        }
+      );
+    }
+
     const { name, email, password } = await req.json();
 
     if (!name || !email || !password)

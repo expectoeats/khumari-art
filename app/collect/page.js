@@ -10,6 +10,7 @@ import { allWorks } from "../../components/data";
 import { FaSearchPlus, FaTimes, FaArrowRight, FaPalette } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
 import { getCachedArtworks } from "../../lib/artworksCache";
+import { angleViews, primarySrc } from "../../lib/artworkViews";
 
 const categories = ["All", "Paintings", "Prints", "Photography"];
 const paletteColors = [
@@ -125,7 +126,8 @@ function CollectContent() {
           year: a.year || new Date().getFullYear(),
           color: a.color || "Neutral",
           category: a.category?.name || a.category || "Paintings",
-          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          src: primarySrc(a),
+          views: angleViews(a),
           featured: a.featured,
         }));
 

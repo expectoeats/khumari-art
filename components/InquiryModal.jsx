@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useUser } from "./UserContext";
 import { useSiteContent } from "./SiteContentContext";
+import { useToast } from "./ToastProvider";
 import { FaTimes, FaEnvelope, FaWhatsapp, FaCheckCircle, FaShieldAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function InquiryModal({ isOpen, onClose, artwork }) {
@@ -18,6 +19,7 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
   });
   const [submitted, setSubmitted] = useState(false);
   const [filling, setFilling] = useState(false);
+  const { toast } = useToast();
   const { content } = useSiteContent();
   const studioEmail = content?.contact?.studioEmail || content?.announcement?.studioEmail || "contact@kalasamputah.com";
   const whatsappNumber = (content?.contact?.whatsappNumber || content?.announcement?.whatsappNumber || "919818817291").replace(/[^0-9]/g, "");
@@ -48,7 +50,7 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
     e.preventDefault();
     try {
       // 1) Save inquiry to server
-      await fetch("/api/inquiries", {
+      const res = await fetch("/api/inquiries", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -62,6 +64,12 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
         }),
       });
 
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        toast.error("Your inquiry couldn't be sent", errData.error || "Please review the details and try again, or reach out directly on WhatsApp.");
+        return;
+      }
+
       // 2) Persist user-filled details to profile so they auto-fill everywhere next time
       const profileFields = {
         phone:  formData.phone || "",
@@ -72,10 +80,12 @@ export default function InquiryModal({ isOpen, onClose, artwork }) {
         const result = await updateProfile(profileFields);
         if (!result.ok) console.warn("[PROFILE SYNC]", result.error);
       }
+      setSubmitted(true);
+      toast.success("Inquiry sent to the studio", `Nancy will personally respond about "${artwork.title}" within 24 hours.`);
     } catch (err) {
       console.error("[INQUIRY SUBMIT]", err);
+      toast.error("Connection problem", "We couldn't deliver your inquiry. Please check your connection or reach out on WhatsApp.");
     }
-    setSubmitted(true);
   };
 
   const whatsappMessage = encodeURIComponent(

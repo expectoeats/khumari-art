@@ -6,6 +6,7 @@ import { FaArrowRight } from "react-icons/fa";
 import ArtCard from "./ArtCard";
 import { paintings } from "./data";
 import { getCachedArtworks } from "../lib/artworksCache";
+import { angleViews, primarySrc } from "../lib/artworkViews";
 
 export default function Paintings() {
   const [works, setWorks] = useState(paintings);
@@ -23,7 +24,8 @@ export default function Paintings() {
           year: a.year || new Date().getFullYear(),
           color: a.color || "Amber",
           category: a.category?.name || a.category || "Paintings",
-          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          src: primarySrc(a),
+          views: angleViews(a),
           featured: a.featured,
         }));
 

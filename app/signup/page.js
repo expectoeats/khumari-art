@@ -4,15 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useToast } from "../../components/ToastProvider";
+import { markSessionUnknown } from "../../components/UserContext";
 
 export default function SignupPage() {
   const [form, setForm]     = useState({ name: "", email: "", password: "" });
-  const [error, setError]   = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); setLoading(true);
+    setLoading(true);
     try {
       const res  = await fetch("/api/user/signup", {
         method: "POST",
@@ -20,9 +22,14 @@ export default function SignupPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Signup failed"); return; }
+      if (!res.ok) {
+        toast.error("Could not create your account", data.error || "Please review your details and try again.");
+        return;
+      }
+      toast.success("Welcome to Kala Samputah", "Your account is ready. Explore your collection…");
+      markSessionUnknown(); // fresh session — force /api/user/me refetch after redirect
       window.location.href = "/profile";
-    } catch { setError("Network error. Please try again."); }
+    } catch { toast.error("Connection problem", "We couldn't reach the studio. Please check your connection and try again."); }
     finally   { setLoading(false); }
   };
 
@@ -65,12 +72,6 @@ export default function SignupPage() {
             {field("name",     "Your name",  "text",     "Nancy Collector")}
             {field("email",    "Email",      "email",    "you@example.com")}
             {field("password", "Password",   "password", "At least 6 characters")}
-
-            {error && (
-              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.88rem", color: "#c0392b", padding: "0.6rem 0.8rem", background: "rgba(192,57,43,0.05)", border: "1px solid rgba(192,57,43,0.15)" }}>
-                {error}
-              </p>
-            )}
 
             <button
               type="submit" disabled={loading}

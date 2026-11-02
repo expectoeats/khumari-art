@@ -9,6 +9,8 @@ import { allWorks } from "../../components/data";
 import { FaArrowRight, FaHeart, FaRegHeart, FaSignOutAlt, FaWhatsapp, FaClock, FaCheckCircle, FaInbox } from "react-icons/fa";
 import { useArtModal } from "../../components/ArtModalContext";
 import { useSiteContent } from "../../components/SiteContentContext";
+import { angleViews, primarySrc } from "../../lib/artworkViews";
+import { markSessionUnknown } from "../../components/UserContext";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -38,7 +40,30 @@ export default function ProfilePage() {
 
         const [me, wl] = await Promise.all([meRes.json(), wlRes.json()]);
         setUser(me.user);
-        setWishlist(wl.wishlist || []);
+        const initialWishlist = wl.wishlist || [];
+        setWishlist(initialWishlist);
+
+        // Resolve any wishlist entries that are bare IDs in one batch request,
+        // instead of one /api/artworks/:id call per card.
+        const pendingIds = initialWishlist
+          .filter((x) => typeof x === "string" || typeof x === "number")
+          .map(String);
+        if (pendingIds.length) {
+          fetch(`/api/artworks/batch?ids=${pendingIds.join(",")}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((data) => {
+              if (!data?.artworks?.length) return;
+              const byId = Object.fromEntries(data.artworks.map((a) => [String(a._id), a]));
+              setWishlist((prev) =>
+                prev.map((x) =>
+                  typeof x === "string" || typeof x === "number"
+                    ? byId[String(x)] || x
+                    : x
+                )
+              );
+            })
+            .catch(() => { /* cards fall back to individual fetch if batch fails */ });
+        }
 
         if (ordRes.ok) {
           const ordData = await ordRes.json();
@@ -84,6 +109,7 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     await fetch("/api/user/logout", { method: "POST" });
+    markSessionUnknown(); // clear cached session before leaving the SPA
     window.location.href = "/";
   };
 
@@ -630,7 +656,8 @@ function WishlistCard({ artworkId, onRemove }) {
             setArtwork({
               ...data.artwork,
               id: data.artwork._id,
-              src: data.artwork.images?.[0] || data.artwork.image || "/art/placeholder.jpg",
+              src: primarySrc(data.artwork),
+              views: angleViews(data.artwork),
             });
           }
         })
@@ -663,11 +690,10 @@ function WishlistCard({ artworkId, onRemove }) {
     );
   }
 
-  const imageSrc =
-    artwork.src ||
-    artwork.images?.[0] ||
-    artwork.image ||
-    "/art/813661180_18115305131070803_8784916059366770496_n.jpg";
+  const imageSrc = primarySrc(
+    artwork,
+    "/art/813661180_18115305131070803_8784916059366770496_n.jpg"
+  );
 
   return (
     <div

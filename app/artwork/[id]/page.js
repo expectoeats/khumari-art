@@ -21,6 +21,7 @@ import { allWorks } from "../../../components/data";
 import { useArtModal } from "../../../components/ArtModalContext";
 import { useSiteContent } from "../../../components/SiteContentContext";
 import { getCachedArtworks } from "../../../lib/artworksCache";
+import { angleViews } from "../../../lib/artworkViews";
 import { FaArrowLeft, FaWhatsapp, FaShieldAlt, FaAward, FaTruck, FaArrowRight } from "react-icons/fa";
 
 export default function ArtworkDetailPage() {
@@ -49,6 +50,7 @@ export default function ArtworkDetailPage() {
           const data = await res.json();
           if (data.artwork && isMounted) {
             const dbArt = data.artwork;
+            const views = angleViews(dbArt);
             const normalized = {
               id: dbArt._id,
               _id: dbArt._id,
@@ -59,7 +61,8 @@ export default function ArtworkDetailPage() {
               year: dbArt.year || new Date().getFullYear(),
               color: dbArt.color || "Amber",
               category: dbArt.category?.name || dbArt.category || "Paintings",
-              src: dbArt.images?.[0] || dbArt.image || staticFound?.src || "/art/placeholder.jpg",
+              src: views[0]?.src || staticFound?.src || "/art/placeholder.jpg",
+              views,
               story: dbArt.story || dbArt.description || "Original Studio Work by Nancy Sikri.",
               featured: dbArt.featured || false,
             };
@@ -88,7 +91,8 @@ export default function ArtworkDetailPage() {
           year: a.year || new Date().getFullYear(),
           color: a.color || "Neutral",
           category: a.category?.name || a.category || "Paintings",
-          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          src: angleViews(a)[0]?.src || a.image || "/art/placeholder.jpg",
+          views: angleViews(a),
         }));
         setAllDbWorks(formatted);
       }
@@ -118,6 +122,12 @@ export default function ArtworkDetailPage() {
   if (!currentWork) {
     return notFound();
   }
+
+  // Angle views for the multi-angle viewer (falls back to single primary image)
+  const angleViewsForWork =
+    currentWork.views && currentWork.views.length > 0
+      ? currentWork.views
+      : [{ src: currentWork.src, label: "Front View" }];
 
   const relatedWorks = allDbWorks
     .filter(
@@ -157,6 +167,7 @@ export default function ArtworkDetailPage() {
               src={currentWork.src}
               alt={currentWork.title}
               title={currentWork.title}
+              views={angleViewsForWork}
             />
           </div>
 

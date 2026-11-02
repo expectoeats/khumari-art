@@ -2,9 +2,30 @@ import { NextResponse } from "next/server";
 import { connectDB }    from "../../../../lib/mongodb";
 import Admin            from "../../../../models/Admin";
 import { signToken, TOKEN_NAME, MAX_AGE } from "../../../../lib/auth";
+import { getClientIp, checkRateLimit } from "../../../../lib/rateLimit";
 
 export async function POST(req) {
   try {
+    const ip = getClientIp(req);
+
+    // Rate Limit: Maximum 5 login attempts per 15 minutes per IP
+    const rateLimit = checkRateLimit(`admin-login:${ip}`, 5, 15 * 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `Too many failed attempts. Admin portal is locked for this IP for ${Math.ceil(
+            rateLimit.resetSeconds / 60
+          )} minutes.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.resetSeconds),
+          },
+        }
+      );
+    }
+
     const { email, password } = await req.json();
 
     if (!email || !password) {
@@ -49,7 +70,7 @@ export async function POST(req) {
     });
     return res;
   } catch (err) {
-    console.error("[AUTH LOGIN]", err);
+    console.error("[ADMIN LOGIN]", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

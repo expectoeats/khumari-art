@@ -10,15 +10,23 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
+    const light    = searchParams.get("light") === "1";
     const limit = Math.min(parseInt(searchParams.get("limit") || "60", 10), 100);
 
     const filter = {};
     if (category && category !== "All") filter.category = category;
     if (featured) filter.featured = featured === "true";
 
+    // light=1 → only fields catalogue cards need (smaller payload for public pages).
+    // Without it, full documents are returned so the admin edit form stays complete.
+    const projection = light
+      ? "title artist medium category year size color desc src featured images order"
+      : "";
+
     const artworks = await Artwork.find(filter)
       .sort({ order: 1, createdAt: -1 })
       .limit(limit)
+      .select(projection)
       .lean();
 
     return NextResponse.json(

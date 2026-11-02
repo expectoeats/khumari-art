@@ -46,9 +46,34 @@ const SiteContentContext = createContext({
   refreshContent: () => {},
 });
 
+// Per-tab cache of the merged site content, so in-tab page transitions don't
+// refetch /api/content every time. Admin saves call refreshContent() explicitly.
+const CONTENT_KEY = "ks_cached_content";
+
+function mergeContent(prev, raw) {
+  return {
+    ...prev,
+    ...raw,
+    contact: {
+      whatsappNumber: raw.announcement?.whatsappNumber || raw.contact?.whatsappNumber || prev.contact.whatsappNumber,
+      studioEmail: raw.announcement?.studioEmail || raw.contact?.studioEmail || prev.contact.studioEmail,
+    },
+  };
+}
+
+function readCachedContent() {
+  try {
+    const raw = sessionStorage.getItem(CONTENT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 export function SiteContentProvider({ children }) {
-  const [content, setContent] = useState(DEFAULT_CONTENT);
-  const [loaded, setLoaded] = useState(false);
+  const [content, setContent] = useState(() => {
+    const cached = readCachedContent();
+    return cached ? mergeContent(DEFAULT_CONTENT, cached) : DEFAULT_CONTENT;
+  });
+  const [loaded, setLoaded] = useState(() => !!readCachedContent());
 
   const fetchContent = useCallback(async () => {
     try {
@@ -56,24 +81,22 @@ export function SiteContentProvider({ children }) {
       if (res.ok) {
         const data = await res.json();
         if (data.content) {
-          setContent(prev => ({
-            ...prev,
-            ...data.content,
-            contact: {
-              whatsappNumber: data.content.announcement?.whatsappNumber || data.content.contact?.whatsappNumber || prev.contact.whatsappNumber,
-              studioEmail: data.content.announcement?.studioEmail || data.content.contact?.studioEmail || prev.contact.studioEmail,
-            },
-          }));
+          setContent((prev) => {
+            const merged = mergeContent(prev, data.content);
+            try { sessionStorage.setItem(CONTENT_KEY, JSON.stringify(data.content)); } catch {}
+            return merged;
+          });
         }
       }
     } catch {
-      // Silently fall back to DEFAULT_CONTENT
+      // Silently fall back to DEFAULT_CONTENT (or the cached snapshot)
     } finally {
       setLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    if (readCachedContent()) return; // already hydrated; skip network round-trip
     fetchContent();
   }, [fetchContent]);
 

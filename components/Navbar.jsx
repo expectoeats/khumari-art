@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaSearch, FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaHeart, FaWhatsapp } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
-import { useUser } from "./UserContext";
+import { useUser, markSessionUnknown } from "./UserContext";
 import { useSiteContent } from "./SiteContentContext";
 
 const navItems = [
@@ -54,6 +54,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     setDropdown(false);
     await fetch("/api/user/logout", { method: "POST" });
+    markSessionUnknown(); // clear cached session before leaving the SPA
     window.location.href = "/";
   };
 

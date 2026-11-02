@@ -6,6 +6,7 @@ import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useSiteContent } from "../../components/SiteContentContext";
+import { useToast } from "../../components/ToastProvider";
 import { FaArrowRight, FaInstagram, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaWhatsapp } from "react-icons/fa";
 
 // ── Inline contact form ───────────────────────────────────────────────────────
@@ -14,6 +15,7 @@ function ContactForm({ studioEmail, whatsappNumber }) {
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent]         = useState(false);
   const [errors, setErrors]     = useState({});
+  const { toast } = useToast();
 
   const validate = () => {
     const e = {};
@@ -28,6 +30,7 @@ function ContactForm({ studioEmail, whatsappNumber }) {
     const errs = validate();
     if (Object.keys(errs).length) {
       setErrors(errs);
+      toast.warning("A few fields need attention", Object.values(errs)[0]);
       return;
     }
 
@@ -47,12 +50,14 @@ function ContactForm({ studioEmail, whatsappNumber }) {
 
       if (res.ok) {
         setSent(true);
+        toast.success("Message received by the studio", "Nancy Sikri reviews inquiries personally and will respond within 24 hours.");
       } else {
-        setErrors({ general: "Unable to submit inquiry at this moment. Please try again or reach out on WhatsApp." });
+        const data = await res.json().catch(() => ({}));
+        toast.error("Your message couldn't be sent", data.error || "Please try again, or reach out directly on WhatsApp.");
       }
     } catch (err) {
       console.error("[CONTACT FORM]", err);
-      setErrors({ general: "Network error. Please try again or reach out directly on WhatsApp." });
+      toast.error("Connection problem", "We couldn't deliver your message. Please check your connection or reach out on WhatsApp.");
     } finally {
       setSubmitting(false);
     }
@@ -114,11 +119,6 @@ function ContactForm({ studioEmail, whatsappNumber }) {
             borderRadius: "6px",
           }}
         />
-      )}
-      {errors[id] && (
-        <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.8rem", color: "rgba(201,169,110,0.9)", marginTop: "0.35rem" }}>
-          {errors[id]}
-        </p>
       )}
     </div>
   );
@@ -182,11 +182,6 @@ function ContactForm({ studioEmail, whatsappNumber }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
-      {errors.general && (
-        <div className="p-3 bg-red-900/30 border border-red-500/40 text-red-200 text-xs rounded">
-          {errors.general}
-        </div>
-      )}
       {field("name",    "Your name")}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {field("email",   "Your email", "email")}

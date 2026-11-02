@@ -3,14 +3,18 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import AdminShell from "../AdminShell";
+import { useToast } from "../../../components/ToastProvider";
 
 const EMPTY = {
   title: "", artist: "Nancy Sikri", medium: "", category: "Paintings",
   year: new Date().getFullYear(), size: "", color: "", desc: "", src: "", featured: false,
+  images: [],
 };
 
 const CATEGORIES = ["Paintings", "Prints", "Photography"];
 const COLORS     = ["Crimson","Rose","Amber","Yellow","Teal","Blue","Lavender","Emerald"];
+const ANGLE_LABELS = ["Front View", "Texture Detail", "Profile & Frame", "In-Situ Room View"];
+const MAX_ANGLES   = 4;
 
 // ── Reusable field components ─────────────────────────────────────────────────
 const Label = ({ children }) => (
@@ -62,25 +66,47 @@ const Textarea = ({ value, onChange, rows = 3 }) => (
 
 // ── Modal form ────────────────────────────────────────────────────────────────
 function ArtworkModal({ initial, onSave, onClose }) {
-  const [form, setForm] = useState(initial || EMPTY);
+  const [form, setForm] = useState(() => ({ images: [], ...(initial || EMPTY) }));
   const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState("");
   const [uploading, setUploading] = useState(false);
+  const [uploadingAngles, setUploadingAngles] = useState(false);
   const fileInputRef = useRef(null);
+  const angleInputRef = useRef(null);
+  const { toast } = useToast();
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
+  const angleList = Array.isArray(form.images) ? form.images : [];
+
   const handleSave = async () => {
-    if (!form.title || !form.src || !form.medium) { setError("Title, image path and medium are required."); return; }
-    setSaving(true); setError("");
+    const missing = [
+      !form.title && "Title",
+      !form.medium && "Medium",
+      !form.src && "Main image",
+    ].filter(Boolean);
+    if (missing.length) {
+      toast.error("A few details are still missing", `Please add ${missing.join(" and ")} before saving this artwork.`);
+      return;
+    }
+    setSaving(true);
     try {
       const method = form._id ? "PUT" : "POST";
       const url    = form._id ? `/api/artworks/${form._id}` : "/api/artworks";
-      const res    = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const payload = { ...form, images: angleList.filter(img => img?.src) };
+      const res    = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data   = await res.json();
-      if (!res.ok) { setError(data.error || "Save failed"); return; }
+      if (!res.ok) {
+        toast.error("Could not save the artwork", data.error || "Please review the details and try again.");
+        return;
+      }
+      toast.success(
+        form._id ? "Artwork updated beautifully" : "Artwork added to the catalogue",
+        `"${data.artwork.title}" is now live for collectors to explore.`
+      );
       onSave(data.artwork);
-    } catch { setError("Network error"); }
+    } catch {
+      toast.error("Saving failed", "A network issue occurred. Please try again in a moment.");
+    }
     finally { setSaving(false); }
   };
 
@@ -88,20 +114,91 @@ function ArtworkModal({ initial, onSave, onClose }) {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    setError("");
     try {
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: formData });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Upload failed"); return; }
+      if (!res.ok) {
+        toast.error(`"${file.name}" could not be uploaded`, data.error || "Supported: JPEG, PNG, WebP or GIF under 5MB.");
+        return;
+      }
       setForm(f => ({ ...f, src: data.url }));
-    } catch { setError("Upload failed"); }
+      toast.success("Main image uploaded", "Looks wonderful. Remember to mark its angle label below.");
+    } catch {
+      toast.error(`"${file.name}" could not be uploaded`, "A network issue occurred. Please try again.");
+    }
     finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
+
+  // ── Additional angle shots (3–4 photos per painting) ────────────────────────
+  const handleAngleUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploadingAngles(true);
+    const added = [];
+    const failed = [];
+    for (const file of files) {
+      if (angleList.length + added.length >= MAX_ANGLES) {
+        toast.warning("Angle limit reached", `A painting can showcase up to ${MAX_ANGLES} views.`);
+        break;
+      }
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await res.json();
+        if (!res.ok) {
+          failed.push({ name: file.name, reason: data.error || "Unsupported file" });
+          continue;
+        }
+        added.push({
+          src: data.url,
+          alt: ANGLE_LABELS[angleList.length + added.length] || `Angle ${angleList.length + added.length + 1}`,
+          isPrimary: false,
+        });
+      } catch {
+        failed.push({ name: file.name, reason: "Network issue" });
+      }
+    }
+    if (added.length) {
+      setForm(f => {
+        const merged = [...(f.images || []), ...added];
+        // First uploaded angle becomes the main image if none set yet
+        const src = f.src || merged[0].src;
+        const hasPrimary = merged.some(img => img.isPrimary);
+        const images = hasPrimary
+          ? merged
+          : merged.map((img, i) => ({ ...img, isPrimary: i === 0 && img.src === src }));
+        return { ...f, images, src };
+      });
+      toast.success(
+        `${added.length} angle ${added.length === 1 ? "photo" : "photos"} added`,
+        "Collectors can now browse these views on the artwork page."
+      );
+    }
+    failed.forEach((f) =>
+      toast.error(`"${f.name}" was skipped`, `${f.reason}. Supported formats: JPEG, PNG, WebP or GIF under 5MB.`)
+    );
+    setUploadingAngles(false);
+    if (angleInputRef.current) angleInputRef.current.value = "";
+  };
+
+  const updateAngle = (i, patch) =>
+    setForm(f => ({ ...f, images: f.images.map((img, idx) => (idx === i ? { ...img, ...patch } : img)) }));
+
+  const removeAngle = (i) =>
+    setForm(f => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+
+  const makeAnglePrimary = (i) =>
+    setForm(f => ({
+      ...f,
+      src: f.images[i].src,
+      images: f.images.map((img, idx) => ({ ...img, isPrimary: idx === i })),
+    }));
 
   return (
     <div
@@ -159,6 +256,77 @@ function ArtworkModal({ initial, onSave, onClose }) {
               </div>
             )}
           </div>
+          {/* Additional angle shots */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <Label>Additional Angles ({angleList.length}/{MAX_ANGLES})</Label>
+              <button
+                type="button"
+                onClick={() => angleInputRef.current?.click()}
+                disabled={uploadingAngles || angleList.length >= MAX_ANGLES}
+                style={{
+                  background: "rgba(201,169,110,0.12)", border: "1px solid #C9A96E", borderRadius: "6px",
+                  color: "#C9A96E", fontSize: "0.62rem", padding: "0.45rem 0.9rem", letterSpacing: "0.1em",
+                  fontWeight: 600, cursor: uploadingAngles || angleList.length >= MAX_ANGLES ? "not-allowed" : "pointer",
+                  opacity: uploadingAngles || angleList.length >= MAX_ANGLES ? 0.5 : 1,
+                }}
+              >
+                {uploadingAngles ? "Uploading…" : "+ Add Angle Photos"}
+              </button>
+            </div>
+            <p style={{ fontSize: "0.62rem", color: "rgba(245,240,232,0.35)", lineHeight: 1.5 }}>
+              Recommended: Front View · Texture Close-up · Frame Profile · In-Situ Room View. Buyers can browse all angles on the artwork page.
+            </p>
+            <input
+              ref={angleInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleAngleUpload}
+              style={{ display: "none" }}
+            />
+            {angleList.map((img, i) => (
+              <div
+                key={`${img.src}-${i}`}
+                style={{
+                  display: "flex", gap: "0.6rem", alignItems: "center",
+                  background: "rgba(245,240,232,0.04)",
+                  border: `1px solid ${img.isPrimary ? "#C9A96E" : "rgba(255,255,255,0.07)"}`,
+                  borderRadius: "8px", padding: "0.5rem",
+                }}
+              >
+                <div style={{ position: "relative", width: "52px", height: "65px", borderRadius: "4px", overflow: "hidden", flexShrink: 0, background: "#111010" }}>
+                  <Image src={img.src} alt={img.alt || `Angle ${i + 1}`} fill className="object-cover" onError={() => {}} />
+                </div>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.35rem", minWidth: 0 }}>
+                  <Input value={img.alt || ""} onChange={(e) => updateAngle(i, { alt: e.target.value })} placeholder="Angle label (e.g. Texture Detail)" />
+                  <span style={{ fontSize: "0.58rem", letterSpacing: "0.12em", textTransform: "uppercase", color: img.isPrimary ? "#C9A96E" : "rgba(245,240,232,0.3)" }}>
+                    {img.isPrimary ? "★ Primary — shown first & on cards" : `Angle ${i + 1}`}
+                  </span>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", flexShrink: 0 }}>
+                  {!img.isPrimary && (
+                    <button
+                      type="button"
+                      onClick={() => makeAnglePrimary(i)}
+                      title="Set as primary view"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: "4px", color: "rgba(245,240,232,0.6)", fontSize: "0.6rem", padding: "0.3rem 0.55rem", cursor: "pointer", letterSpacing: "0.06em" }}
+                    >
+                      Primary
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAngle(i)}
+                    title="Remove this angle"
+                    style={{ background: "rgba(229,115,115,0.08)", border: "none", borderRadius: "4px", color: "#e57373", fontSize: "0.6rem", padding: "0.3rem 0.55rem", cursor: "pointer", letterSpacing: "0.06em" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
           <div><Label>Description</Label><Textarea value={form.desc} onChange={set("desc")} rows={3} /></div>
           <label style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }}>
             <input
@@ -170,8 +338,6 @@ function ArtworkModal({ initial, onSave, onClose }) {
             <span style={{ fontSize: "0.75rem", color: "rgba(245,240,232,0.5)", letterSpacing: "0.08em" }}>Featured artwork</span>
           </label>
         </div>
-
-        {error && <p style={{ color: "#e57373", fontSize: "0.75rem", marginTop: "1rem" }}>{error}</p>}
 
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem", justifyContent: "flex-end" }}>
           <button onClick={onClose} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(245,240,232,0.4)", fontSize: "0.7rem", letterSpacing: "0.12em", padding: "0.6rem 1.2rem", cursor: "pointer" }}>
@@ -198,6 +364,7 @@ export default function AdminArtworks() {
   const [filter,   setFilter]   = useState("All");
   const [search,   setSearch]   = useState("");
   const [deleting, setDeleting] = useState(null);
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -220,9 +387,16 @@ export default function AdminArtworks() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this artwork? This cannot be undone.")) return;
     setDeleting(id);
-    await fetch(`/api/artworks/${id}`, { method: "DELETE" });
-    setArtworks(prev => prev.filter(a => a._id !== id));
-    setDeleting(null);
+    try {
+      const res = await fetch(`/api/artworks/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setArtworks(prev => prev.filter(a => a._id !== id));
+      toast.success("Artwork removed", "The piece has been deleted from the catalogue.");
+    } catch {
+      toast.error("Could not delete the artwork", "A network issue occurred. Please try again.");
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const visible = artworks
@@ -310,7 +484,14 @@ export default function AdminArtworks() {
                   </div>
                 </div>
                 {/* Title */}
-                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</div>
+                <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.8rem", color: "#F5F0E8", fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {a.title}
+                  {Array.isArray(a.images) && a.images.length > 1 && (
+                    <span style={{ marginLeft: "0.5rem", fontSize: "0.56rem", background: "rgba(201,169,110,0.12)", color: "#C9A96E", borderRadius: "4px", padding: "0.1rem 0.4rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                      {a.images.length} angles
+                    </span>
+                  )}
+                </div>
                 {/* Category */}
                 <div style={{ padding: "0.5rem 0.8rem", fontSize: "0.65rem", color: "rgba(245,240,232,0.4)", letterSpacing: "0.06em" }}>{a.category}</div>
                 {/* Year */}

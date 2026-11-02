@@ -2,9 +2,30 @@ import { NextResponse }                  from "next/server";
 import { connectDB }                      from "../../../../lib/mongodb";
 import User                               from "../../../../models/User";
 import { signUserToken, USER_TOKEN_NAME, USER_MAX_AGE } from "../../../../lib/userAuth";
+import { getClientIp, checkRateLimit } from "../../../../lib/rateLimit";
 
 export async function POST(req) {
   try {
+    const ip = getClientIp(req);
+
+    // Rate Limit: Maximum 8 user login attempts per 10 minutes per IP
+    const rateLimit = checkRateLimit(`user-login:${ip}`, 8, 10 * 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `Too many login attempts. Please wait ${Math.ceil(
+            rateLimit.resetSeconds / 60
+          )} minutes before trying again.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimit.resetSeconds),
+          },
+        }
+      );
+    }
+
     const { email, password } = await req.json();
 
     if (!email || !password)

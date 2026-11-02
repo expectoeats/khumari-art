@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "../AdminShell";
+import { useToast } from "../../../components/ToastProvider";
 
 const EMPTY = {
   slug: "", title: "", category: "Process", excerpt: "", cover: "",
@@ -28,7 +29,7 @@ const Textarea = ({ value, onChange, rows = 3 }) => (
 function BlogModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial || EMPTY);
   const [saving, setSaving] = useState(false);
-  const [error, setError]   = useState("");
+  const { toast } = useToast();
 
   const set = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }));
 
@@ -43,16 +44,20 @@ function BlogModal({ initial, onSave, onClose }) {
   const removeBlock = (i)    => setForm(f => ({ ...f, content: f.content.filter((_, idx) => idx !== i) }));
 
   const handleSave = async () => {
-    if (!form.slug || !form.title) { setError("Slug and title are required."); return; }
-    setSaving(true); setError("");
+    if (!form.slug || !form.title) {
+      toast.error("A few details are still missing", `Please add ${[!form.title && "Title", !form.slug && "Slug"].filter(Boolean).join(" and ")} before saving this post.`);
+      return;
+    }
+    setSaving(true);
     try {
       const method = form._id ? "PUT" : "POST";
       const url    = form._id ? `/api/blogs/${form._id}` : "/api/blogs";
       const res    = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data   = await res.json();
-      if (!res.ok) { setError(data.error || "Save failed"); return; }
+      if (!res.ok) { toast.error("Could not save the post", data.error || "Please review the details and try again."); return; }
+      toast.success(form._id ? "Journal entry updated" : "Journal entry published", `"${data.post.title}" has been saved.`);
       onSave(data.post);
-    } catch { setError("Network error"); }
+    } catch { toast.error("Saving failed", "A network issue occurred. Please try again."); }
     finally { setSaving(false); }
   };
 
@@ -131,8 +136,6 @@ function BlogModal({ initial, onSave, onClose }) {
           </div>
         </div>
 
-        {error && <p style={{ color: "#e57373", fontSize: "0.75rem", marginTop: "1rem" }}>{error}</p>}
-
         <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem", justifyContent: "flex-end" }}>
           <button onClick={onClose} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(245,240,232,0.4)", fontSize: "0.7rem", letterSpacing: "0.12em", padding: "0.6rem 1.2rem", cursor: "pointer" }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
@@ -150,6 +153,7 @@ export default function AdminBlogs() {
   const [loading,  setLoading]  = useState(true);
   const [modal,    setModal]    = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -172,15 +176,29 @@ export default function AdminBlogs() {
   const handleDelete = async (id) => {
     if (!confirm("Delete this post?")) return;
     setDeleting(id);
-    await fetch(`/api/blogs/${id}`, { method: "DELETE" });
-    setPosts(prev => prev.filter(p => p._id !== id));
-    setDeleting(null);
+    try {
+      const res = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error();
+      setPosts(prev => prev.filter(p => p._id !== id));
+      toast.success("Journal entry removed", "The post has been deleted.");
+    } catch {
+      toast.error("Could not delete the post", "A network issue occurred. Please try again.");
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const togglePublish = async (post) => {
     const res  = await fetch(`/api/blogs/${post._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...post, published: !post.published }) });
     const data = await res.json();
-    if (res.ok) setPosts(prev => prev.map(p => p._id === data.post._id ? data.post : p));
+    if (res.ok) {
+      setPosts(prev => prev.map(p => p._id === data.post._id ? data.post : p));
+      data.post.published
+        ? toast.success("Post is now live", `"${data.post.title}" is visible to readers.`)
+        : toast.warning("Post moved to drafts", `"${data.post.title}" is hidden from the public journal.`);
+    } else {
+      toast.error("Could not change publish status", data.error || "Please try again.");
+    }
   };
 
   return (

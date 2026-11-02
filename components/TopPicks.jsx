@@ -5,6 +5,7 @@ import Image from "next/image";
 import { FaSearchPlus, FaArrowRight } from "react-icons/fa";
 import { useArtModal } from "./ArtModalContext";
 import { getCachedArtworks } from "../lib/artworksCache";
+import { angleViews, primarySrc } from "../lib/artworkViews";
 
 const picks = [
   {
@@ -106,7 +107,8 @@ export default function TopPicks() {
           size: a.dimensions || a.size || "",
           year: a.year || new Date().getFullYear(),
           color: a.color || "Amber",
-          src: a.images?.[0] || a.image || "/art/placeholder.jpg",
+          src: primarySrc(a),
+          views: angleViews(a),
         }));
 
         const combined = [...formatted];

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { ArtModalProvider } from "./ArtModalContext";
 import { UserProvider } from "./UserContext";
 import { SiteContentProvider } from "./SiteContentContext";
+import { ToastProvider } from "./ToastProvider";
 import PageTransition from "./PageTransition";
 
 const FloatingWhatsApp = dynamic(() => import("./FloatingWhatsApp"), {
@@ -12,13 +13,15 @@ const FloatingWhatsApp = dynamic(() => import("./FloatingWhatsApp"), {
 
 export function ClientWrapper({ children }) {
   return (
-    <SiteContentProvider>
-      <UserProvider>
-        <ArtModalProvider>
-          <PageTransition>{children}</PageTransition>
-          <FloatingWhatsApp />
-        </ArtModalProvider>
-      </UserProvider>
-    </SiteContentProvider>
+    <ToastProvider>
+      <SiteContentProvider>
+        <UserProvider>
+          <ArtModalProvider>
+            <PageTransition>{children}</PageTransition>
+            <FloatingWhatsApp />
+          </ArtModalProvider>
+        </UserProvider>
+      </SiteContentProvider>
+    </ToastProvider>
   );
 }

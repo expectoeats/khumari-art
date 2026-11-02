@@ -4,15 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import { useToast } from "../../components/ToastProvider";
+import { markSessionUnknown } from "../../components/UserContext";
 
 export default function LoginPage() {
   const [form, setForm]     = useState({ email: "", password: "" });
-  const [error, setError]   = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(""); setLoading(true);
+    e.preventDefault(); setLoading(true);
     try {
       const res  = await fetch("/api/user/login", {
         method: "POST",
@@ -20,9 +21,14 @@ export default function LoginPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Login failed"); return; }
+      if (!res.ok) {
+        toast.error("Sign in unsuccessful", data.error || "Please check your email and password, then try again.");
+        return;
+      }
+      toast.success("Welcome back", "Taking you to your collection…");
+      markSessionUnknown(); // fresh session — force /api/user/me refetch after redirect
       window.location.href = "/profile";
-    } catch { setError("Network error. Please try again."); }
+    } catch { toast.error("Connection problem", "We couldn't reach the studio. Please check your connection and try again."); }
     finally   { setLoading(false); }
   };
 
@@ -76,12 +82,6 @@ export default function LoginPage() {
                 onBlur={e  => (e.target.style.borderColor = "#E8DDD0")}
               />
             </div>
-
-            {error && (
-              <p style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontStyle: "italic", fontSize: "0.88rem", color: "#c0392b", padding: "0.6rem 0.8rem", background: "rgba(192,57,43,0.05)", border: "1px solid rgba(192,57,43,0.15)" }}>
-                {error}
-              </p>
-            )}
 
             <button
               type="submit" disabled={loading}

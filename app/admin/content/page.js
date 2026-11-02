@@ -4,12 +4,15 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import AdminShell from "../AdminShell";
 import { FaTrash, FaPlus, FaCheck, FaUpload } from "react-icons/fa";
+import { useToast } from "../../../components/ToastProvider";
+import { useSiteContent } from "../../../components/SiteContentContext";
 
 export default function AdminContentPage() {
   const [activeTab, setActiveTab] = useState("hero");
   const [loading, setLoading]     = useState(true);
   const [saving, setSaving]       = useState(false);
-  const [msg, setMsg]             = useState("");
+  const { toast } = useToast();
+  const { refreshContent } = useSiteContent();
 
   // Section states
   const [heroSlides, setHeroSlides] = useState([]);
@@ -66,7 +69,6 @@ export default function AdminContentPage() {
 
   const saveSection = async (key, value) => {
     setSaving(true);
-    setMsg("");
     try {
       const res = await fetch("/api/content", {
         method: "POST",
@@ -75,10 +77,10 @@ export default function AdminContentPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
-      setMsg(`${key.toUpperCase()} content saved successfully!`);
-      setTimeout(() => setMsg(""), 3500);
+      refreshContent(); // update this tab's cached site content so the live preview reflects the save
+      toast.success("Content saved", `Your ${key} section updates are now live on the website.`);
     } catch (err) {
-      setMsg(`Error: ${err.message}`);
+      toast.error("Could not save content", err.message || "Please try again in a moment.");
     } finally {
       setSaving(false);
     }
@@ -107,12 +109,6 @@ export default function AdminContentPage() {
               Website Content & Media
             </h1>
           </div>
-          {msg && (
-            <div style={{ padding: "0.5rem 1rem", borderRadius: "6px", background: msg.startsWith("Error") ? "rgba(220,53,69,0.2)" : "rgba(37,211,102,0.15)", border: `1px solid ${msg.startsWith("Error") ? "#e57373" : "#25D366"}`, color: "#F5F0E8", fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <FaCheck style={{ color: msg.startsWith("Error") ? "#e57373" : "#25D366" }} />
-              {msg}
-            </div>
-          )}
         </div>
 
         {/* Tab Navigation */}

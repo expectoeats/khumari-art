@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "../AdminShell";
+import { useToast } from "../../../components/ToastProvider";
 
 const Label = ({ children }) => (
   <span style={{ fontSize: "0.58rem", letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", display: "block", marginBottom: "0.4rem" }}>{children}</span>
@@ -23,13 +24,13 @@ const Input = ({ value, onChange, placeholder = "" }) => (
 function CategoryModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState(initial || { name: "", slug: "", description: "", isActive: true, image: "" });
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
+  const { toast } = useToast();
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const handleSave = async () => {
-    if (!form.name) { setError("Category name is required."); return; }
-    setSaving(true); setError("");
+    if (!form.name) { toast.error("Category name is required", "Please give the category a name before saving."); return; }
+    setSaving(true);
     try {
       const method = form._id ? "PATCH" : "POST";
       const url = form._id ? `/api/categories/${form._id}` : "/api/categories";
@@ -39,9 +40,10 @@ function CategoryModal({ initial, onSave, onClose }) {
         body: JSON.stringify({ name: form.name, slug: form.slug, description: form.description, isActive: form.isActive, image: form.image }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error || "Save failed"); return; }
+      if (!res.ok) { toast.error("Could not save the category", data.error || "Please review the details and try again."); return; }
+      toast.success(form._id ? "Category updated" : "Category created", `"${data.category.name}" is ready to use.`);
       onSave(data.category);
-    } catch { setError("Network error"); }
+    } catch { toast.error("Saving failed", "A network issue occurred. Please try again."); }
     finally { setSaving(false); }
   };
 
@@ -55,7 +57,6 @@ function CategoryModal({ initial, onSave, onClose }) {
           <h2 style={{ fontFamily: 'BeausiteFit, "SF Pro Display", sans-serif', fontSize: "1.4rem", color: "#F5F0E8" }}>{form._id ? "Edit Category" : "New Category"}</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(245,240,232,0.4)", fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
         </div>
-        {error && <p style={{ fontSize: "0.75rem", color: "#e57373", marginBottom: "1rem", padding: "0.5rem 0.75rem", background: "rgba(229,115,115,0.08)", borderRadius: "4px" }}>{error}</p>}
         <Label>Name</Label>
         <Input value={form.name} onChange={set("name")} placeholder="e.g. Paintings" />
         <Label style={{ marginTop: "1rem" }}>Slug</Label>
@@ -82,6 +83,7 @@ export default function AdminCategories() {
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const { toast } = useToast();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -110,7 +112,8 @@ export default function AdminCategories() {
     try {
       await fetch(`/api/categories/${id}`, { method: "DELETE" });
       setCategories((prev) => prev.filter((c) => c._id !== id));
-    } catch { alert("Failed to delete category"); }
+      toast.success("Category deleted", "The category has been removed from the catalogue.");
+    } catch { toast.error("Could not delete the category", "A network issue occurred. Please try again."); }
     finally { setDeleting(null); }
   };
 
