@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { allWorks } from "../../components/data";
 import { useSiteContent } from "../../components/SiteContentContext";
@@ -20,6 +19,7 @@ import {
   FaSlidersH,
   FaImages,
   FaExpand,
+  FaCompress,
   FaRedoAlt,
   FaTimes,
   FaCheck,
@@ -98,13 +98,16 @@ function RoomVisualizerContent() {
   const [selectedRoom, setSelectedRoom] = useState(ROOMS_DATA[0]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
-  const [scalePercent, setScalePercent] = useState(22); // balanced medium scale
+  const [scalePercent, setScalePercent] = useState(22); // balanced medium scale (percentage of room width)
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
-  const [showDimensions, setShowDimensions] = useState(true);
+  const [showDimensions, setShowDimensions] = useState(false);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
   const [isArtworkDrawerOpen, setIsArtworkDrawerOpen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting, zero UI text/buttons!
+  const [isTopHovered, setIsTopHovered] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState("rooms"); // "rooms" | "frames" | "scale" | "lighting"
 
   const { content } = useSiteContent();
@@ -116,12 +119,15 @@ function RoomVisualizerContent() {
 
   // Stage reference for snapshot
   const stageRef = useRef(null);
+  const topHoverTimeoutRef = useRef(null);
 
-  // ── Drag & Reposition Logic ──
+  // ── 1. Painting Drag & Reposition Logic ──
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ clientX: 0, clientY: 0, startPos: { x: 0, y: 0 } });
 
   const handlePointerDown = (e) => {
+    // If clicking on resize handle or in Zen mode without interaction, ignore
+    if (e.target.closest(".resize-handle")) return;
     e.preventDefault();
     setIsDragging(true);
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -168,6 +174,102 @@ function RoomVisualizerContent() {
       window.removeEventListener("touchend", handlePointerUp);
     };
   }, [isDragging]);
+
+  // ── 2. Interactive Direct Painting Resize Logic (Dragging Corner Handle) ──
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStartRef = useRef({ clientX: 0, startScale: 22 });
+
+  const handleResizeStart = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsResizing(true);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    resizeStartRef.current = {
+      clientX,
+      startScale: scalePercent,
+    };
+  };
+
+  const handleResizeMove = (e) => {
+    if (!isResizing) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const deltaX = clientX - resizeStartRef.current.clientX;
+    const rect = stageRef.current ? stageRef.current.getBoundingClientRect() : { width: 1000 };
+    const pctChange = (deltaX / rect.width) * 100;
+    // Bound scale between 10% and 48% of screen width
+    const newScale = Math.max(10, Math.min(48, resizeStartRef.current.startScale + pctChange));
+    setScalePercent(Math.round(newScale));
+  };
+
+  const handleResizeUp = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("pointermove", handleResizeMove);
+      window.addEventListener("pointerup", handleResizeUp);
+      window.addEventListener("touchmove", handleResizeMove, { passive: false });
+      window.addEventListener("touchend", handleResizeUp);
+    }
+    return () => {
+      window.removeEventListener("pointermove", handleResizeMove);
+      window.removeEventListener("pointerup", handleResizeUp);
+      window.removeEventListener("touchmove", handleResizeMove);
+      window.removeEventListener("touchend", handleResizeUp);
+    };
+  }, [isResizing]);
+
+  // ── 3. Zen Mode Top Hover Logic ──
+  useEffect(() => {
+    const onMouseMove = (e) => {
+      if (!isZenMode) return;
+      // If cursor is within top 75px of viewport, show top exit pill
+      if (e.clientY < 75) {
+        setIsTopHovered(true);
+        if (topHoverTimeoutRef.current) clearTimeout(topHoverTimeoutRef.current);
+      } else {
+        if (!topHoverTimeoutRef.current) {
+          topHoverTimeoutRef.current = setTimeout(() => {
+            setIsTopHovered(false);
+            topHoverTimeoutRef.current = null;
+          }, 1000);
+        }
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      if (topHoverTimeoutRef.current) clearTimeout(topHoverTimeoutRef.current);
+    };
+  }, [isZenMode]);
+
+  // Escape key handler
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        if (isZenMode) setIsZenMode(false);
+        else if (document.fullscreenElement) {
+          document.exitFullscreen?.().catch(() => {});
+          setIsFullscreen(false);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isZenMode]);
+
+  // Native Fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
 
   const switchRoom = (room) => {
     setSelectedRoom(room);
@@ -251,8 +353,8 @@ function RoomVisualizerContent() {
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
               width: `${scalePercent}%`,
-              maxWidth: "520px",
-              minWidth: "150px",
+              maxWidth: "540px",
+              minWidth: "140px",
               touchAction: "none",
               zIndex: 20,
             }}
@@ -268,7 +370,7 @@ function RoomVisualizerContent() {
               }}
             >
               {/* Painting Canvas */}
-              <div className="relative aspect-[3/4] w-full bg-[#2A2624] overflow-hidden max-h-[56vh]">
+              <div className="relative aspect-[3/4] w-full bg-[#2A2624] overflow-hidden max-h-[58vh]">
                 <img
                   src={selectedArtwork?.src}
                   alt={selectedArtwork?.title || "Artwork"}
@@ -279,40 +381,62 @@ function RoomVisualizerContent() {
               </div>
             </div>
 
-            {/* Dimensions Label Badge */}
-            {showDimensions && (
+            {/* ── INTERACTIVE CORNER RESIZE HANDLE (Visible when NOT in Zen Mode) ── */}
+            {!isZenMode && (
+              <div
+                onPointerDown={handleResizeStart}
+                className="resize-handle absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 transition-transform border-2 border-white select-none group"
+                title="Drag to resize painting directly"
+              >
+                <FaExpand className="text-[10px] pointer-events-none" />
+                <span className="absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/85 text-white px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity">
+                  Drag to Resize ({scalePercent}%)
+                </span>
+              </div>
+            )}
+
+            {/* Dimensions Label Badge (Visible if toggled and not in Zen mode) */}
+            {showDimensions && !isZenMode && (
               <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
                 {selectedArtwork?.size || "36″ × 48″"} • {selectedFrame.name}
               </div>
             )}
           </div>
 
-          {/* Reposition Drag Hint */}
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-80 hover:opacity-100 transition-opacity">
-            <span className="px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[0.65rem] uppercase tracking-widest text-white/80 border border-white/10 font-sans shadow-lg">
-              Drag painting to reposition
-            </span>
-          </div>
+          {/* Reposition Drag Hint (Hidden in Zen Mode) */}
+          {!isZenMode && (
+            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-75">
+              <span className="px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.62rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans shadow-lg">
+                Drag to move • Grab corner to resize
+              </span>
+            </div>
+          )}
 
-          {/* Room Label Tag */}
-          <div className="absolute top-20 left-6 z-10 hidden sm:block pointer-events-none">
-            <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
-              Current Setting
-            </span>
-            <p className="font-display text-sm md:text-base text-white/90 drop-shadow-md">
-              {selectedRoom.title}
-            </p>
-          </div>
+          {/* Room Label Tag (Hidden in Zen Mode) */}
+          {!isZenMode && (
+            <div className="absolute top-20 left-6 z-10 hidden sm:block pointer-events-none">
+              <span className="text-[0.55rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
+                Current Setting
+              </span>
+              <p className="font-display text-sm md:text-base text-white/90 drop-shadow-md">
+                {selectedRoom.title}
+              </p>
+            </div>
+          )}
         </div>
       </main>
 
-      {/* ── 2. TOP FLOATING GLASS HEADER ── */}
-      <header className="absolute top-0 inset-x-0 z-30 h-16 px-4 md:px-8 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] flex items-center justify-between">
+      {/* ── 2. TOP FLOATING GLASS HEADER (Slides up and hides completely in Zen Mode) ── */}
+      <header
+        className={`absolute top-0 inset-x-0 z-30 h-16 px-4 md:px-8 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] flex items-center justify-between transition-all duration-300 ${
+          isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+        }`}
+      >
         {/* Left: Exit Link & Title */}
         <div className="flex items-center gap-3 md:gap-5">
           <Link
             href={targetId ? `/artwork/${targetId}` : "/collect"}
-            className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
+            className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
           >
             <FaArrowLeft className="text-xs" />
             <span className="hidden sm:inline">Exit</span>
@@ -329,14 +453,14 @@ function RoomVisualizerContent() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Switch Artwork */}
           <button
             onClick={() => setIsArtworkDrawerOpen(true)}
             className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
           >
             <FaImages className="text-[#C9A96E] text-xs" />
-            <span className="hidden md:inline">Change Artwork</span>
+            <span className="hidden md:inline">Artwork</span>
             <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
           </button>
 
@@ -351,6 +475,15 @@ function RoomVisualizerContent() {
             </button>
           )}
 
+          {/* Browser Fullscreen Toggle */}
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
+            className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
+          >
+            {isFullscreen ? <FaCompress /> : <FaExpand />}
+          </button>
+
           {/* Save Snapshot */}
           <button
             onClick={handleDownloadSnapshot}
@@ -358,7 +491,7 @@ function RoomVisualizerContent() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
           >
             <FaDownload className="text-[#C9A96E] text-xs" />
-            <span className="hidden sm:inline">{isDownloading ? "Saving..." : "Save Snapshot"}</span>
+            <span className="hidden sm:inline">{isDownloading ? "Saving..." : "Snapshot"}</span>
           </button>
 
           {/* WhatsApp Inquire */}
@@ -366,245 +499,276 @@ function RoomVisualizerContent() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
           >
             <FaWhatsapp className="text-sm" />
-            <span className="hidden sm:inline">Inquire on WhatsApp</span>
+            <span className="hidden md:inline">Inquire</span>
           </a>
 
-          {/* Toggle Controls Eye Button */}
+          {/* 🌟 HIDE ALL UI / ZEN MODE BUTTON 🌟 */}
           <button
-            onClick={() => setIsControlsVisible((v) => !v)}
-            title={isControlsVisible ? "Hide Controls (Full Screen Room)" : "Show Controls"}
-            className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md ml-1"
+            onClick={() => setIsZenMode(true)}
+            title="Hide All UI (Pure Room & Painting Only)"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-lg ml-1"
           >
-            {isControlsVisible ? <FaEyeSlash /> : <FaEye />}
+            <FaEyeSlash className="text-xs" />
+            <span className="hidden sm:inline">Hide All UI</span>
           </button>
         </div>
       </header>
 
-      {/* ── 3. FLOATING GLASS BOTTOM CONTROLS DOCK ── */}
-      {isControlsVisible ? (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
-          <div className="flex flex-col gap-2.5">
-            {/* Control Mode Tabs & Tag Toggle */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-2">
-              <div className="flex items-center gap-1 sm:gap-2">
-                {[
-                  { id: "rooms", label: "Rooms & Walls", icon: FaImages },
-                  { id: "frames", label: "Frames", icon: FaExpand },
-                  { id: "scale", label: "Size & Scale", icon: FaRulerCombined },
-                  { id: "lighting", label: "Ambience", icon: FaSun },
-                ].map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
-                        isActive
-                          ? "bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/40"
-                          : "text-white/50 hover:text-white/80 border border-transparent"
-                      }`}
-                    >
-                      <Icon className="text-xs" />
-                      <span>{tab.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {/* Dimension Tag Toggle */}
-                <button
-                  onClick={() => setShowDimensions((v) => !v)}
-                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-wider transition-all ${
-                    showDimensions
-                      ? "bg-[#C9A96E]/25 text-[#C9A96E] border border-[#C9A96E]/40"
-                      : "text-white/40 hover:text-white/70 border border-white/10"
-                  }`}
-                >
-                  <FaCheck className={`text-[10px] ${showDimensions ? "opacity-100" : "opacity-0"}`} />
-                  <span>Dimensions Tag</span>
-                </button>
-
-                {/* Minimize Dock Button */}
-                <button
-                  onClick={() => setIsControlsVisible(false)}
-                  className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white text-xs"
-                  title="Minimize Dock"
-                >
-                  <FaTimes />
-                </button>
-              </div>
-            </div>
-
-            {/* TAB CONTENT 1: ROOMS SELECTOR */}
-            {activeTab === "rooms" && (
-              <div className="space-y-2">
-                {/* Category Pills */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
-                  {ROOM_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
-                        activeCategory === cat.id
-                          ? "bg-white text-black font-semibold"
-                          : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
-                      }`}
-                    >
-                      {cat.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Horizontal Room Carousel */}
-                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-                  {visibleRooms.map((room) => {
-                    const isSelected = selectedRoom.id === room.id;
-                    return (
-                      <button
-                        key={room.id}
-                        onClick={() => switchRoom(room)}
-                        className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
-                          isSelected
-                            ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
-                            : "border-white/10 hover:border-white/30 opacity-70 hover:opacity-100"
-                        }`}
-                      >
-                        <img
-                          src={room.src}
-                          alt={room.title}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
-                          <span className="text-[0.58rem] text-white leading-tight font-sans truncate w-full text-left">
-                            {room.title}
-                          </span>
-                        </div>
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
-                            <FaCheck />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* TAB CONTENT 2: FRAMES SELECTOR */}
-            {activeTab === "frames" && (
-              <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-                {FRAME_STYLES.map((frame) => {
-                  const isSelected = selectedFrame.id === frame.id;
-                  return (
-                    <button
-                      key={frame.id}
-                      onClick={() => setSelectedFrame(frame)}
-                      className={`flex-shrink-0 px-3.5 py-2 rounded-xl border transition-all text-left flex items-center gap-2.5 ${
-                        isSelected
-                          ? "bg-[#C9A96E]/15 border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
-                          : "bg-white/5 border-white/10 hover:border-white/25 hover:bg-white/10"
-                      }`}
-                    >
-                      <div
-                        className="w-7 h-9 rounded border overflow-hidden flex-shrink-0"
-                        style={{
-                          borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.2)" : frame.frameColor,
-                          backgroundColor: frame.frameColor,
-                          borderWidth: frame.id === "canvas" ? "1px" : "3px",
-                        }}
-                      >
-                        <div className="w-full h-full bg-[#352F2B]" />
-                      </div>
-                      <div>
-                        <p className="text-xs text-white font-medium">{frame.name}</p>
-                        <p className="text-[0.62rem] text-white/50">{frame.subtitle}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* TAB CONTENT 3: SIZE & SCALE SELECTOR */}
-            {activeTab === "scale" && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[0.62rem] uppercase tracking-wider text-white/40 mr-1 hidden sm:inline">
-                    Presets:
-                  </span>
-                  {SCALE_PRESETS.map((preset) => (
-                    <button
-                      key={preset.id}
-                      onClick={() => setScalePercent(preset.percent)}
-                      className={`px-3 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
-                        Math.abs(scalePercent - preset.percent) < 3
-                          ? "bg-[#C9A96E] text-black font-semibold"
-                          : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
-                      }`}
-                    >
-                      {preset.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-3 w-full sm:w-60">
-                  <span className="text-[0.62rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
-                    Scale: {scalePercent}%
-                  </span>
-                  <input
-                    type="range"
-                    min="12"
-                    max="45"
-                    value={scalePercent}
-                    onChange={(e) => setScalePercent(parseInt(e.target.value, 10))}
-                    className="w-full accent-[#C9A96E] cursor-pointer"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* TAB CONTENT 4: LIGHTING & AMBIENCE */}
-            {activeTab === "lighting" && (
-              <div className="flex items-center gap-3 py-1">
-                {LIGHTING_MODES.map((mode) => {
-                  const isSelected = lighting.id === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      onClick={() => setLighting(mode)}
-                      className={`px-4 py-2 rounded-xl border text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
-                        isSelected
-                          ? "bg-[#C9A96E]/20 border-[#C9A96E] text-[#C9A96E]"
-                          : "bg-white/5 border-white/10 text-white/60 hover:text-white"
-                      }`}
-                    >
-                      <FaSun className="text-xs" />
-                      <span>{mode.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+      {/* ── 3. HOVER-TO-REVEAL TOP BAR IN ZEN MODE ── */}
+      {isZenMode && (
+        <div
+          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
+            isTopHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+          }`}
+        >
+          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/80 backdrop-blur-2xl border border-white/20 shadow-2xl">
+            <Link
+              href={targetId ? `/artwork/${targetId}` : "/collect"}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs uppercase tracking-wider transition-all"
+            >
+              <FaArrowLeft className="text-[10px]" />
+              <span>Exit</span>
+            </Link>
+            <button
+              onClick={() => setIsZenMode(false)}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow"
+            >
+              <FaEye className="text-xs" />
+              <span>Restore Controls</span>
+            </button>
           </div>
         </div>
-      ) : (
-        /* Floating Pill to Restore Dock */
-        <button
-          onClick={() => setIsControlsVisible(true)}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-xl border border-white/20 text-white text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
-        >
-          <FaSlidersH className="text-[#C9A96E]" />
-          <span>Show Room & Frame Controls</span>
-        </button>
       )}
 
-      {/* ── 4. SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
+      {/* ── 4. FLOATING GLASS BOTTOM CONTROLS DOCK (Hidden when in Zen Mode) ── */}
+      {!isZenMode && (
+        <>
+          {isControlsVisible ? (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
+              <div className="flex flex-col gap-2.5">
+                {/* Control Mode Tabs & Tag Toggle */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    {[
+                      { id: "rooms", label: "Rooms & Walls", icon: FaImages },
+                      { id: "frames", label: "Frames", icon: FaExpand },
+                      { id: "scale", label: "Size & Scale", icon: FaRulerCombined },
+                      { id: "lighting", label: "Ambience", icon: FaSun },
+                    ].map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
+                            isActive
+                              ? "bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/40"
+                              : "text-white/50 hover:text-white/80 border border-transparent"
+                          }`}
+                        >
+                          <Icon className="text-xs" />
+                          <span>{tab.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Dimension Tag Toggle */}
+                    <button
+                      onClick={() => setShowDimensions((v) => !v)}
+                      className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-wider transition-all ${
+                        showDimensions
+                          ? "bg-[#C9A96E]/25 text-[#C9A96E] border border-[#C9A96E]/40"
+                          : "text-white/40 hover:text-white/70 border border-white/10"
+                      }`}
+                    >
+                      <FaCheck className={`text-[10px] ${showDimensions ? "opacity-100" : "opacity-0"}`} />
+                      <span>Dimensions Tag</span>
+                    </button>
+
+                    {/* Minimize Dock Button */}
+                    <button
+                      onClick={() => setIsControlsVisible(false)}
+                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white text-xs"
+                      title="Minimize Dock"
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                </div>
+
+                {/* TAB CONTENT 1: ROOMS SELECTOR */}
+                {activeTab === "rooms" && (
+                  <div className="space-y-2">
+                    {/* Category Pills */}
+                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                      {ROOM_CATEGORIES.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setActiveCategory(cat.id)}
+                          className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                            activeCategory === cat.id
+                              ? "bg-white text-black font-semibold"
+                              : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Horizontal Room Carousel */}
+                    <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                      {visibleRooms.map((room) => {
+                        const isSelected = selectedRoom.id === room.id;
+                        return (
+                          <button
+                            key={room.id}
+                            onClick={() => switchRoom(room)}
+                            className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
+                              isSelected
+                                ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
+                                : "border-white/10 hover:border-white/30 opacity-70 hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={room.src}
+                              alt={room.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
+                              <span className="text-[0.58rem] text-white leading-tight font-sans truncate w-full text-left">
+                                {room.title}
+                              </span>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
+                                <FaCheck />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB CONTENT 2: FRAMES SELECTOR */}
+                {activeTab === "frames" && (
+                  <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                    {FRAME_STYLES.map((frame) => {
+                      const isSelected = selectedFrame.id === frame.id;
+                      return (
+                        <button
+                          key={frame.id}
+                          onClick={() => setSelectedFrame(frame)}
+                          className={`flex-shrink-0 px-3.5 py-2 rounded-xl border transition-all text-left flex items-center gap-2.5 ${
+                            isSelected
+                              ? "bg-[#C9A96E]/15 border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
+                              : "bg-white/5 border-white/10 hover:border-white/25 hover:bg-white/10"
+                          }`}
+                        >
+                          <div
+                            className="w-7 h-9 rounded border overflow-hidden flex-shrink-0"
+                            style={{
+                              borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.2)" : frame.frameColor,
+                              backgroundColor: frame.frameColor,
+                              borderWidth: frame.id === "canvas" ? "1px" : "3px",
+                            }}
+                          >
+                            <div className="w-full h-full bg-[#352F2B]" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-white font-medium">{frame.name}</p>
+                            <p className="text-[0.62rem] text-white/50">{frame.subtitle}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* TAB CONTENT 3: SIZE & SCALE SELECTOR */}
+                {activeTab === "scale" && (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[0.62rem] uppercase tracking-wider text-white/40 mr-1 hidden sm:inline">
+                        Presets:
+                      </span>
+                      {SCALE_PRESETS.map((preset) => (
+                        <button
+                          key={preset.id}
+                          onClick={() => setScalePercent(preset.percent)}
+                          className={`px-3 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
+                            Math.abs(scalePercent - preset.percent) < 3
+                              ? "bg-[#C9A96E] text-black font-semibold"
+                              : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-60">
+                      <span className="text-[0.62rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
+                        Scale: {scalePercent}%
+                      </span>
+                      <input
+                        type="range"
+                        min="10"
+                        max="48"
+                        value={scalePercent}
+                        onChange={(e) => setScalePercent(parseInt(e.target.value, 10))}
+                        className="w-full accent-[#C9A96E] cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* TAB CONTENT 4: LIGHTING & AMBIENCE */}
+                {activeTab === "lighting" && (
+                  <div className="flex items-center gap-3 py-1">
+                    {LIGHTING_MODES.map((mode) => {
+                      const isSelected = lighting.id === mode.id;
+                      return (
+                        <button
+                          key={mode.id}
+                          onClick={() => setLighting(mode)}
+                          className={`px-4 py-2 rounded-xl border text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
+                            isSelected
+                              ? "bg-[#C9A96E]/20 border-[#C9A96E] text-[#C9A96E]"
+                              : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+                          }`}
+                        >
+                          <FaSun className="text-xs" />
+                          <span>{mode.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* Floating Pill to Restore Dock */
+            <button
+              onClick={() => setIsControlsVisible(true)}
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-xl border border-white/20 text-white text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
+            >
+              <FaSlidersH className="text-[#C9A96E]" />
+              <span>Show Room & Frame Controls</span>
+            </button>
+          )}
+        </>
+      )}
+
+      {/* ── 5. SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
       {isArtworkDrawerOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex justify-end animate-fadeIn"
