@@ -1,13 +1,30 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import { FaTimes, FaWhatsapp, FaArrowRight, FaShieldAlt, FaAward, FaTruck, FaBrush } from "react-icons/fa";
+import { FaTimes, FaWhatsapp, FaArrowRight, FaShieldAlt, FaAward, FaTruck, FaBrush, FaHome } from "react-icons/fa";
 
 const LensZoom = dynamic(() => import("./LensZoom"), {
   ssr: false,
 });
 
+const WallVisualizer = dynamic(() => import("./WallVisualizer"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ padding: "3rem", textAlign: "center", color: "rgba(74,40,24,0.35)", fontSize: "0.85rem", fontFamily: '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif' }}>
+      Loading visualizer…
+    </div>
+  ),
+});
+
+const TABS = [
+  { id: "canvas", label: "Canvas Inspection" },
+  { id: "wall",   label: "See on Wall"        },
+];
+
 export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire }) {
+  const [activeTab, setActiveTab] = useState("canvas");
+
   if (!isOpen || !artwork) return null;
 
   return (
@@ -37,8 +54,45 @@ export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire
 
         {/* Scrollable Content Body */}
         <div className="p-5 sm:p-8 overflow-y-auto flex-1 space-y-8">
-          
-          {/* Amazon/Flipkart Lens Zoom Feature */}
+
+          {/* ── Tab bar ── */}
+          <div style={{
+            display:      "flex",
+            gap:          "0",
+            borderBottom: "1.5px solid #EAE2D5",
+            marginBottom: "0.5rem",
+          }}>
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding:       "0.6rem 1.4rem",
+                  fontSize:      "0.62rem",
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  fontFamily:    '"SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif',
+                  fontWeight:    500,
+                  color:         activeTab === tab.id ? "#C9A96E" : "rgba(74,40,24,0.4)",
+                  background:    "transparent",
+                  border:        "none",
+                  borderBottom:  activeTab === tab.id ? "2px solid #C9A96E" : "2px solid transparent",
+                  marginBottom:  "-1.5px",
+                  cursor:        "pointer",
+                  transition:    "color 0.2s ease, border-color 0.2s ease",
+                  display:       "flex",
+                  alignItems:    "center",
+                  gap:           "0.4rem",
+                }}
+              >
+                {tab.id === "wall" && <FaHome size={10} />}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Tab: Canvas Inspection ── */}
+          {activeTab === "canvas" && (
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs uppercase tracking-widest text-brand-warm font-sans font-medium">
@@ -53,8 +107,25 @@ export default function ArtworkDetailModal({ isOpen, onClose, artwork, onInquire
               src={artwork.src}
               alt={artwork.title}
               title={artwork.title}
+              views={artwork.views}
             />
           </div>
+          )}
+
+          {/* ── Tab: Wall Visualizer ── */}
+          {activeTab === "wall" && (
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xs uppercase tracking-widest text-brand-warm font-sans font-medium">
+                Room Visualizer
+              </span>
+              <span className="text-[0.7rem] text-brand-muted font-sans hidden sm:inline-block">
+                Pick wall colour · Adjust size · Change room style
+              </span>
+            </div>
+            <WallVisualizer artwork={artwork} />
+          </div>
+          )}
 
           {/* Details & Inquire Panel */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6 border-t border-[#EAE2D5] items-start">
