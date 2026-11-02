@@ -186,10 +186,10 @@ export const FRAME_STYLES = [
 ];
 
 export const SCALE_PRESETS = [
-  { id: "small", label: "Small (24×30 in)", percent: 20 },
-  { id: "medium", label: "Medium (36×48 in)", percent: 28 },
-  { id: "large", label: "Large (48×60 in)", percent: 38 },
-  { id: "oversized", label: "Statement (60×72 in)", percent: 48 },
+  { id: "small", label: "Small (24×30 in)", percent: 16 },
+  { id: "medium", label: "Medium (36×48 in)", percent: 22 },
+  { id: "large", label: "Large (48×60 in)", percent: 30 },
+  { id: "oversized", label: "Statement (60×72 in)", percent: 38 },
 ];
 
 export const LIGHTING_MODES = [

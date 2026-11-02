@@ -20,18 +20,17 @@ import {
   FaSlidersH,
   FaImages,
   FaExpand,
-  FaCompress,
   FaRedoAlt,
   FaTimes,
   FaCheck,
   FaRulerCombined,
   FaSun,
-  FaInfoCircle,
+  FaEye,
+  FaEyeSlash,
 } from "react-icons/fa";
 
 function RoomVisualizerContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const targetId = searchParams.get("id") || searchParams.get("artworkId") || "";
 
   // ── Artworks Catalog State ──
@@ -77,7 +76,6 @@ function RoomVisualizerContent() {
               return combined;
             });
 
-            // If query target matches fetched items, select it
             if (targetId) {
               const found = mapped.find(
                 (m) => m._id === targetId || m.id?.toString() === targetId
@@ -100,7 +98,7 @@ function RoomVisualizerContent() {
   const [selectedRoom, setSelectedRoom] = useState(ROOMS_DATA[0]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
-  const [scalePercent, setScalePercent] = useState(28); // default Medium
+  const [scalePercent, setScalePercent] = useState(22); // balanced medium scale
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
   const [showDimensions, setShowDimensions] = useState(true);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
@@ -142,7 +140,6 @@ function RoomVisualizerContent() {
     const deltaX = clientX - dragStartRef.current.clientX;
     const deltaY = clientY - dragStartRef.current.clientY;
 
-    // Convert pixel delta to percentage of stage
     const rect = stageRef.current ? stageRef.current.getBoundingClientRect() : { width: 1000, height: 600 };
     const pctX = (deltaX / rect.width) * 100;
     const pctY = (deltaY / rect.height) * 100;
@@ -172,13 +169,11 @@ function RoomVisualizerContent() {
     };
   }, [isDragging]);
 
-  // Reset position when room changes
   const switchRoom = (room) => {
     setSelectedRoom(room);
     setPosOffset({ x: 0, y: 0 });
   };
 
-  // Filtered rooms
   const visibleRooms = useMemo(() => {
     if (activeCategory === "all") return ROOMS_DATA;
     return ROOMS_DATA.filter((r) => r.category === activeCategory);
@@ -208,7 +203,6 @@ function RoomVisualizerContent() {
     }
   };
 
-  // WhatsApp Inquiry URL
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     `Hello Nancy, I am viewing your painting "${selectedArtwork?.title}" in the "${selectedRoom?.title}" with the "${selectedFrame?.name}" on your Studio Room Visualizer. I would love to inquire about pricing and acquisition details.`
   )}`;
@@ -218,78 +212,10 @@ function RoomVisualizerContent() {
   const calcTop = (selectedRoom.defaultPos?.y || 38) + posOffset.y;
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#0F0E0E] text-[#F5F0E8] select-none flex flex-col font-sans">
-      {/* ── TOP NAV BAR ── */}
-      <header className="relative z-30 h-16 px-4 md:px-8 bg-[#141312]/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between flex-shrink-0">
-        {/* Left: Back & Breadcrumb */}
-        <div className="flex items-center gap-3 md:gap-5">
-          <Link
-            href={targetId ? `/artwork/${targetId}` : "/collect"}
-            className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/60 hover:text-white transition-colors"
-          >
-            <FaArrowLeft className="text-xs" />
-            <span className="hidden sm:inline">Exit Visualizer</span>
-          </Link>
-          <div className="h-4 w-px bg-white/15" />
-          <div>
-            <span className="text-[0.6rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none">
-              Atelier Studio View
-            </span>
-            <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-[200px] sm:max-w-xs md:max-w-md">
-              {selectedArtwork?.title || "Original Artwork"}
-            </h1>
-          </div>
-        </div>
-
-        {/* Center / Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Switch Artwork Pill */}
-          <button
-            onClick={() => setIsArtworkDrawerOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-xs tracking-wider uppercase transition-all"
-          >
-            <FaImages className="text-[#C9A96E] text-xs" />
-            <span className="hidden md:inline">Change Artwork</span>
-            <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
-          </button>
-
-          {/* Reset Position */}
-          {(posOffset.x !== 0 || posOffset.y !== 0) && (
-            <button
-              onClick={() => setPosOffset({ x: 0, y: 0 })}
-              title="Reset Painting Position"
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-all text-xs"
-            >
-              <FaRedoAlt />
-            </button>
-          )}
-
-          {/* Save Snapshot */}
-          <button
-            onClick={handleDownloadSnapshot}
-            disabled={isDownloading}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40"
-          >
-            <FaDownload className="text-[#C9A96E] text-xs" />
-            <span className="hidden sm:inline">{isDownloading ? "Saving..." : "Save Snapshot"}</span>
-          </button>
-
-          {/* WhatsApp Inquire */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg"
-          >
-            <FaWhatsapp className="text-sm" />
-            <span className="hidden sm:inline">Inquire on WhatsApp</span>
-          </a>
-        </div>
-      </header>
-
-      {/* ── MAIN STAGE AREA (100% Full Viewport) ── */}
-      <main className="relative flex-1 w-full h-full overflow-hidden bg-black flex items-center justify-center">
-        {/* Stage Wrapper (Captured by html2canvas) */}
+    <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
+      
+      {/* ── 1. FULL HEIGHT 100VH STAGE (Floor to Ceiling) ── */}
+      <main className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0">
         <div
           ref={stageRef}
           className="relative w-full h-full flex items-center justify-center overflow-hidden"
@@ -298,12 +224,13 @@ function RoomVisualizerContent() {
             transition: "filter 0.4s ease",
           }}
         >
-          {/* Room Background Image */}
+          {/* Room Background Image (Full Viewport Fit) */}
           <img
             key={selectedRoom.src}
             src={selectedRoom.src}
             alt={selectedRoom.title}
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out pointer-events-none select-none"
+            style={{ objectPosition: "center center" }}
             crossOrigin="anonymous"
           />
 
@@ -324,7 +251,8 @@ function RoomVisualizerContent() {
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
               width: `${scalePercent}%`,
-              maxWidth: "85vw",
+              maxWidth: "520px",
+              minWidth: "150px",
               touchAction: "none",
               zIndex: 20,
             }}
@@ -340,7 +268,7 @@ function RoomVisualizerContent() {
               }}
             >
               {/* Painting Canvas */}
-              <div className="relative aspect-[3/4] w-full bg-[#2A2624] overflow-hidden">
+              <div className="relative aspect-[3/4] w-full bg-[#2A2624] overflow-hidden max-h-[56vh]">
                 <img
                   src={selectedArtwork?.src}
                   alt={selectedArtwork?.title || "Artwork"}
@@ -351,47 +279,115 @@ function RoomVisualizerContent() {
               </div>
             </div>
 
-            {/* Subtle Dimensions Label Badge */}
+            {/* Dimensions Label Badge */}
             {showDimensions && (
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none">
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
                 {selectedArtwork?.size || "36″ × 48″"} • {selectedFrame.name}
               </div>
             )}
           </div>
 
-          {/* Floating Reposition Drag Hint */}
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-            <span className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.65rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans">
-              Drag painting to reposition on wall
+          {/* Reposition Drag Hint */}
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-80 hover:opacity-100 transition-opacity">
+            <span className="px-3.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[0.65rem] uppercase tracking-widest text-white/80 border border-white/10 font-sans shadow-lg">
+              Drag painting to reposition
             </span>
           </div>
 
-          {/* Bottom Left Room Label Tag */}
-          <div className="absolute bottom-24 left-6 z-10 hidden sm:block pointer-events-none">
-            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#C9A96E] block font-semibold">
-              Interior Setting
+          {/* Room Label Tag */}
+          <div className="absolute top-20 left-6 z-10 hidden sm:block pointer-events-none">
+            <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
+              Current Setting
             </span>
-            <p className="font-display text-base text-white/90 drop-shadow-md">
+            <p className="font-display text-sm md:text-base text-white/90 drop-shadow-md">
               {selectedRoom.title}
             </p>
           </div>
         </div>
-
-        {/* Toggle Controls Drawer Button */}
-        <button
-          onClick={() => setIsControlsVisible((v) => !v)}
-          className="absolute bottom-6 right-6 z-30 p-3 rounded-full bg-[#181716]/90 backdrop-blur-md border border-white/15 text-white/80 hover:text-white shadow-xl transition-all"
-          title={isControlsVisible ? "Hide Controls" : "Show Controls"}
-        >
-          <FaSlidersH className="text-sm" />
-        </button>
       </main>
 
-      {/* ── BOTTOM DOCK CONTROLLER BAR (Glassmorphism Studio Console) ── */}
-      {isControlsVisible && (
-        <div className="relative z-30 bg-[#121110]/95 backdrop-blur-xl border-t border-white/10 px-4 md:px-8 py-3.5 flex-shrink-0 transition-all duration-300">
-          <div className="max-w-7xl mx-auto flex flex-col gap-3">
-            {/* Control Mode Tabs */}
+      {/* ── 2. TOP FLOATING GLASS HEADER ── */}
+      <header className="absolute top-0 inset-x-0 z-30 h-16 px-4 md:px-8 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] flex items-center justify-between">
+        {/* Left: Exit Link & Title */}
+        <div className="flex items-center gap-3 md:gap-5">
+          <Link
+            href={targetId ? `/artwork/${targetId}` : "/collect"}
+            className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
+          >
+            <FaArrowLeft className="text-xs" />
+            <span className="hidden sm:inline">Exit</span>
+          </Link>
+          <div className="h-4 w-px bg-white/20 hidden sm:block" />
+          <div>
+            <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none drop-shadow">
+              Atelier Studio View
+            </span>
+            <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-[180px] sm:max-w-xs md:max-w-md drop-shadow">
+              {selectedArtwork?.title || "Original Artwork"}
+            </h1>
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Switch Artwork */}
+          <button
+            onClick={() => setIsArtworkDrawerOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
+          >
+            <FaImages className="text-[#C9A96E] text-xs" />
+            <span className="hidden md:inline">Change Artwork</span>
+            <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
+          </button>
+
+          {/* Reset Position */}
+          {(posOffset.x !== 0 || posOffset.y !== 0) && (
+            <button
+              onClick={() => setPosOffset({ x: 0, y: 0 })}
+              title="Reset Painting Position"
+              className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
+            >
+              <FaRedoAlt />
+            </button>
+          )}
+
+          {/* Save Snapshot */}
+          <button
+            onClick={handleDownloadSnapshot}
+            disabled={isDownloading}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
+          >
+            <FaDownload className="text-[#C9A96E] text-xs" />
+            <span className="hidden sm:inline">{isDownloading ? "Saving..." : "Save Snapshot"}</span>
+          </button>
+
+          {/* WhatsApp Inquire */}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
+          >
+            <FaWhatsapp className="text-sm" />
+            <span className="hidden sm:inline">Inquire on WhatsApp</span>
+          </a>
+
+          {/* Toggle Controls Eye Button */}
+          <button
+            onClick={() => setIsControlsVisible((v) => !v)}
+            title={isControlsVisible ? "Hide Controls (Full Screen Room)" : "Show Controls"}
+            className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md ml-1"
+          >
+            {isControlsVisible ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
+      </header>
+
+      {/* ── 3. FLOATING GLASS BOTTOM CONTROLS DOCK ── */}
+      {isControlsVisible ? (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
+          <div className="flex flex-col gap-2.5">
+            {/* Control Mode Tabs & Tag Toggle */}
             <div className="flex items-center justify-between border-b border-white/10 pb-2">
               <div className="flex items-center gap-1 sm:gap-2">
                 {[
@@ -406,7 +402,7 @@ function RoomVisualizerContent() {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
+                      className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
                         isActive
                           ? "bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/40"
                           : "text-white/50 hover:text-white/80 border border-transparent"
@@ -419,30 +415,41 @@ function RoomVisualizerContent() {
                 })}
               </div>
 
-              {/* Dimension Tag Toggle */}
-              <button
-                onClick={() => setShowDimensions((v) => !v)}
-                className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-wider transition-all ${
-                  showDimensions
-                    ? "bg-[#C9A96E]/25 text-[#C9A96E] border border-[#C9A96E]/40"
-                    : "text-white/40 hover:text-white/70 border border-white/10"
-                }`}
-              >
-                <FaCheck className={`text-[10px] ${showDimensions ? "opacity-100" : "opacity-0"}`} />
-                <span>Show Dimensions Tag</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Dimension Tag Toggle */}
+                <button
+                  onClick={() => setShowDimensions((v) => !v)}
+                  className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-wider transition-all ${
+                    showDimensions
+                      ? "bg-[#C9A96E]/25 text-[#C9A96E] border border-[#C9A96E]/40"
+                      : "text-white/40 hover:text-white/70 border border-white/10"
+                  }`}
+                >
+                  <FaCheck className={`text-[10px] ${showDimensions ? "opacity-100" : "opacity-0"}`} />
+                  <span>Dimensions Tag</span>
+                </button>
+
+                {/* Minimize Dock Button */}
+                <button
+                  onClick={() => setIsControlsVisible(false)}
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white text-xs"
+                  title="Minimize Dock"
+                >
+                  <FaTimes />
+                </button>
+              </div>
             </div>
 
             {/* TAB CONTENT 1: ROOMS SELECTOR */}
             {activeTab === "rooms" && (
-              <div className="space-y-2.5">
+              <div className="space-y-2">
                 {/* Category Pills */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
                   {ROOM_CATEGORIES.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setActiveCategory(cat.id)}
-                      className={`px-3 py-1 rounded-full text-[0.65rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                      className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
                         activeCategory === cat.id
                           ? "bg-white text-black font-semibold"
                           : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
@@ -454,14 +461,14 @@ function RoomVisualizerContent() {
                 </div>
 
                 {/* Horizontal Room Carousel */}
-                <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
+                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
                   {visibleRooms.map((room) => {
                     const isSelected = selectedRoom.id === room.id;
                     return (
                       <button
                         key={room.id}
                         onClick={() => switchRoom(room)}
-                        className={`group relative flex-shrink-0 w-28 sm:w-36 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
                           isSelected
                             ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
                             : "border-white/10 hover:border-white/30 opacity-70 hover:opacity-100"
@@ -472,13 +479,13 @@ function RoomVisualizerContent() {
                           alt={room.title}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5">
-                          <span className="text-[0.62rem] text-white leading-tight font-sans truncate w-full text-left">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
+                          <span className="text-[0.58rem] text-white leading-tight font-sans truncate w-full text-left">
                             {room.title}
                           </span>
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px] shadow">
+                          <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
                             <FaCheck />
                           </div>
                         )}
@@ -491,22 +498,21 @@ function RoomVisualizerContent() {
 
             {/* TAB CONTENT 2: FRAMES SELECTOR */}
             {activeTab === "frames" && (
-              <div className="flex items-center gap-3 overflow-x-auto pb-1 no-scrollbar">
+              <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
                 {FRAME_STYLES.map((frame) => {
                   const isSelected = selectedFrame.id === frame.id;
                   return (
                     <button
                       key={frame.id}
                       onClick={() => setSelectedFrame(frame)}
-                      className={`flex-shrink-0 px-4 py-2.5 rounded-xl border transition-all text-left flex items-center gap-3 ${
+                      className={`flex-shrink-0 px-3.5 py-2 rounded-xl border transition-all text-left flex items-center gap-2.5 ${
                         isSelected
                           ? "bg-[#C9A96E]/15 border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
                           : "bg-white/5 border-white/10 hover:border-white/25 hover:bg-white/10"
                       }`}
                     >
-                      {/* Frame Preview Swatch */}
                       <div
-                        className="w-8 h-10 rounded border overflow-hidden flex-shrink-0"
+                        className="w-7 h-9 rounded border overflow-hidden flex-shrink-0"
                         style={{
                           borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.2)" : frame.frameColor,
                           backgroundColor: frame.frameColor,
@@ -517,7 +523,7 @@ function RoomVisualizerContent() {
                       </div>
                       <div>
                         <p className="text-xs text-white font-medium">{frame.name}</p>
-                        <p className="text-[0.65rem] text-white/50">{frame.subtitle}</p>
+                        <p className="text-[0.62rem] text-white/50">{frame.subtitle}</p>
                       </div>
                     </button>
                   );
@@ -527,17 +533,16 @@ function RoomVisualizerContent() {
 
             {/* TAB CONTENT 3: SIZE & SCALE SELECTOR */}
             {activeTab === "scale" && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-1">
-                {/* Scale Presets */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[0.65rem] uppercase tracking-wider text-white/40 mr-1 hidden sm:inline">
+                  <span className="text-[0.62rem] uppercase tracking-wider text-white/40 mr-1 hidden sm:inline">
                     Presets:
                   </span>
                   {SCALE_PRESETS.map((preset) => (
                     <button
                       key={preset.id}
                       onClick={() => setScalePercent(preset.percent)}
-                      className={`px-3 py-1.5 rounded-lg text-xs tracking-wider uppercase transition-all ${
+                      className={`px-3 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
                         Math.abs(scalePercent - preset.percent) < 3
                           ? "bg-[#C9A96E] text-black font-semibold"
                           : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
@@ -548,15 +553,14 @@ function RoomVisualizerContent() {
                   ))}
                 </div>
 
-                {/* Fine Scale Slider */}
-                <div className="flex items-center gap-3 w-full sm:w-64">
-                  <span className="text-[0.65rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
-                    Size: {scalePercent}%
+                <div className="flex items-center gap-3 w-full sm:w-60">
+                  <span className="text-[0.62rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
+                    Scale: {scalePercent}%
                   </span>
                   <input
                     type="range"
-                    min="14"
-                    max="55"
+                    min="12"
+                    max="45"
                     value={scalePercent}
                     onChange={(e) => setScalePercent(parseInt(e.target.value, 10))}
                     className="w-full accent-[#C9A96E] cursor-pointer"
@@ -589,9 +593,18 @@ function RoomVisualizerContent() {
             )}
           </div>
         </div>
+      ) : (
+        /* Floating Pill to Restore Dock */
+        <button
+          onClick={() => setIsControlsVisible(true)}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-xl border border-white/20 text-white text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
+        >
+          <FaSlidersH className="text-[#C9A96E]" />
+          <span>Show Room & Frame Controls</span>
+        </button>
       )}
 
-      {/* ── SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
+      {/* ── 4. SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
       {isArtworkDrawerOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex justify-end animate-fadeIn"
@@ -601,7 +614,6 @@ function RoomVisualizerContent() {
             className="w-full max-w-md h-full bg-[#161514] border-l border-white/10 flex flex-col p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drawer Header */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
               <div>
                 <span className="text-[0.6rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block">
@@ -617,7 +629,6 @@ function RoomVisualizerContent() {
               </button>
             </div>
 
-            {/* Artworks Grid */}
             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
               {artworksList.map((art) => {
                 const isSelected =
