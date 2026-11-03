@@ -439,6 +439,8 @@ function RoomVisualizerContent() {
   };
 
   useEffect(() => {
+    // Only listen for mousemove on desktop pointer devices
+    if (isMobile) return;
     const onMouseMove = (e) => {
       if (!isZenMode) return;
       if (e.clientY < 60) {
@@ -456,7 +458,7 @@ function RoomVisualizerContent() {
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
     };
-  }, [isZenMode, zenControlsVisible]);
+  }, [isZenMode, zenControlsVisible, isMobile]);
 
   // Escape key handler
   useEffect(() => {
@@ -921,18 +923,20 @@ Please share pricing and commissioning timeline for this specification.`
           onClick={(e) => e.stopPropagation()}
           className={`fixed z-50 transition-all duration-300 ${
             zenControlsVisible
-              ? "opacity-100 translate-y-0 scale-100"
-              : "opacity-0 -translate-y-3 scale-95 pointer-events-none"
+              ? "opacity-100 scale-100 pointer-events-auto"
+              : "opacity-0 scale-95 pointer-events-none"
           }`}
           style={{
             top: "max(0.75rem, env(safe-area-inset-top))",
-            right: "max(0.75rem, env(safe-area-inset-right))",
+            right: "max(1rem, env(safe-area-inset-right))",
+            left: "auto",
+            transform: zenControlsVisible ? "translateY(0)" : "translateY(-1.2rem)",
           }}
         >
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-black/85 backdrop-blur-2xl border border-white/20 shadow-2xl">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl">
             <Link
               href={targetId ? `/artwork/${targetId}` : "/collect"}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[0.65rem] uppercase tracking-wider transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[0.65rem] uppercase tracking-wider transition-all active:scale-95"
             >
               <FaArrowLeft className="text-[9px]" />
               <span>Exit</span>
