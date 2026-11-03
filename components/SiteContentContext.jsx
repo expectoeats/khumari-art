@@ -63,17 +63,17 @@ function mergeContent(prev, raw) {
 
 function readCachedContent() {
   try {
+    if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem(CONTENT_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 }
 
 export function SiteContentProvider({ children }) {
-  const [content, setContent] = useState(() => {
-    const cached = readCachedContent();
-    return cached ? mergeContent(DEFAULT_CONTENT, cached) : DEFAULT_CONTENT;
-  });
-  const [loaded, setLoaded] = useState(() => !!readCachedContent());
+  // Always start with DEFAULT_CONTENT on first render (same on server & client)
+  // to avoid React hydration mismatch. Cache is applied in useEffect (client-only).
+  const [content, setContent] = useState(DEFAULT_CONTENT);
+  const [loaded, setLoaded] = useState(false);
 
   const fetchContent = useCallback(async () => {
     try {
@@ -96,7 +96,13 @@ export function SiteContentProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (readCachedContent()) return; // already hydrated; skip network round-trip
+    // On mount (client-only), first apply any sessionStorage cache
+    const cached = readCachedContent();
+    if (cached) {
+      setContent((prev) => mergeContent(prev, cached));
+      setLoaded(true);
+      return; // already hydrated; skip network round-trip
+    }
     fetchContent();
   }, [fetchContent]);
 

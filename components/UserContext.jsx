@@ -11,6 +11,7 @@ const SKIP_KEY = "ks_session_none";
 
 function readCachedUser() {
   try {
+    if (typeof window === "undefined") return null; // SSR-safe guard
     const raw = sessionStorage.getItem(USER_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
@@ -29,21 +30,27 @@ function cacheUser(user) {
 }
 
 export function UserProvider({ children }) {
-  const [user, setUser] = useState(readCachedUser);
-  const [loaded, setLoaded] = useState(() => {
-    try {
-      return !!readCachedUser() || sessionStorage.getItem(SKIP_KEY) === "1";
-    } catch { return false; }
-  });
+  // Always start with null/false on first render (SSR-safe — sessionStorage not available on server)
+  // Cache is applied in useEffect (client-only) to avoid hydration mismatch.
+  const [user, setUser] = useState(null);
+  const [loaded, setLoaded] = useState(false);
 
   // Fetch profile once on mount (skipped when this tab already knows the answer)
   useEffect(() => {
     let mounted = true;
-    let known = false;
+
+    // Check cache first (client-only)
+    const cachedUser = readCachedUser();
+    let skipFetch = false;
     try {
-      known = !!user || sessionStorage.getItem(SKIP_KEY) === "1";
+      skipFetch = !!cachedUser || sessionStorage.getItem(SKIP_KEY) === "1";
     } catch {}
-    if (known) return;
+
+    if (skipFetch) {
+      if (cachedUser) setUser(cachedUser);
+      setLoaded(true);
+      return;
+    }
 
     const fetchUser = async () => {
       try {
