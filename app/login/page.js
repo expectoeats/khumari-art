@@ -69,9 +69,18 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#6B5F55", display: "block", marginBottom: "0.5rem" }}>
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "#6B5F55", display: "block" }}>
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  style={{ fontFamily: '"SF Pro Display", "SF Pro", "SF Pro Text", -apple-system, BlinkMacSystemFont, sans-serif', fontSize: "0.68rem", color: "#C9A96E", textDecoration: "none" }}
+                  className="hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password" required
                 value={form.password}

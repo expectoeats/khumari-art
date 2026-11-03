@@ -4,6 +4,8 @@ import Admin            from "../../../../models/Admin";
 import { signToken, TOKEN_NAME, MAX_AGE } from "../../../../lib/auth";
 import { getClientIp, checkRateLimit } from "../../../../lib/rateLimit";
 
+const PRIMARY_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "sikrinancy@gmail.com").toLowerCase();
+
 export async function POST(req) {
   try {
     const ip = getClientIp(req);
@@ -34,23 +36,39 @@ export async function POST(req) {
 
     await connectDB();
 
-    // Check if any admin exists — if not, seed the first one from env
-    let admin = await Admin.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if admin exists by provided email or primary Nancy email
+    let admin = await Admin.findOne({
+      $or: [
+        { email: normalizedEmail },
+        { email: PRIMARY_ADMIN_EMAIL },
+        { email: "admin@kalasamputah.com" },
+      ],
+    });
+
+    const envPassword = process.env.ADMIN_PASSWORD || "KalaSamputah@2026";
 
     if (!admin) {
-      // Auto-create admin from env on first run
-      const envEmail    = process.env.ADMIN_EMAIL;
-      const envPassword = process.env.ADMIN_PASSWORD;
-
+      // Auto-create Nancy Sikri admin
       if (
-        email.toLowerCase() === envEmail?.toLowerCase() &&
+        (normalizedEmail === PRIMARY_ADMIN_EMAIL || normalizedEmail === "admin@kalasamputah.com") &&
         password === envPassword
       ) {
-        admin = new Admin({ email: envEmail.toLowerCase(), password: envPassword, name: "Admin" });
+        admin = new Admin({
+          email: PRIMARY_ADMIN_EMAIL,
+          password: envPassword,
+          name: "Nancy Sikri",
+        });
         await admin.save();
       } else {
         return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
       }
+    } else if (admin.email !== PRIMARY_ADMIN_EMAIL && normalizedEmail === PRIMARY_ADMIN_EMAIL) {
+      // Migrate admin document to primary Nancy Sikri email
+      admin.email = PRIMARY_ADMIN_EMAIL;
+      admin.name = "Nancy Sikri";
+      await admin.save();
     }
 
     const valid = await admin.comparePassword(password);
@@ -60,7 +78,10 @@ export async function POST(req) {
 
     const token = signToken({ id: admin._id.toString(), email: admin.email });
 
-    const res = NextResponse.json({ success: true, admin: { email: admin.email, name: admin.name } });
+    const res = NextResponse.json({
+      success: true,
+      admin: { email: admin.email, name: admin.name || "Nancy Sikri" },
+    });
     res.cookies.set(TOKEN_NAME, token, {
       httpOnly: true,
       secure:   process.env.NODE_ENV === "production",

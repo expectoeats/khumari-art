@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "../../../components/ToastProvider";
 
@@ -82,9 +83,18 @@ export default function AdminLogin() {
 
           {/* Password */}
           <div>
-            <label style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", display: "block", marginBottom: "0.5rem" }}>
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label style={{ fontSize: "0.58rem", letterSpacing: "0.25em", textTransform: "uppercase", color: "rgba(245,240,232,0.35)", display: "block" }}>
+                Password
+              </label>
+              <Link
+                href="/forgot-password?role=admin"
+                style={{ fontSize: "0.68rem", color: "#C9A96E", textDecoration: "none" }}
+                className="hover:underline opacity-80 hover:opacity-100"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               required
