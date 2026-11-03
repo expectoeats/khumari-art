@@ -241,7 +241,8 @@ function RoomVisualizerContent() {
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting
-  const [isTopHovered, setIsTopHovered] = useState(false);
+  const [zenControlsVisible, setZenControlsVisible] = useState(false);
+  const zenHideTimerRef = useRef(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState("rooms"); // "rooms" | "frames" | "scale" | "lighting"
@@ -284,7 +285,6 @@ function RoomVisualizerContent() {
 
   // Stage reference for snapshot
   const stageRef = useRef(null);
-  const topHoverTimeoutRef = useRef(null);
   const roomsScrollRef = useRef(null);
 
   const scrollRooms = (direction) => {
@@ -404,29 +404,59 @@ function RoomVisualizerContent() {
     };
   }, [isResizing, isMobile, isLandscapeMobile]);
 
-  // ── 3. Zen Mode Top Hover Logic ──
+  // ── 3. Zen Mode Auto-hide & Screen Tap Logic ──
+  useEffect(() => {
+    if (isZenMode) {
+      setZenControlsVisible(true);
+      if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+      zenHideTimerRef.current = setTimeout(() => {
+        setZenControlsVisible(false);
+      }, 1000); // Auto-hide in 1 second
+    } else {
+      setZenControlsVisible(false);
+      if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+    }
+    return () => {
+      if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+    };
+  }, [isZenMode]);
+
+  // Screen click handler for Zen Mode: click reveals button for 1s; click again/outside hides immediately
+  const handleZenScreenClick = () => {
+    if (!isZenMode) return;
+    if (zenControlsVisible) {
+      // User tapped screen while visible -> immediately hide so only room & painting are visible
+      if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+      setZenControlsVisible(false);
+    } else {
+      // User tapped screen while hidden -> reveal top-right controls and auto-hide in 1s
+      setZenControlsVisible(true);
+      if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+      zenHideTimerRef.current = setTimeout(() => {
+        setZenControlsVisible(false);
+      }, 1000);
+    }
+  };
+
   useEffect(() => {
     const onMouseMove = (e) => {
       if (!isZenMode) return;
-      if (e.clientY < 75) {
-        setIsTopHovered(true);
-        if (topHoverTimeoutRef.current) clearTimeout(topHoverTimeoutRef.current);
-      } else {
-        if (!topHoverTimeoutRef.current) {
-          topHoverTimeoutRef.current = setTimeout(() => {
-            setIsTopHovered(false);
-            topHoverTimeoutRef.current = null;
-          }, 1000);
-        }
+      if (e.clientY < 60) {
+        setZenControlsVisible(true);
+        if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
+      } else if (zenControlsVisible && !zenHideTimerRef.current) {
+        zenHideTimerRef.current = setTimeout(() => {
+          setZenControlsVisible(false);
+          zenHideTimerRef.current = null;
+        }, 1000);
       }
     };
 
     window.addEventListener("mousemove", onMouseMove);
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      if (topHoverTimeoutRef.current) clearTimeout(topHoverTimeoutRef.current);
     };
-  }, [isZenMode]);
+  }, [isZenMode, zenControlsVisible]);
 
   // Escape key handler
   useEffect(() => {
@@ -568,12 +598,8 @@ Please share pricing and commissioning timeline for this specification.`
 
       {/* ── 1. FULL HEIGHT 100VH STAGE (Floor to Ceiling) ── */}
       <main
-        className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0"
-        onClick={() => {
-          if (isZenMode && isMobile) {
-            setIsZenMode(false);
-          }
-        }}
+        className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0 cursor-default"
+        onClick={handleZenScreenClick}
       >
         <div
           ref={stageRef}
@@ -604,6 +630,7 @@ Please share pricing and commissioning timeline for this specification.`
           {/* ── THE PAINTING ON THE WALL ── */}
           <div
             onPointerDown={handlePointerDown}
+            onClick={(e) => e.stopPropagation()}
             className={`absolute transition-transform duration-75 ease-out select-none ${
               isDragging ? "cursor-grabbing ring-2 ring-[#C9A96E]/50" : "cursor-grab"
             }`}
@@ -888,14 +915,21 @@ Please share pricing and commissioning timeline for this specification.`
         )}
       </header>
 
-      {/* ── 3. HOVER / TAP TO REVEAL TOP BAR IN ZEN MODE ── */}
+      {/* ── 3. TOP-RIGHT CORNER CONTROLS IN ZEN MODE (Auto-hides in 1s, tap screen to reveal) ── */}
       {isZenMode && (
         <div
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
-            isTopHovered || isMobile ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+          onClick={(e) => e.stopPropagation()}
+          className={`fixed z-50 transition-all duration-300 ${
+            zenControlsVisible
+              ? "opacity-100 translate-y-0 scale-100"
+              : "opacity-0 -translate-y-3 scale-95 pointer-events-none"
           }`}
+          style={{
+            top: "max(0.75rem, env(safe-area-inset-top))",
+            right: "max(0.75rem, env(safe-area-inset-right))",
+          }}
         >
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/85 backdrop-blur-2xl border border-white/20 shadow-2xl">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-black/85 backdrop-blur-2xl border border-white/20 shadow-2xl">
             <Link
               href={targetId ? `/artwork/${targetId}` : "/collect"}
               className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[0.65rem] uppercase tracking-wider transition-all"
@@ -904,8 +938,11 @@ Please share pricing and commissioning timeline for this specification.`
               <span>Exit</span>
             </Link>
             <button
-              onClick={() => setIsZenMode(false)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-[0.65rem] uppercase tracking-wider transition-all shadow"
+              onClick={() => {
+                setIsZenMode(false);
+                setZenControlsVisible(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-[0.65rem] uppercase tracking-wider transition-all shadow active:scale-95"
             >
               <FaEye className="text-xs" />
               <span>Show Controls</span>
