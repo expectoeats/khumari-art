@@ -494,10 +494,12 @@ Please share pricing and commissioning timeline for this specification.`
   )}`;
 
   // Calculated painting coordinates (% of stage)
+  const isLandscapeMobile = isMobile && !isPortrait;
   const calcLeft = (selectedRoom.defaultPos?.x || 50) + posOffset.x;
-  const defaultBaseY = isMobile ? (selectedRoom.defaultPos?.y || 36) - 3 : (selectedRoom.defaultPos?.y || 38);
+  const defaultBaseY = isMobile 
+    ? (isLandscapeMobile ? (selectedRoom.defaultPos?.y || 38) : (selectedRoom.defaultPos?.y || 36) - 3)
+    : (selectedRoom.defaultPos?.y || 38);
   const calcTop = defaultBaseY + posOffset.y;
-
   const currentRenderScale = isMobile ? mobileScale : scalePercent;
 
   return (
@@ -575,7 +577,7 @@ Please share pricing and commissioning timeline for this specification.`
             alt={selectedRoom.title}
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out pointer-events-none select-none"
             style={{
-              objectPosition: isMobile ? "center 42%" : "center center",
+              objectPosition: isMobile && isPortrait ? "center 42%" : "center center",
             }}
             crossOrigin="anonymous"
           />
@@ -598,7 +600,8 @@ Please share pricing and commissioning timeline for this specification.`
               transform: "translate(-50%, -50%)",
               width: `${currentRenderScale}%`,
               aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
-              maxWidth: isMobile ? "88vw" : "540px",
+              maxWidth: isMobile ? (isLandscapeMobile ? "45vw" : "88vw") : "540px",
+              maxHeight: isLandscapeMobile ? "75vh" : "none",
               minWidth: isMobile ? "100px" : "140px",
               touchAction: "none",
               zIndex: 20,
@@ -695,17 +698,20 @@ Please share pricing and commissioning timeline for this specification.`
 
       {/* ── 2. TOP FLOATING GLASS HEADER ── */}
       <header
-        className={`absolute top-0 inset-x-0 z-30 px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] transition-all duration-300 ${
+        className={`absolute top-0 inset-x-0 z-30 px-3 sm:px-6 md:px-8 transition-all duration-300 ${
+          isLandscapeMobile ? "py-1.5 bg-black/40" : "py-2.5 sm:py-3.5 bg-gradient-to-b from-black/85 via-black/50 to-transparent"
+        } backdrop-blur-[2px] ${
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
+        style={{ paddingTop: isMobile ? "max(0.6rem, env(safe-area-inset-top))" : undefined }}
       >
         {/* Mobile Header (Under 768px: compact, zero overflow) */}
-        <div className="flex md:hidden items-center justify-between w-full gap-1.5">
+        <div className={`flex md:hidden items-center justify-between w-full ${isLandscapeMobile ? "gap-4" : "gap-1.5"}`}>
           <div className="flex items-center gap-1.5">
             {/* Back Exit */}
             <Link
               href={targetId ? `/artwork/${targetId}` : "/collect"}
-              className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0"
+              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0`}
               title="Exit"
             >
               <FaArrowLeft className="text-[10px]" />
@@ -714,7 +720,7 @@ Please share pricing and commissioning timeline for this specification.`
             {/* Artwork Selector Pill */}
             <button
               onClick={() => setIsArtworkDrawerOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-white/20 text-[0.65rem] text-white max-w-[130px] active:scale-95"
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-white/20 text-[0.65rem] text-white ${isLandscapeMobile ? "max-w-[180px]" : "max-w-[130px]"} active:scale-95`}
             >
               <span className="truncate font-display font-medium text-white/95">
                 {selectedArtwork?.title || "Artwork"}
@@ -729,7 +735,7 @@ Please share pricing and commissioning timeline for this specification.`
             <button
               onClick={handleDownloadSnapshot}
               disabled={isDownloading}
-              className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40"
+              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40`}
             >
               <FaDownload className="text-[10px]" />
             </button>
@@ -739,15 +745,25 @@ Please share pricing and commissioning timeline for this specification.`
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95"
+              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95`}
             >
-              <FaWhatsapp className="text-[13px]" />
+              <FaWhatsapp className={`${isLandscapeMobile ? "text-xs" : "text-[13px]"}`} />
             </a>
+
+            {/* Fullscreen (New for Mobile Landscape) */}
+            {isLandscapeMobile && (
+              <button
+                onClick={toggleFullscreen}
+                className="w-7 h-7 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white active:scale-95 shadow"
+              >
+                {isFullscreen ? <FaCompress className="text-[10px]" /> : <FaExpand className="text-[10px]" />}
+              </button>
+            )}
 
             {/* Zen Mode */}
             <button
               onClick={() => setIsZenMode(true)}
-              className="w-8 h-8 rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow font-bold"
+              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow font-bold`}
             >
               <FaEyeSlash className="text-[10px]" />
             </button>
@@ -877,8 +893,11 @@ Please share pricing and commissioning timeline for this specification.`
       {!isZenMode && isMobile && (
         <>
           {/* Mobile Floating Pill Dock */}
-          <div className="md:hidden fixed bottom-5 inset-x-4 z-30">
-            <div className="bg-[#141312]/95 backdrop-blur-2xl border border-white/10 rounded-full px-2 py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between overflow-hidden">
+          <div 
+            className={`md:hidden fixed z-30 transition-all duration-300 ${isLandscapeMobile ? "bottom-3 left-1/2 -translate-x-1/2 w-auto" : "bottom-5 inset-x-4 w-auto"}`}
+            style={{ bottom: isMobile ? `max(${isLandscapeMobile ? "0.75rem" : "1.25rem"}, env(safe-area-inset-bottom))` : undefined }}
+          >
+            <div className={`bg-[#141312]/95 backdrop-blur-2xl border border-white/10 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between overflow-hidden ${isLandscapeMobile ? "px-1 py-1 gap-1" : "px-2 py-2"}`}>
               {[
                 { id: "rooms", label: "Rooms", icon: FaImages },
                 { id: "frames", label: "Frames", icon: FaExpand },
@@ -894,14 +913,16 @@ Please share pricing and commissioning timeline for this specification.`
                       setActiveTab(btn.id);
                       setIsMobileSheetOpen(true);
                     }}
-                    className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-full text-[0.62rem] uppercase tracking-[0.15em] font-bold transition-all active:scale-90 ${
+                    className={`flex items-center justify-center gap-2 rounded-full uppercase tracking-[0.15em] font-bold transition-all active:scale-90 ${
+                      isLandscapeMobile ? "px-2.5 py-1.5 text-[0.55rem]" : "px-3.5 py-2 text-[0.62rem]"
+                    } ${
                       isActive
                         ? "bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black shadow-[0_0_15px_rgba(201,169,110,0.4)]"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
-                    <Icon className={`${isActive ? "text-[12px]" : "text-[10px]"}`} />
-                    <span className={isActive ? "block" : "hidden sm:block"}>{btn.label}</span>
+                    <Icon className={`${isActive ? (isLandscapeMobile ? "text-[10px]" : "text-[12px]") : (isLandscapeMobile ? "text-[9px]" : "text-[10px]")}`} />
+                    <span className={isActive || !isLandscapeMobile ? "block" : "hidden"}>{btn.label}</span>
                   </button>
                 );
               })}
@@ -915,7 +936,9 @@ Please share pricing and commissioning timeline for this specification.`
               onClick={() => setIsMobileSheetOpen(false)}
             >
               <div
-                className="w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl max-h-[64vh] overflow-y-auto flex flex-col"
+                className={`w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl overflow-y-auto flex flex-col ${
+                  isLandscapeMobile ? "max-h-[85vh]" : "max-h-[64vh]"
+                }`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Pull Down Handle */}
