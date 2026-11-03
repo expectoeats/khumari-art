@@ -496,11 +496,14 @@ Please share pricing and commissioning timeline for this specification.`
   // Calculated painting coordinates (% of stage)
   const isLandscapeMobile = isMobile && !isPortrait;
   const calcLeft = (selectedRoom.defaultPos?.x || 50) + posOffset.x;
-  const defaultBaseY = isMobile 
-    ? (isLandscapeMobile ? (selectedRoom.defaultPos?.y || 38) : (selectedRoom.defaultPos?.y || 36) - 3)
+  const defaultBaseY = isMobile
+    ? (isLandscapeMobile
+        ? (selectedRoom.defaultPos?.y || 38) - 2   // landscape: slightly higher (room visible)
+        : (selectedRoom.defaultPos?.y || 36) - 3)  // portrait: shifted up
     : (selectedRoom.defaultPos?.y || 38);
   const calcTop = defaultBaseY + posOffset.y;
-  const currentRenderScale = isMobile ? mobileScale : scalePercent;
+  // Landscape mobile: use slightly smaller default scale so painting fits naturally
+  const currentRenderScale = isMobile ? (isLandscapeMobile ? Math.min(mobileScale, 42) : mobileScale) : scalePercent;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
@@ -513,42 +516,40 @@ Please share pricing and commissioning timeline for this specification.`
         className="hidden"
       />
 
-      {/* ── 📱 PORTRAIT WARNING POPUP OVERLAY ── */}
+      {/* ── PORTRAIT ORIENTATION SOFT HINT (Non-blocking overlay, 3-second auto-fade) ── */}
       {isPortrait && !dismissPortraitWarning && (
-        <div className="fixed inset-0 z-[100] bg-[#0F0E0E]/98 backdrop-blur-2xl flex flex-col items-center justify-center p-8 text-center animate-fadeIn select-none">
-          {/* Animated Premium Rotating Graphic */}
-          <div className="relative w-28 h-28 mb-8 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border-2 border-[#C9A96E]/20 animate-[ping_3s_ease-in-out_infinite]" />
-            <div className="absolute inset-2 rounded-full border border-[#C9A96E]/30 animate-[pulse_2s_ease-in-out_infinite]" />
-            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#1A1816] to-[#2A2624] border border-[#C9A96E]/40 flex items-center justify-center shadow-[0_0_40px_rgba(201,169,110,0.15)]">
-              <FaSyncAlt className="text-3xl text-[#C9A96E] animate-[spin_6s_linear_infinite]" />
+        <div
+          className="fixed inset-0 z-[100] bg-[#0F0E0E]/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-fadeIn select-none"
+          onClick={() => setDismissPortraitWarning(true)}
+        >
+          {/* Phone rotation graphic */}
+          <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-[#C9A96E]/15 animate-[ping_3s_ease-in-out_infinite]" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#1A1816] to-[#2A2624] border border-[#C9A96E]/35 flex items-center justify-center shadow-[0_0_30px_rgba(201,169,110,0.12)]">
+              <FaSyncAlt className="text-2xl text-[#C9A96E] animate-[spin_6s_linear_infinite]" />
             </div>
           </div>
 
-          <div className="space-y-3 mb-10">
-            <span className="text-[0.65rem] uppercase tracking-[0.4em] text-[#C9A96E] font-bold block">
-              Atelier Experience
+          <div className="space-y-2 mb-8">
+            <span className="text-[0.6rem] uppercase tracking-[0.35em] text-[#C9A96E] font-bold block">
+              Better in Landscape
             </span>
-            <h2 className="font-display text-2xl text-white leading-tight">
-              Landscape Mode Recommended
+            <h2 className="font-display text-xl text-white leading-tight">
+              Rotate for Immersive View
             </h2>
-            <p className="text-[0.7rem] text-white/50 max-w-[260px] mx-auto leading-relaxed font-sans font-light">
-              For an immersive architectural view of the gallery and authentic artwork proportions, please rotate your device.
+            <p className="text-[0.68rem] text-white/45 max-w-[240px] mx-auto leading-relaxed font-sans font-light">
+              Landscape mode gives you a fuller studio experience — but you can continue in portrait too.
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-4 w-full max-w-[240px]">
-            <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black font-bold text-[0.7rem] uppercase tracking-widest shadow-[0_10px_25px_rgba(201,169,110,0.3)] active:scale-95 transition-transform">
-              <FaMobileAlt className="text-base rotate-90" />
-              <span>Rotate Device</span>
-            </div>
-
+          <div className="flex flex-col items-center gap-3 w-full max-w-[220px]">
             <button
               onClick={() => setDismissPortraitWarning(true)}
-              className="text-[0.62rem] text-white/30 hover:text-[#C9A96E] transition-colors uppercase tracking-[0.15em] font-medium pt-2"
+              className="w-full py-3 rounded-full bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black font-bold text-[0.7rem] uppercase tracking-widest shadow-[0_8px_20px_rgba(201,169,110,0.28)] active:scale-95 transition-transform"
             >
-              Continue anyway
+              Continue in Portrait
             </button>
+            <p className="text-[0.58rem] text-white/25 uppercase tracking-widest">or rotate your device</p>
           </div>
         </div>
       )}
@@ -577,7 +578,7 @@ Please share pricing and commissioning timeline for this specification.`
             alt={selectedRoom.title}
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out pointer-events-none select-none"
             style={{
-              objectPosition: isMobile && isPortrait ? "center 42%" : "center center",
+              objectPosition: isPortrait ? "center 42%" : "center 40%",
             }}
             crossOrigin="anonymous"
           />
@@ -600,8 +601,8 @@ Please share pricing and commissioning timeline for this specification.`
               transform: "translate(-50%, -50%)",
               width: `${currentRenderScale}%`,
               aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
-              maxWidth: isMobile ? (isLandscapeMobile ? "45vw" : "88vw") : "540px",
-              maxHeight: isLandscapeMobile ? "75vh" : "none",
+              maxWidth: isMobile ? (isLandscapeMobile ? "40vw" : "80vw") : "540px",
+              maxHeight: isLandscapeMobile ? "62vh" : (isPortrait ? "42vh" : "none"),
               minWidth: isMobile ? "100px" : "140px",
               touchAction: "none",
               zIndex: 20,
@@ -675,9 +676,9 @@ Please share pricing and commissioning timeline for this specification.`
 
           {/* Reposition Drag Hint (Hidden in Zen Mode AND during Snapshot capture) */}
           {!isZenMode && !isDownloading && (
-            <div className="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-80">
-              <span className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.58rem] sm:text-[0.62rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans shadow-lg">
-                Drag to move • Grab corner to scale
+            <div className={`absolute z-10 pointer-events-none opacity-75 left-1/2 -translate-x-1/2 ${isMobile ? "top-14" : "top-16 sm:top-20"}`}>
+              <span className="px-3 py-1 rounded-full bg-black/55 backdrop-blur-md text-[0.55rem] sm:text-[0.62rem] uppercase tracking-widest text-white/65 border border-white/10 font-sans shadow-lg whitespace-nowrap">
+                {isMobile ? "Drag • Corner to scale" : "Drag to move • Grab corner to scale"}
               </span>
             </div>
           )}
@@ -698,169 +699,174 @@ Please share pricing and commissioning timeline for this specification.`
 
       {/* ── 2. TOP FLOATING GLASS HEADER ── */}
       <header
-        className={`absolute top-0 inset-x-0 z-30 px-3 sm:px-6 md:px-8 transition-all duration-300 ${
-          isLandscapeMobile ? "py-1.5 bg-black/40" : "py-2.5 sm:py-3.5 bg-gradient-to-b from-black/85 via-black/50 to-transparent"
-        } backdrop-blur-[2px] ${
+        className={`absolute top-0 inset-x-0 z-30 transition-all duration-300 ${
+          isMobile
+            ? `px-3 ${isLandscapeMobile ? "py-1 bg-black/50" : "py-2 bg-gradient-to-b from-black/88 via-black/55 to-transparent"}`
+            : "px-6 md:px-8 py-3.5 bg-gradient-to-b from-black/85 via-black/50 to-transparent"
+        } backdrop-blur-sm ${
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
-        style={{ paddingTop: isMobile ? "max(0.6rem, env(safe-area-inset-top))" : undefined }}
+        style={{ paddingTop: isMobile ? `max(${isLandscapeMobile ? "0.35rem" : "0.55rem"}, env(safe-area-inset-top))` : undefined }}
       >
-        {/* Mobile Header (Under 768px: compact, zero overflow) */}
-        <div className={`flex md:hidden items-center justify-between w-full ${isLandscapeMobile ? "gap-4" : "gap-1.5"}`}>
-          <div className="flex items-center gap-1.5">
-            {/* Back Exit */}
-            <Link
-              href={targetId ? `/artwork/${targetId}` : "/collect"}
-              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0`}
-              title="Exit"
-            >
-              <FaArrowLeft className="text-[10px]" />
-            </Link>
-
-            {/* Artwork Selector Pill */}
-            <button
-              onClick={() => setIsArtworkDrawerOpen(true)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-white/20 text-[0.65rem] text-white ${isLandscapeMobile ? "max-w-[180px]" : "max-w-[130px]"} active:scale-95`}
-            >
-              <span className="truncate font-display font-medium text-white/95">
-                {selectedArtwork?.title || "Artwork"}
-              </span>
-              <FaChevronDown className="text-[8px] text-[#C9A96E] flex-shrink-0" />
-            </button>
-          </div>
-
-          {/* Quick Action Icons */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Snapshot */}
-            <button
-              onClick={handleDownloadSnapshot}
-              disabled={isDownloading}
-              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40`}
-            >
-              <FaDownload className="text-[10px]" />
-            </button>
-
-            {/* WhatsApp */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95`}
-            >
-              <FaWhatsapp className={`${isLandscapeMobile ? "text-xs" : "text-[13px]"}`} />
-            </a>
-
-            {/* Fullscreen (New for Mobile Landscape) */}
-            {isLandscapeMobile && (
-              <button
-                onClick={toggleFullscreen}
-                className="w-7 h-7 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white active:scale-95 shadow"
+        {/* ── MOBILE HEADER: icon-only, no overflow, state-driven (not CSS breakpoints) ── */}
+        {isMobile ? (
+          <div className="flex items-center w-full gap-2 min-w-0">
+            {/* Left group: Back + Artwork title pill */}
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <Link
+                href={targetId ? `/artwork/${targetId}` : "/collect"}
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-white/90 active:scale-95`}
+                title="Exit"
               >
-                {isFullscreen ? <FaCompress className="text-[10px]" /> : <FaExpand className="text-[10px]" />}
+                <FaArrowLeft className="text-[11px]" />
+              </Link>
+
+              {/* Artwork title pill — flex-shrinks, never overflows */}
+              <button
+                onClick={() => setIsArtworkDrawerOpen(true)}
+                className={`flex items-center gap-1 px-2.5 rounded-full bg-black/65 border border-white/20 active:scale-95 min-w-0 overflow-hidden ${isLandscapeMobile ? "py-1 max-w-[150px]" : "py-1.5 max-w-[145px]"}`}
+              >
+                <span className={`truncate font-medium text-white/90 leading-none ${isLandscapeMobile ? "text-[0.58rem]" : "text-[0.62rem]"}`}>
+                  {selectedArtwork?.title || "Select Artwork"}
+                </span>
+                <FaChevronDown className="text-[7px] text-[#C9A96E] flex-shrink-0 ml-0.5" />
               </button>
-            )}
+            </div>
 
-            {/* Zen Mode */}
-            <button
-              onClick={() => setIsZenMode(true)}
-              className={`${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow font-bold`}
-            >
-              <FaEyeSlash className="text-[10px]" />
-            </button>
-          </div>
-        </div>
+            {/* Right group: icon-only action buttons, fixed size, guaranteed no overflow */}
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {/* Upload your wall */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-[#C9A96E]/50 flex items-center justify-center text-[#C9A96E] active:scale-95`}
+                title="Upload Wall Photo"
+              >
+                <FaCamera className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+              </button>
 
-        {/* Desktop Header (768px and above) */}
-        <div className="hidden md:flex items-center justify-between w-full">
-          {/* Left: Exit Link & Title */}
-          <div className="flex items-center gap-4">
-            <Link
-              href={targetId ? `/artwork/${targetId}` : "/collect"}
-              className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
-            >
-              <FaArrowLeft className="text-xs" />
-              <span>Exit</span>
-            </Link>
-            <div className="h-4 w-px bg-white/20" />
-            <div>
-              <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none drop-shadow">
-                Atelier Studio View
-              </span>
-              <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-sm md:max-w-md drop-shadow">
-                {selectedArtwork?.title || "Original Artwork"}
-              </h1>
+              {/* Snapshot download */}
+              <button
+                onClick={handleDownloadSnapshot}
+                disabled={isDownloading}
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40`}
+                title="Download Snapshot"
+              >
+                <FaDownload className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+              </button>
+
+              {/* WhatsApp Inquire */}
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95`}
+                title="Inquire on WhatsApp"
+              >
+                <FaWhatsapp className={isLandscapeMobile ? "text-[11px]" : "text-[13px]"} />
+              </a>
+
+              {/* Zen Mode */}
+              <button
+                onClick={() => setIsZenMode(true)}
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow`}
+                title="Focus Mode (Hide UI)"
+              >
+                <FaEyeSlash className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+              </button>
             </div>
           </div>
+        ) : (
+          /* ── DESKTOP HEADER ── */
+          <div className="flex items-center justify-between w-full">
+            {/* Left: Exit Link & Title */}
+            <div className="flex items-center gap-4">
+              <Link
+                href={targetId ? `/artwork/${targetId}` : "/collect"}
+                className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
+              >
+                <FaArrowLeft className="text-xs" />
+                <span>Exit</span>
+              </Link>
+              <div className="h-4 w-px bg-white/20" />
+              <div>
+                <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none drop-shadow">
+                  Atelier Studio View
+                </span>
+                <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-sm md:max-w-md drop-shadow">
+                  {selectedArtwork?.title || "Original Artwork"}
+                </h1>
+              </div>
+            </div>
 
-          {/* Right: Actions */}
-          <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setIsArtworkDrawerOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
-            >
-              <FaImages className="text-[#C9A96E] text-xs" />
-              <span>Artwork</span>
-              <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
-            </button>
-
-            {/* Upload Wall Shortcut */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-[#C9A96E]/40 text-xs tracking-wider uppercase text-[#C9A96E] transition-all backdrop-blur-md"
-              title="Upload your own wall photo"
-            >
-              <FaCamera className="text-xs" />
-              <span>{customWallUrl ? "My Wall" : "Upload Wall"}</span>
-            </button>
-
-            {(posOffset.x !== 0 || posOffset.y !== 0) && (
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2.5">
               <button
-                onClick={() => setPosOffset({ x: 0, y: 0 })}
-                title="Reset Painting Position"
+                onClick={() => setIsArtworkDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
+              >
+                <FaImages className="text-[#C9A96E] text-xs" />
+                <span>Artwork</span>
+                <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
+              </button>
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-[#C9A96E]/40 text-xs tracking-wider uppercase text-[#C9A96E] transition-all backdrop-blur-md"
+                title="Upload your own wall photo"
+              >
+                <FaCamera className="text-xs" />
+                <span>{customWallUrl ? "My Wall" : "Upload Wall"}</span>
+              </button>
+
+              {(posOffset.x !== 0 || posOffset.y !== 0) && (
+                <button
+                  onClick={() => setPosOffset({ x: 0, y: 0 })}
+                  title="Reset Painting Position"
+                  className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
+                >
+                  <FaRedoAlt />
+                </button>
+              )}
+
+              <button
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
                 className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
               >
-                <FaRedoAlt />
+                {isFullscreen ? <FaCompress /> : <FaExpand />}
               </button>
-            )}
 
-            <button
-              onClick={toggleFullscreen}
-              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
-              className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
-            >
-              {isFullscreen ? <FaCompress /> : <FaExpand />}
-            </button>
+              <button
+                onClick={handleDownloadSnapshot}
+                disabled={isDownloading}
+                title="Download Room & Painting"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
+              >
+                <FaDownload className="text-[#C9A96E] text-xs" />
+                <span>{isDownloading ? "Saving..." : "Snapshot"}</span>
+              </button>
 
-            <button
-              onClick={handleDownloadSnapshot}
-              disabled={isDownloading}
-              title="Download Room & Painting"
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
-            >
-              <FaDownload className="text-[#C9A96E] text-xs" />
-              <span>{isDownloading ? "Saving..." : "Snapshot"}</span>
-            </button>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
+              >
+                <FaWhatsapp className="text-sm" />
+                <span>Inquire</span>
+              </a>
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
-            >
-              <FaWhatsapp className="text-sm" />
-              <span>Inquire</span>
-            </a>
-
-            <button
-              onClick={() => setIsZenMode(true)}
-              title="Hide All UI (Pure Room & Painting Only)"
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-lg ml-1"
-            >
-              <FaEyeSlash className="text-xs" />
-              <span>Hide All UI</span>
-            </button>
+              <button
+                onClick={() => setIsZenMode(true)}
+                title="Hide All UI (Pure Room & Painting Only)"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-lg ml-1"
+              >
+                <FaEyeSlash className="text-xs" />
+                <span>Hide All UI</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </header>
 
       {/* ── 3. HOVER / TAP TO REVEAL TOP BAR IN ZEN MODE ── */}
@@ -889,15 +895,19 @@ Please share pricing and commissioning timeline for this specification.`
         </div>
       )}
 
-      {/* ── 4. MOBILE BOTTOM FLOATING DOCK & SLIDE-UP SHEET (< 768px) ── */}
+      {/* ── 4. MOBILE BOTTOM FLOATING DOCK & SLIDE-UP SHEET (state-driven, not CSS breakpoints) ── */}
       {!isZenMode && isMobile && (
         <>
-          {/* Mobile Floating Pill Dock */}
-          <div 
-            className={`md:hidden fixed z-30 transition-all duration-300 ${isLandscapeMobile ? "bottom-3 left-1/2 -translate-x-1/2 w-auto" : "bottom-5 inset-x-4 w-auto"}`}
-            style={{ bottom: isMobile ? `max(${isLandscapeMobile ? "0.75rem" : "1.25rem"}, env(safe-area-inset-bottom))` : undefined }}
+          {/* Mobile Floating Tab Dock — centered, safe-area-aware, no overflow */}
+          <div
+            className="fixed left-0 right-0 z-30 flex justify-center"
+            style={{
+              bottom: `max(${isLandscapeMobile ? "0.5rem" : "1rem"}, env(safe-area-inset-bottom))`,
+              paddingLeft: isLandscapeMobile ? "max(0.5rem, env(safe-area-inset-left))" : undefined,
+              paddingRight: isLandscapeMobile ? "max(0.5rem, env(safe-area-inset-right))" : undefined,
+            }}
           >
-            <div className={`bg-[#141312]/95 backdrop-blur-2xl border border-white/10 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between overflow-hidden ${isLandscapeMobile ? "px-1 py-1 gap-1" : "px-2 py-2"}`}>
+            <div className={`bg-[#141312]/96 backdrop-blur-2xl border border-white/15 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex items-center gap-0.5 ${isLandscapeMobile ? "px-1 py-1" : "px-1.5 py-1.5"}`}>
               {[
                 { id: "rooms", label: "Rooms", icon: FaImages },
                 { id: "frames", label: "Frames", icon: FaExpand },
@@ -913,16 +923,18 @@ Please share pricing and commissioning timeline for this specification.`
                       setActiveTab(btn.id);
                       setIsMobileSheetOpen(true);
                     }}
-                    className={`flex items-center justify-center gap-2 rounded-full uppercase tracking-[0.15em] font-bold transition-all active:scale-90 ${
-                      isLandscapeMobile ? "px-2.5 py-1.5 text-[0.55rem]" : "px-3.5 py-2 text-[0.62rem]"
+                    className={`flex items-center justify-center gap-1.5 rounded-full transition-all active:scale-90 ${
+                      isLandscapeMobile
+                        ? "flex-row px-3.5 py-1.5 text-[0.58rem]"
+                        : "flex-col px-4 py-2 text-[0.55rem]"
                     } ${
                       isActive
                         ? "bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black shadow-[0_0_15px_rgba(201,169,110,0.4)]"
-                        : "text-white/60 hover:text-white"
+                        : "text-white/55 hover:text-white"
                     }`}
                   >
-                    <Icon className={`${isActive ? (isLandscapeMobile ? "text-[10px]" : "text-[12px]") : (isLandscapeMobile ? "text-[9px]" : "text-[10px]")}`} />
-                    <span className={isActive || !isLandscapeMobile ? "block" : "hidden"}>{btn.label}</span>
+                    <Icon className={isActive ? "text-[11px]" : "text-[10px]"} />
+                    <span className="uppercase tracking-[0.1em] font-bold leading-none">{btn.label}</span>
                   </button>
                 );
               })}
@@ -932,7 +944,7 @@ Please share pricing and commissioning timeline for this specification.`
           {/* Mobile Slide-Up Bottom Sheet Drawer */}
           {isMobileSheetOpen && (
             <div
-              className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex flex-col justify-end animate-fadeIn"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex flex-col justify-end animate-fadeIn"
               onClick={() => setIsMobileSheetOpen(false)}
             >
               <div
