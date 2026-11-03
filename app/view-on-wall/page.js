@@ -589,7 +589,7 @@ Please share pricing and commissioning timeline for this specification.`
             style={{ backgroundColor: lighting.overlay }}
           />
 
-          {/* ── THE PAINTING ON THE WALL (Zero Distortion, Natural Aspect Ratio) ── */}
+          {/* ── THE PAINTING ON THE WALL ── */}
           <div
             onPointerDown={handlePointerDown}
             className={`absolute transition-transform duration-75 ease-out select-none ${
@@ -600,40 +600,34 @@ Please share pricing and commissioning timeline for this specification.`
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
               width: `${currentRenderScale}%`,
-              aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
-              maxWidth: isMobile ? (isLandscapeMobile ? "40vw" : "80vw") : "540px",
-              maxHeight: isLandscapeMobile ? "62vh" : (isPortrait ? "42vh" : "none"),
-              minWidth: isMobile ? "100px" : "140px",
+              // aspectRatio on outer wrapper forces natural shape — NEVER square
+              aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : undefined,
+              maxWidth: isMobile ? (isLandscapeMobile ? "42vw" : "80vw") : "540px",
+              maxHeight: isLandscapeMobile ? "60vh" : (isPortrait ? "42vh" : "none"),
+              minWidth: isMobile ? "90px" : "140px",
               touchAction: "none",
               zIndex: 20,
             }}
           >
-            {/* Outer Frame Wrapper */}
+              {/* Outer Frame Wrapper — inherits aspect ratio from parent */}
             <div
               className="relative overflow-hidden transition-all duration-300 w-full h-full"
               style={{
                 boxShadow: selectedFrame.shadowCss,
-                border: isMobile && selectedFrame.id !== "canvas" ? "6px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
+                border: isMobile && selectedFrame.id !== "canvas" ? "5px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
                 padding: isMobile && selectedFrame.id !== "canvas" ? "2px" : selectedFrame.paddingCss,
                 backgroundColor: selectedFrame.frameColor,
               }}
             >
-              {/* Painting Canvas (Dynamic Natural Ratio - Never Stretches) */}
-              <div
-                className="relative w-full h-full overflow-hidden flex items-center justify-center"
-                style={{
-                  aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
-                }}
-              >
-                <img
-                  src={selectedArtwork?.src}
-                  alt={selectedArtwork?.title || "Artwork"}
-                  onLoad={handleArtworkImageLoad}
-                  className="w-full h-full object-cover select-none pointer-events-none block"
-                  crossOrigin="anonymous"
-                  draggable={false}
-                />
-              </div>
+              {/* Painting img — object-contain so it never crops or stretches */}
+              <img
+                src={selectedArtwork?.src}
+                alt={selectedArtwork?.title || "Artwork"}
+                onLoad={handleArtworkImageLoad}
+                className="w-full h-full object-contain select-none pointer-events-none block"
+                crossOrigin="anonymous"
+                draggable={false}
+              />
             </div>
 
             {/* Corner Resize Handle (Hidden in Zen Mode AND during Snapshot capture) */}
@@ -708,70 +702,79 @@ Please share pricing and commissioning timeline for this specification.`
         }`}
         style={{ paddingTop: isMobile ? `max(${isLandscapeMobile ? "0.35rem" : "0.55rem"}, env(safe-area-inset-top))` : undefined }}
       >
-        {/* ── MOBILE HEADER: icon-only, no overflow, state-driven (not CSS breakpoints) ── */}
+        {/* ── MOBILE HEADER: state-driven, landscape-optimized, no overflow ── */}
         {isMobile ? (
           <div className="flex items-center w-full gap-2 min-w-0">
-            {/* Left group: Back + Artwork title pill */}
-            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            {/* Left: Back + Artwork title pill */}
+            <div className="flex items-center gap-2 flex-1 min-w-0">
               <Link
                 href={targetId ? `/artwork/${targetId}` : "/collect"}
-                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-white/90 active:scale-95`}
+                className={`flex-shrink-0 ${isLandscapeMobile ? "w-9 h-9" : "w-9 h-9"} rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-white/90 active:scale-95`}
                 title="Exit"
               >
-                <FaArrowLeft className="text-[11px]" />
+                <FaArrowLeft className="text-[13px]" />
               </Link>
 
-              {/* Artwork title pill — flex-shrinks, never overflows */}
+              {/* Artwork title pill — never overflows */}
               <button
                 onClick={() => setIsArtworkDrawerOpen(true)}
-                className={`flex items-center gap-1 px-2.5 rounded-full bg-black/65 border border-white/20 active:scale-95 min-w-0 overflow-hidden ${isLandscapeMobile ? "py-1 max-w-[150px]" : "py-1.5 max-w-[145px]"}`}
+                className={`flex items-center gap-1.5 px-3 rounded-full bg-black/65 border border-white/20 active:scale-95 min-w-0 overflow-hidden ${isLandscapeMobile ? "py-1.5 max-w-[160px]" : "py-2 max-w-[145px]"}`}
               >
-                <span className={`truncate font-medium text-white/90 leading-none ${isLandscapeMobile ? "text-[0.58rem]" : "text-[0.62rem]"}`}>
+                <span className={`truncate font-medium text-white/90 leading-none ${isLandscapeMobile ? "text-[0.65rem]" : "text-[0.65rem]"}`}>
                   {selectedArtwork?.title || "Select Artwork"}
                 </span>
-                <FaChevronDown className="text-[7px] text-[#C9A96E] flex-shrink-0 ml-0.5" />
+                <FaChevronDown className="text-[8px] text-[#C9A96E] flex-shrink-0" />
               </button>
             </div>
 
-            {/* Right group: icon-only action buttons, fixed size, guaranteed no overflow */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {/* Upload your wall */}
+            {/* Right: icon buttons — bigger tap targets in landscape */}
+            <div className={`flex items-center flex-shrink-0 ${isLandscapeMobile ? "gap-2" : "gap-1.5"}`}>
+              {/* Upload Wall */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-[#C9A96E]/50 flex items-center justify-center text-[#C9A96E] active:scale-95`}
+                className={`flex-shrink-0 w-9 h-9 rounded-full bg-black/65 border border-[#C9A96E]/50 flex items-center justify-center text-[#C9A96E] active:scale-95`}
                 title="Upload Wall Photo"
               >
-                <FaCamera className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+                <FaCamera className="text-[13px]" />
               </button>
 
-              {/* Snapshot download */}
+              {/* Snapshot */}
               <button
                 onClick={handleDownloadSnapshot}
                 disabled={isDownloading}
-                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40`}
+                className={`flex-shrink-0 w-9 h-9 rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40`}
                 title="Download Snapshot"
               >
-                <FaDownload className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+                <FaDownload className="text-[13px]" />
               </button>
 
-              {/* WhatsApp Inquire */}
+              {/* Fullscreen — landscape mein especially important */}
+              <button
+                onClick={toggleFullscreen}
+                className={`flex-shrink-0 w-9 h-9 rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-white/80 active:scale-95`}
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <FaCompress className="text-[13px]" /> : <FaExpand className="text-[13px]" />}
+              </button>
+
+              {/* WhatsApp */}
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95`}
+                className={`flex-shrink-0 w-9 h-9 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95`}
                 title="Inquire on WhatsApp"
               >
-                <FaWhatsapp className={isLandscapeMobile ? "text-[11px]" : "text-[13px]"} />
+                <FaWhatsapp className="text-[14px]" />
               </a>
 
               {/* Zen Mode */}
               <button
                 onClick={() => setIsZenMode(true)}
-                className={`flex-shrink-0 ${isLandscapeMobile ? "w-7 h-7" : "w-8 h-8"} rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow`}
-                title="Focus Mode (Hide UI)"
+                className={`flex-shrink-0 w-9 h-9 rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow`}
+                title="Focus Mode"
               >
-                <FaEyeSlash className={isLandscapeMobile ? "text-[10px]" : "text-[11px]"} />
+                <FaEyeSlash className="text-[13px]" />
               </button>
             </div>
           </div>
@@ -948,70 +951,67 @@ Please share pricing and commissioning timeline for this specification.`
               onClick={() => setIsMobileSheetOpen(false)}
             >
               <div
-                className={`w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl overflow-y-auto flex flex-col ${
-                  isLandscapeMobile ? "max-h-[85vh]" : "max-h-[64vh]"
+                className={`w-full bg-[#161514] border-t border-white/20 rounded-t-2xl shadow-2xl overflow-y-auto flex flex-col ${
+                  isLandscapeMobile ? "max-h-[72vh] p-3" : "max-h-[60vh] p-4"
                 }`}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Pull Down Handle */}
-                <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-3" />
+                <div className="w-8 h-1 bg-white/25 rounded-full mx-auto mb-2" />
 
                 {/* Sheet Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#C9A96E] font-semibold">
-                      {activeTab === "rooms" && "Select Room or Upload Wall"}
-                      {activeTab === "frames" && "Choose Frame Finish"}
-                      {activeTab === "scale" && "Live Dimensions & Scale"}
-                      {activeTab === "lighting" && "Room Ambience"}
-                    </span>
-                  </div>
+                <div className={`flex items-center justify-between border-b border-white/10 ${isLandscapeMobile ? "pb-2 mb-2" : "pb-3 mb-3"}`}>
+                  <span className="text-[0.62rem] uppercase tracking-[0.2em] text-[#C9A96E] font-semibold">
+                    {activeTab === "rooms" && "Select Room"}
+                    {activeTab === "frames" && "Frame Finish"}
+                    {activeTab === "scale" && "Dimensions & Scale"}
+                    {activeTab === "lighting" && "Room Ambience"}
+                  </span>
                   <button
                     onClick={() => setIsMobileSheetOpen(false)}
-                    className="w-7 h-7 rounded-full bg-white/10 text-white/70 flex items-center justify-center text-xs"
+                    className="w-6 h-6 rounded-full bg-white/10 text-white/70 flex items-center justify-center text-[10px]"
                   >
                     <FaTimes />
                   </button>
                 </div>
 
-                {/* SHEET CONTENT: ROOMS & CUSTOM WALL */}
+                {/* SHEET CONTENT: ROOMS */}
                 {activeTab === "rooms" && (
-                  <div className="space-y-3 pb-2">
-                    {/* User Wall Upload Action Button */}
+                  <div className={`space-y-2 pb-1 ${isLandscapeMobile ? "" : ""}`}>
+                    {/* Upload Wall Button */}
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1 py-2.5 px-3 rounded-xl bg-[#C9A96E] hover:bg-[#D4B67D] text-black border border-[#F3E2B8] flex items-center justify-center gap-2 font-bold text-xs tracking-wider uppercase active:scale-98 transition-all shadow"
+                        className={`flex-1 rounded-xl bg-[#C9A96E] text-black border border-[#F3E2B8] flex items-center justify-center gap-2 font-bold tracking-wider uppercase active:scale-98 transition-all shadow ${isLandscapeMobile ? "py-2 px-3 text-[0.6rem]" : "py-2.5 px-3 text-xs"}`}
                       >
-                        <FaCamera className="text-black text-sm" />
-                        <span>{customWallUrl ? "Change Your Wall Photo" : "Upload / Take Photo of Your Wall"}</span>
+                        <FaCamera className="text-black" />
+                        <span>{customWallUrl ? "Change Wall Photo" : "Upload Your Wall Photo"}</span>
                       </button>
                       {customWallUrl && (
                         <button
                           type="button"
                           onClick={handleRemoveCustomWall}
-                          title="Remove Custom Wall"
-                          className="p-2.5 rounded-xl bg-red-600/30 border border-red-500/50 text-red-200 hover:text-white transition-all text-xs flex-shrink-0"
+                          className="p-2 rounded-xl bg-red-600/30 border border-red-500/50 text-red-200 text-xs flex-shrink-0"
                         >
                           <FaTrashAlt />
                         </button>
                       )}
                     </div>
 
-                    {/* Category Filter Pills */}
+                    {/* Category Pills */}
                     <div
-                      className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"
-                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                      className="flex items-center gap-1.5 overflow-x-auto no-scrollbar"
+                      style={{ scrollbarWidth: "none" }}
                     >
                       {ROOM_CATEGORIES.map((cat) => (
                         <button
                           key={cat.id}
                           onClick={() => setActiveCategory(cat.id)}
-                          className={`px-3 py-1 rounded-full text-[0.62rem] tracking-wider uppercase font-semibold whitespace-nowrap transition-all ${
+                          className={`px-2.5 py-0.5 rounded-full text-[0.58rem] tracking-wider uppercase font-semibold whitespace-nowrap transition-all ${
                             activeCategory === cat.id
-                              ? "bg-white text-black font-bold ring-1 ring-white"
-                              : "bg-[#262422] text-[#E8DDD0] hover:text-white border border-white/20"
+                              ? "bg-white text-black"
+                              : "bg-[#262422] text-[#E8DDD0] border border-white/20"
                           }`}
                         >
                           {cat.label}
@@ -1019,12 +1019,15 @@ Please share pricing and commissioning timeline for this specification.`
                       ))}
                     </div>
 
-                    {/* 2-Column Room Cards Grid (Includes Custom Wall Card if Uploaded) */}
+                    {/* Room Cards — landscape: 3-col, portrait: 2-col; compact sizes */}
                     <div
-                      className="grid grid-cols-2 gap-2.5 max-h-[40vh] overflow-y-auto no-scrollbar pr-0.5"
-                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                      className={`grid gap-2 overflow-y-auto no-scrollbar ${
+                        isLandscapeMobile
+                          ? "grid-cols-3 max-h-[38vh]"
+                          : "grid-cols-2 max-h-[34vh]"
+                      }`}
+                      style={{ scrollbarWidth: "none" }}
                     >
-                      {/* Uploaded Custom Wall Card */}
                       {customWallUrl && (
                         <div
                           onClick={() => {
@@ -1039,55 +1042,42 @@ Please share pricing and commissioning timeline for this specification.`
                             setPosOffset({ x: 0, y: 0 });
                             setIsMobileSheetOpen(false);
                           }}
-                          className={`relative aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                          className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 cursor-pointer ${
                             selectedRoom.id === "custom-user-wall"
-                              ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/40"
+                              ? "border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
                               : "border-white/15"
                           }`}
                         >
-                          <img
-                            src={customWallUrl}
-                            alt="Your Wall"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-2">
-                            <span className="text-[0.62rem] text-[#C9A96E] font-semibold leading-tight font-sans truncate w-full">
-                              ★ {customWallName}
-                            </span>
+                          <img src={customWallUrl} alt="Your Wall" className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-1.5">
+                            <span className="text-[0.55rem] text-[#C9A96E] font-semibold truncate w-full">★ My Wall</span>
                           </div>
                           {selectedRoom.id === "custom-user-wall" && (
-                            <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px] shadow font-bold">
+                            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px]">
                               <FaCheck />
                             </div>
                           )}
                         </div>
                       )}
 
-                      {/* Preset Rooms */}
                       {visibleRooms.map((room) => {
                         const isSelected = selectedRoom.id === room.id;
                         return (
                           <div
                             key={room.id}
                             onClick={() => switchRoom(room)}
-                            className={`relative aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                            className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${
                               isSelected
-                                ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/40"
+                                ? "border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
                                 : "border-white/15"
                             }`}
                           >
-                            <img
-                              src={room.src}
-                              alt={room.title}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-2">
-                              <span className="text-[0.62rem] text-white leading-tight font-sans truncate w-full">
-                                {room.title}
-                              </span>
+                            <img src={room.src} alt={room.title} className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex items-end p-1.5">
+                              <span className="text-[0.55rem] text-white truncate w-full leading-tight">{room.title}</span>
                             </div>
                             {isSelected && (
-                              <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px] shadow font-bold">
+                              <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px]">
                                 <FaCheck />
                               </div>
                             )}
@@ -1100,7 +1090,7 @@ Please share pricing and commissioning timeline for this specification.`
 
                 {/* SHEET CONTENT: FRAMES */}
                 {activeTab === "frames" && (
-                  <div className="space-y-2 pb-2 max-h-[42vh] overflow-y-auto">
+                  <div className={`space-y-2 pb-2 overflow-y-auto ${isLandscapeMobile ? "max-h-[45vh]" : "max-h-[38vh]"}`}>
                     {FRAME_STYLES.map((frame) => {
                       const isSelected = selectedFrame.id === frame.id;
                       return (
@@ -1141,7 +1131,7 @@ Please share pricing and commissioning timeline for this specification.`
 
                 {/* SHEET CONTENT: SIZE & DYNAMIC DIMENSIONS */}
                 {activeTab === "scale" && (
-                  <div className="space-y-3.5 py-1">
+                  <div className={`space-y-2.5 py-1 overflow-y-auto ${isLandscapeMobile ? "max-h-[50vh]" : ""}`}>
                     {/* Live Accurate Dimensions Card */}
                     <div className="bg-[#1C1A18] border border-[#C9A96E]/30 rounded-2xl p-3.5 space-y-1.5">
                       <div className="flex items-center justify-between">
