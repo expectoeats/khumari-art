@@ -3,6 +3,7 @@ import { connectDB }       from "../../../lib/mongodb";
 import { getAdminSession } from "../../../lib/auth";
 import Inquiry             from "../../../models/Inquiry";
 import { getClientIp, checkRateLimit, isSpamContent } from "../../../lib/rateLimit";
+import { sendInquiryAlertToStudio, sendInquiryReceiptToCollector } from "../../../lib/brevo";
 
 // GET /api/inquiries — admin only
 export async function GET() {
@@ -72,6 +73,27 @@ export async function POST(req) {
       artworkTitle,
       source: source || "website",
     });
+
+    // Send emails via Brevo API: 1 to Nancy Studio + 1 Receipt to Collector
+    try {
+      await Promise.allSettled([
+        sendInquiryAlertToStudio({
+          name: inquiry.name,
+          email: inquiry.email,
+          phone: inquiry.phone,
+          message: inquiry.message,
+          artworkTitle: inquiry.artworkTitle,
+          source: inquiry.source,
+        }),
+        sendInquiryReceiptToCollector({
+          name: inquiry.name,
+          email: inquiry.email,
+          artworkTitle: inquiry.artworkTitle,
+        }),
+      ]);
+    } catch (emailErr) {
+      console.error("[Inquiry Email Delivery Warning]:", emailErr);
+    }
 
     return NextResponse.json({ inquiry }, { status: 201 });
   } catch (err) {

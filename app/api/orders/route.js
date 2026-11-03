@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../lib/mongodb";
 import { getAdminSession } from "../../../lib/auth";
 import Order from "../../../models/Order";
+import { sendOrderAlertToStudio } from "../../../lib/brevo";
 
 // GET /api/orders — admin only with filters
 export async function GET(req) {
@@ -90,6 +91,13 @@ export async function POST(req) {
       paymentMethod: paymentMethod || "",
       notes: notes || "",
     });
+
+    // Alert Nancy Sikri about new order via Brevo API
+    try {
+      await sendOrderAlertToStudio(order);
+    } catch (emailErr) {
+      console.error("[Order Email Delivery Warning]:", emailErr);
+    }
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (err) {
