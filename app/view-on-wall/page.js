@@ -511,39 +511,41 @@ Please share pricing and commissioning timeline for this specification.`
         className="hidden"
       />
 
-      {/* ── 📱 PORTRAIT WARNING POPUP OVERLAY (Asks mobile user to rotate phone to landscape) ── */}
+      {/* ── 📱 PORTRAIT WARNING POPUP OVERLAY ── */}
       {isPortrait && !dismissPortraitWarning && (
-        <div className="fixed inset-0 z-50 bg-[#0F0E0E]/96 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center animate-fadeIn select-none">
-          {/* Animated Rotating Phone Graphic */}
-          <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-[#C9A96E]/10 animate-ping" />
-            <div className="w-16 h-16 rounded-full bg-[#C9A96E]/20 border border-[#C9A96E]/40 flex items-center justify-center shadow-2xl">
-              <FaSyncAlt className="text-2xl text-[#C9A96E] animate-[spin_5s_linear_infinite]" />
+        <div className="fixed inset-0 z-[100] bg-[#0F0E0E]/98 backdrop-blur-2xl flex flex-col items-center justify-center p-8 text-center animate-fadeIn select-none">
+          {/* Animated Premium Rotating Graphic */}
+          <div className="relative w-28 h-28 mb-8 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-[#C9A96E]/20 animate-[ping_3s_ease-in-out_infinite]" />
+            <div className="absolute inset-2 rounded-full border border-[#C9A96E]/30 animate-[pulse_2s_ease-in-out_infinite]" />
+            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#1A1816] to-[#2A2624] border border-[#C9A96E]/40 flex items-center justify-center shadow-[0_0_40px_rgba(201,169,110,0.15)]">
+              <FaSyncAlt className="text-3xl text-[#C9A96E] animate-[spin_6s_linear_infinite]" />
             </div>
           </div>
 
-          <span className="text-[0.62rem] uppercase tracking-[0.3em] text-[#C9A96E] font-semibold block mb-2">
-            Nancy Sikri Atelier
-          </span>
-          <h2 className="font-display text-xl sm:text-2xl text-white mb-2 leading-tight">
-            Rotate Phone to Landscape
-          </h2>
-          <p className="text-xs text-white/60 max-w-xs leading-relaxed mb-6 font-sans">
-            To view the complete architectural room, furniture and artwork in authentic proportions, please turn your phone horizontally.
-          </p>
+          <div className="space-y-3 mb-10">
+            <span className="text-[0.65rem] uppercase tracking-[0.4em] text-[#C9A96E] font-bold block">
+              Atelier Experience
+            </span>
+            <h2 className="font-display text-2xl text-white leading-tight">
+              Landscape Mode Recommended
+            </h2>
+            <p className="text-[0.7rem] text-white/50 max-w-[260px] mx-auto leading-relaxed font-sans font-light">
+              For an immersive architectural view of the gallery and authentic artwork proportions, please rotate your device.
+            </p>
+          </div>
 
-          <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-            <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C9A96E] text-black font-semibold text-xs uppercase tracking-wider shadow-lg">
-              <FaMobileAlt className="text-sm rotate-90" />
-              <span>Turn Phone Sideways</span>
+          <div className="flex flex-col items-center gap-4 w-full max-w-[240px]">
+            <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black font-bold text-[0.7rem] uppercase tracking-widest shadow-[0_10px_25px_rgba(201,169,110,0.3)] active:scale-95 transition-transform">
+              <FaMobileAlt className="text-base rotate-90" />
+              <span>Rotate Device</span>
             </div>
 
-            {/* Option to bypass if user has phone rotation lock enabled */}
             <button
               onClick={() => setDismissPortraitWarning(true)}
-              className="text-[0.68rem] text-white/40 hover:text-white/80 underline tracking-wider pt-2"
+              className="text-[0.62rem] text-white/30 hover:text-[#C9A96E] transition-colors uppercase tracking-[0.15em] font-medium pt-2"
             >
-              Or continue in portrait mode anyway
+              Continue anyway
             </button>
           </div>
         </div>
@@ -595,25 +597,26 @@ Please share pricing and commissioning timeline for this specification.`
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
               width: `${currentRenderScale}%`,
-              maxWidth: isMobile ? "75vw" : "540px",
-              minWidth: isMobile ? "120px" : "140px",
+              aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
+              maxWidth: isMobile ? "88vw" : "540px",
+              minWidth: isMobile ? "100px" : "140px",
               touchAction: "none",
               zIndex: 20,
             }}
           >
             {/* Outer Frame Wrapper */}
             <div
-              className="relative overflow-hidden transition-all duration-300"
+              className="relative overflow-hidden transition-all duration-300 w-full h-full"
               style={{
                 boxShadow: selectedFrame.shadowCss,
-                border: isMobile && selectedFrame.id !== "canvas" ? "8px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
-                padding: isMobile && selectedFrame.id !== "canvas" ? "3px" : selectedFrame.paddingCss,
+                border: isMobile && selectedFrame.id !== "canvas" ? "6px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
+                padding: isMobile && selectedFrame.id !== "canvas" ? "2px" : selectedFrame.paddingCss,
                 backgroundColor: selectedFrame.frameColor,
               }}
             >
               {/* Painting Canvas (Dynamic Natural Ratio - Never Stretches) */}
               <div
-                className="relative w-full bg-[#2A2624] overflow-hidden max-h-[58vh] flex items-center justify-center"
+                className="relative w-full h-full overflow-hidden flex items-center justify-center"
                 style={{
                   aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
                 }}
@@ -622,7 +625,7 @@ Please share pricing and commissioning timeline for this specification.`
                   src={selectedArtwork?.src}
                   alt={selectedArtwork?.title || "Artwork"}
                   onLoad={handleArtworkImageLoad}
-                  className="w-full h-full object-contain select-none pointer-events-none block"
+                  className="w-full h-full object-cover select-none pointer-events-none block"
                   crossOrigin="anonymous"
                   draggable={false}
                 />
@@ -697,26 +700,28 @@ Please share pricing and commissioning timeline for this specification.`
         }`}
       >
         {/* Mobile Header (Under 768px: compact, zero overflow) */}
-        <div className="flex md:hidden items-center justify-between w-full gap-2">
-          {/* Back Exit */}
-          <Link
-            href={targetId ? `/artwork/${targetId}` : "/collect"}
-            className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0"
-            title="Exit"
-          >
-            <FaArrowLeft className="text-xs" />
-          </Link>
+        <div className="flex md:hidden items-center justify-between w-full gap-1.5">
+          <div className="flex items-center gap-1.5">
+            {/* Back Exit */}
+            <Link
+              href={targetId ? `/artwork/${targetId}` : "/collect"}
+              className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0"
+              title="Exit"
+            >
+              <FaArrowLeft className="text-[10px]" />
+            </Link>
 
-          {/* Artwork Selector Pill */}
-          <button
-            onClick={() => setIsArtworkDrawerOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-white/20 text-xs text-white max-w-[170px] active:scale-95"
-          >
-            <span className="truncate font-display font-medium text-xs text-white/95">
-              {selectedArtwork?.title || "Artwork"}
-            </span>
-            <FaChevronDown className="text-[9px] text-[#C9A96E] flex-shrink-0" />
-          </button>
+            {/* Artwork Selector Pill */}
+            <button
+              onClick={() => setIsArtworkDrawerOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 border border-white/20 text-[0.65rem] text-white max-w-[130px] active:scale-95"
+            >
+              <span className="truncate font-display font-medium text-white/95">
+                {selectedArtwork?.title || "Artwork"}
+              </span>
+              <FaChevronDown className="text-[8px] text-[#C9A96E] flex-shrink-0" />
+            </button>
+          </div>
 
           {/* Quick Action Icons */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -724,30 +729,27 @@ Please share pricing and commissioning timeline for this specification.`
             <button
               onClick={handleDownloadSnapshot}
               disabled={isDownloading}
-              title="Save Snapshot (Room & Painting Only)"
               className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40"
             >
-              <FaDownload className="text-xs" />
+              <FaDownload className="text-[10px]" />
             </button>
 
-            {/* WhatsApp with Live Customized Dimensions */}
+            {/* WhatsApp */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title="Inquire on WhatsApp"
               className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95"
             >
-              <FaWhatsapp className="text-sm" />
+              <FaWhatsapp className="text-[13px]" />
             </a>
 
             {/* Zen Mode */}
             <button
               onClick={() => setIsZenMode(true)}
-              title="Hide All UI"
               className="w-8 h-8 rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow font-bold"
             >
-              <FaEyeSlash className="text-xs" />
+              <FaEyeSlash className="text-[10px]" />
             </button>
           </div>
         </div>
@@ -875,8 +877,8 @@ Please share pricing and commissioning timeline for this specification.`
       {!isZenMode && isMobile && (
         <>
           {/* Mobile Floating Pill Dock */}
-          <div className="md:hidden fixed bottom-4 inset-x-3 z-30">
-            <div className="bg-[#141312]/92 backdrop-blur-xl border border-white/20 rounded-full px-3 py-2 shadow-2xl flex items-center justify-between">
+          <div className="md:hidden fixed bottom-5 inset-x-4 z-30">
+            <div className="bg-[#141312]/95 backdrop-blur-2xl border border-white/10 rounded-full px-2 py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between overflow-hidden">
               {[
                 { id: "rooms", label: "Rooms", icon: FaImages },
                 { id: "frames", label: "Frames", icon: FaExpand },
@@ -892,14 +894,14 @@ Please share pricing and commissioning timeline for this specification.`
                       setActiveTab(btn.id);
                       setIsMobileSheetOpen(true);
                     }}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.68rem] uppercase tracking-wider font-sans transition-all active:scale-95 ${
+                    className={`flex items-center justify-center gap-2 px-3.5 py-2 rounded-full text-[0.62rem] uppercase tracking-[0.15em] font-bold transition-all active:scale-90 ${
                       isActive
-                        ? "bg-[#C9A96E] text-black font-semibold"
-                        : "text-white/70 hover:text-white"
+                        ? "bg-gradient-to-r from-[#C9A96E] to-[#D4B67D] text-black shadow-[0_0_15px_rgba(201,169,110,0.4)]"
+                        : "text-white/60 hover:text-white"
                     }`}
                   >
-                    <Icon className="text-[11px]" />
-                    <span>{btn.label}</span>
+                    <Icon className={`${isActive ? "text-[12px]" : "text-[10px]"}`} />
+                    <span className={isActive ? "block" : "hidden sm:block"}>{btn.label}</span>
                   </button>
                 );
               })}
