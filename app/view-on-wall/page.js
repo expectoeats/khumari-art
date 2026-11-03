@@ -27,11 +27,21 @@ import {
   FaSun,
   FaEye,
   FaEyeSlash,
+  FaChevronDown,
 } from "react-icons/fa";
 
 function RoomVisualizerContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get("id") || searchParams.get("artworkId") || "";
+
+  // ── Mobile Device Detection ──
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // ── Artworks Catalog State ──
   const [artworksList, setArtworksList] = useState(allWorks);
@@ -98,13 +108,15 @@ function RoomVisualizerContent() {
   const [selectedRoom, setSelectedRoom] = useState(ROOMS_DATA[0]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
-  const [scalePercent, setScalePercent] = useState(22); // balanced medium scale (percentage of room width)
+  const [scalePercent, setScalePercent] = useState(22); // Desktop scale percentage
+  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (40% - 75% for great presence)
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
   const [showDimensions, setShowDimensions] = useState(false);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
   const [isArtworkDrawerOpen, setIsArtworkDrawerOpen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
-  const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting, zero UI text/buttons!
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false); // Mobile slide-up bottom sheet
+  const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting
   const [isTopHovered, setIsTopHovered] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -126,9 +138,7 @@ function RoomVisualizerContent() {
   const dragStartRef = useRef({ clientX: 0, clientY: 0, startPos: { x: 0, y: 0 } });
 
   const handlePointerDown = (e) => {
-    // If clicking on resize handle or in Zen mode without interaction, ignore
     if (e.target.closest(".resize-handle")) return;
-    e.preventDefault();
     setIsDragging(true);
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -181,12 +191,11 @@ function RoomVisualizerContent() {
 
   const handleResizeStart = (e) => {
     e.stopPropagation();
-    e.preventDefault();
     setIsResizing(true);
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     resizeStartRef.current = {
       clientX,
-      startScale: scalePercent,
+      startScale: isMobile ? mobileScale : scalePercent,
     };
   };
 
@@ -196,9 +205,14 @@ function RoomVisualizerContent() {
     const deltaX = clientX - resizeStartRef.current.clientX;
     const rect = stageRef.current ? stageRef.current.getBoundingClientRect() : { width: 1000 };
     const pctChange = (deltaX / rect.width) * 100;
-    // Bound scale between 10% and 48% of screen width
-    const newScale = Math.max(10, Math.min(48, resizeStartRef.current.startScale + pctChange));
-    setScalePercent(Math.round(newScale));
+
+    if (isMobile) {
+      const newScale = Math.max(30, Math.min(78, resizeStartRef.current.startScale + pctChange * 1.5));
+      setMobileScale(Math.round(newScale));
+    } else {
+      const newScale = Math.max(10, Math.min(48, resizeStartRef.current.startScale + pctChange));
+      setScalePercent(Math.round(newScale));
+    }
   };
 
   const handleResizeUp = () => {
@@ -218,13 +232,12 @@ function RoomVisualizerContent() {
       window.removeEventListener("touchmove", handleResizeMove);
       window.removeEventListener("touchend", handleResizeUp);
     };
-  }, [isResizing]);
+  }, [isResizing, isMobile]);
 
   // ── 3. Zen Mode Top Hover Logic ──
   useEffect(() => {
     const onMouseMove = (e) => {
       if (!isZenMode) return;
-      // If cursor is within top 75px of viewport, show top exit pill
       if (e.clientY < 75) {
         setIsTopHovered(true);
         if (topHoverTimeoutRef.current) clearTimeout(topHoverTimeoutRef.current);
@@ -249,7 +262,8 @@ function RoomVisualizerContent() {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") {
-        if (isZenMode) setIsZenMode(false);
+        if (isMobileSheetOpen) setIsMobileSheetOpen(false);
+        else if (isZenMode) setIsZenMode(false);
         else if (document.fullscreenElement) {
           document.exitFullscreen?.().catch(() => {});
           setIsFullscreen(false);
@@ -258,7 +272,7 @@ function RoomVisualizerContent() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isZenMode]);
+  }, [isZenMode, isMobileSheetOpen]);
 
   // Native Fullscreen toggle
   const toggleFullscreen = () => {
@@ -274,6 +288,7 @@ function RoomVisualizerContent() {
   const switchRoom = (room) => {
     setSelectedRoom(room);
     setPosOffset({ x: 0, y: 0 });
+    if (isMobile) setIsMobileSheetOpen(false);
   };
 
   const visibleRooms = useMemo(() => {
@@ -311,13 +326,26 @@ function RoomVisualizerContent() {
 
   // Calculated painting coordinates (% of stage)
   const calcLeft = (selectedRoom.defaultPos?.x || 50) + posOffset.x;
-  const calcTop = (selectedRoom.defaultPos?.y || 38) + posOffset.y;
+  // On mobile portrait, default position is naturally higher on the wall above the bed/sofa
+  const defaultBaseY = isMobile ? (selectedRoom.defaultPos?.y || 36) - 3 : (selectedRoom.defaultPos?.y || 38);
+  const calcTop = defaultBaseY + posOffset.y;
+
+  // Active scale based on viewport
+  const currentRenderScale = isMobile ? mobileScale : scalePercent;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
       
       {/* ── 1. FULL HEIGHT 100VH STAGE (Floor to Ceiling) ── */}
-      <main className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0">
+      <main
+        className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0"
+        onClick={() => {
+          if (isZenMode && isMobile) {
+            // On mobile, tap anywhere in Zen mode restores controls
+            setIsZenMode(false);
+          }
+        }}
+      >
         <div
           ref={stageRef}
           className="relative w-full h-full flex items-center justify-center overflow-hidden"
@@ -326,13 +354,15 @@ function RoomVisualizerContent() {
             transition: "filter 0.4s ease",
           }}
         >
-          {/* Room Background Image (Full Viewport Fit) */}
+          {/* Room Background Image */}
           <img
             key={selectedRoom.src}
             src={selectedRoom.src}
             alt={selectedRoom.title}
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out pointer-events-none select-none"
-            style={{ objectPosition: "center center" }}
+            style={{
+              objectPosition: isMobile ? "center 42%" : "center center",
+            }}
             crossOrigin="anonymous"
           />
 
@@ -352,9 +382,9 @@ function RoomVisualizerContent() {
               left: `${calcLeft}%`,
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
-              width: `${scalePercent}%`,
-              maxWidth: "540px",
-              minWidth: "140px",
+              width: `${currentRenderScale}%`,
+              maxWidth: isMobile ? "75vw" : "540px",
+              minWidth: isMobile ? "120px" : "140px",
               touchAction: "none",
               zIndex: 20,
             }}
@@ -364,8 +394,8 @@ function RoomVisualizerContent() {
               className="relative overflow-hidden transition-all duration-300"
               style={{
                 boxShadow: selectedFrame.shadowCss,
-                border: selectedFrame.borderCss,
-                padding: selectedFrame.paddingCss,
+                border: isMobile && selectedFrame.id !== "canvas" ? "8px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
+                padding: isMobile && selectedFrame.id !== "canvas" ? "3px" : selectedFrame.paddingCss,
                 backgroundColor: selectedFrame.frameColor,
               }}
             >
@@ -381,40 +411,40 @@ function RoomVisualizerContent() {
               </div>
             </div>
 
-            {/* ── INTERACTIVE CORNER RESIZE HANDLE (Visible when NOT in Zen Mode) ── */}
+            {/* ── INTERACTIVE CORNER RESIZE HANDLE (Enlarged 36px touch target on mobile) ── */}
             {!isZenMode && (
               <div
                 onPointerDown={handleResizeStart}
-                className="resize-handle absolute -bottom-3 -right-3 w-7 h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 transition-transform border-2 border-white select-none group"
+                className="resize-handle absolute -bottom-3.5 -right-3.5 sm:-bottom-3 sm:-right-3 w-8 sm:w-7 h-8 sm:h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 active:scale-110 transition-transform border-2 border-white select-none touch-manipulation group"
                 title="Drag to resize painting directly"
               >
                 <FaExpand className="text-[10px] pointer-events-none" />
-                <span className="absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/85 text-white px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity">
-                  Drag to Resize ({scalePercent}%)
+                <span className="hidden sm:block absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/85 text-white px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity">
+                  Drag to Resize ({currentRenderScale}%)
                 </span>
               </div>
             )}
 
-            {/* Dimensions Label Badge (Visible if toggled and not in Zen mode) */}
+            {/* Dimensions Label Badge */}
             {showDimensions && !isZenMode && (
-              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
+              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.58rem] sm:text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
                 {selectedArtwork?.size || "36″ × 48″"} • {selectedFrame.name}
               </div>
             )}
           </div>
 
-          {/* Reposition Drag Hint (Hidden in Zen Mode) */}
+          {/* Reposition Drag Hint (Desktop only or clean subtle pill) */}
           {!isZenMode && (
-            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-75">
-              <span className="px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.62rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans shadow-lg">
-                Drag to move • Grab corner to resize
+            <div className="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-80">
+              <span className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.58rem] sm:text-[0.62rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans shadow-lg">
+                Drag to move • Grab corner to scale
               </span>
             </div>
           )}
 
-          {/* Room Label Tag (Hidden in Zen Mode) */}
+          {/* Room Label Tag (Desktop only) */}
           {!isZenMode && (
-            <div className="absolute top-20 left-6 z-10 hidden sm:block pointer-events-none">
+            <div className="absolute top-20 left-6 z-10 hidden md:block pointer-events-none">
               <span className="text-[0.55rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
                 Current Setting
               </span>
@@ -426,125 +456,435 @@ function RoomVisualizerContent() {
         </div>
       </main>
 
-      {/* ── 2. TOP FLOATING GLASS HEADER (Slides up and hides completely in Zen Mode) ── */}
+      {/* ── 2. TOP FLOATING GLASS HEADER ── */}
       <header
-        className={`absolute top-0 inset-x-0 z-30 h-16 px-4 md:px-8 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] flex items-center justify-between transition-all duration-300 ${
+        className={`absolute top-0 inset-x-0 z-30 px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 bg-gradient-to-b from-black/85 via-black/50 to-transparent backdrop-blur-[2px] transition-all duration-300 ${
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
       >
-        {/* Left: Exit Link & Title */}
-        <div className="flex items-center gap-3 md:gap-5">
+        {/* ── MOBILE HEADER (under 768px: perfectly compact, zero overflow) ── */}
+        <div className="flex md:hidden items-center justify-between w-full gap-2">
+          {/* Back Exit */}
           <Link
             href={targetId ? `/artwork/${targetId}` : "/collect"}
-            className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
+            className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white/90 active:scale-95 flex-shrink-0"
+            title="Exit"
           >
             <FaArrowLeft className="text-xs" />
-            <span className="hidden sm:inline">Exit</span>
           </Link>
-          <div className="h-4 w-px bg-white/20 hidden sm:block" />
-          <div>
-            <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none drop-shadow">
-              Atelier Studio View
+
+          {/* Artwork Selector Pill */}
+          <button
+            onClick={() => setIsArtworkDrawerOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 border border-white/20 text-xs text-white max-w-[170px] active:scale-95"
+          >
+            <span className="truncate font-display font-medium text-xs text-white/95">
+              {selectedArtwork?.title || "Artwork"}
             </span>
-            <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-[180px] sm:max-w-xs md:max-w-md drop-shadow">
-              {selectedArtwork?.title || "Original Artwork"}
-            </h1>
+            <FaChevronDown className="text-[9px] text-[#C9A96E] flex-shrink-0" />
+          </button>
+
+          {/* Quick Action Icons */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Snapshot */}
+            <button
+              onClick={handleDownloadSnapshot}
+              disabled={isDownloading}
+              title="Save Snapshot"
+              className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40"
+            >
+              <FaDownload className="text-xs" />
+            </button>
+
+            {/* WhatsApp */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Inquire on WhatsApp"
+              className="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-md active:scale-95"
+            >
+              <FaWhatsapp className="text-sm" />
+            </a>
+
+            {/* Zen Mode */}
+            <button
+              onClick={() => setIsZenMode(true)}
+              title="Hide All UI"
+              className="w-8 h-8 rounded-full bg-[#C9A96E] flex items-center justify-center text-black active:scale-95 shadow font-bold"
+            >
+              <FaEyeSlash className="text-xs" />
+            </button>
           </div>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Switch Artwork */}
-          <button
-            onClick={() => setIsArtworkDrawerOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
-          >
-            <FaImages className="text-[#C9A96E] text-xs" />
-            <span className="hidden md:inline">Artwork</span>
-            <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
-          </button>
+        {/* ── DESKTOP HEADER (768px and above) ── */}
+        <div className="hidden md:flex items-center justify-between w-full">
+          {/* Left: Exit Link & Title */}
+          <div className="flex items-center gap-4">
+            <Link
+              href={targetId ? `/artwork/${targetId}` : "/collect"}
+              className="flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-black/40 hover:bg-black/60 px-3.5 py-1.5 rounded-full border border-white/10 backdrop-blur-md"
+            >
+              <FaArrowLeft className="text-xs" />
+              <span>Exit</span>
+            </Link>
+            <div className="h-4 w-px bg-white/20" />
+            <div>
+              <span className="text-[0.58rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block leading-none drop-shadow">
+                Atelier Studio View
+              </span>
+              <h1 className="font-display text-sm md:text-base text-white tracking-wide truncate max-w-sm md:max-w-md drop-shadow">
+                {selectedArtwork?.title || "Original Artwork"}
+              </h1>
+            </div>
+          </div>
 
-          {/* Reset Position */}
-          {(posOffset.x !== 0 || posOffset.y !== 0) && (
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2.5">
             <button
-              onClick={() => setPosOffset({ x: 0, y: 0 })}
-              title="Reset Painting Position"
+              onClick={() => setIsArtworkDrawerOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-white/20 text-xs tracking-wider uppercase transition-all backdrop-blur-md"
+            >
+              <FaImages className="text-[#C9A96E] text-xs" />
+              <span>Artwork</span>
+              <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
+            </button>
+
+            {(posOffset.x !== 0 || posOffset.y !== 0) && (
+              <button
+                onClick={() => setPosOffset({ x: 0, y: 0 })}
+                title="Reset Painting Position"
+                className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
+              >
+                <FaRedoAlt />
+              </button>
+            )}
+
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
               className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
             >
-              <FaRedoAlt />
+              {isFullscreen ? <FaCompress /> : <FaExpand />}
             </button>
-          )}
 
-          {/* Browser Fullscreen Toggle */}
-          <button
-            onClick={toggleFullscreen}
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen View"}
-            className="p-2 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-white/80 hover:text-white transition-all text-xs backdrop-blur-md"
-          >
-            {isFullscreen ? <FaCompress /> : <FaExpand />}
-          </button>
+            <button
+              onClick={handleDownloadSnapshot}
+              disabled={isDownloading}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
+            >
+              <FaDownload className="text-[#C9A96E] text-xs" />
+              <span>{isDownloading ? "Saving..." : "Snapshot"}</span>
+            </button>
 
-          {/* Save Snapshot */}
-          <button
-            onClick={handleDownloadSnapshot}
-            disabled={isDownloading}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
-          >
-            <FaDownload className="text-[#C9A96E] text-xs" />
-            <span className="hidden sm:inline">{isDownloading ? "Saving..." : "Snapshot"}</span>
-          </button>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
+            >
+              <FaWhatsapp className="text-sm" />
+              <span>Inquire</span>
+            </a>
 
-          {/* WhatsApp Inquire */}
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs tracking-wider uppercase font-medium transition-all shadow-lg backdrop-blur-md"
-          >
-            <FaWhatsapp className="text-sm" />
-            <span className="hidden md:inline">Inquire</span>
-          </a>
-
-          {/* 🌟 HIDE ALL UI / ZEN MODE BUTTON 🌟 */}
-          <button
-            onClick={() => setIsZenMode(true)}
-            title="Hide All UI (Pure Room & Painting Only)"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-lg ml-1"
-          >
-            <FaEyeSlash className="text-xs" />
-            <span className="hidden sm:inline">Hide All UI</span>
-          </button>
+            <button
+              onClick={() => setIsZenMode(true)}
+              title="Hide All UI (Pure Room & Painting Only)"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow-lg ml-1"
+            >
+              <FaEyeSlash className="text-xs" />
+              <span>Hide All UI</span>
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* ── 3. HOVER-TO-REVEAL TOP BAR IN ZEN MODE ── */}
+      {/* ── 3. HOVER / TAP TO REVEAL TOP BAR IN ZEN MODE ── */}
       {isZenMode && (
         <div
           className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
-            isTopHovered ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+            isTopHovered || isMobile ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
           }`}
         >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-black/80 backdrop-blur-2xl border border-white/20 shadow-2xl">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/85 backdrop-blur-2xl border border-white/20 shadow-2xl">
             <Link
               href={targetId ? `/artwork/${targetId}` : "/collect"}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs uppercase tracking-wider transition-all"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[0.65rem] uppercase tracking-wider transition-all"
             >
-              <FaArrowLeft className="text-[10px]" />
+              <FaArrowLeft className="text-[9px]" />
               <span>Exit</span>
             </Link>
             <button
               onClick={() => setIsZenMode(false)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-xs uppercase tracking-wider transition-all shadow"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E] hover:bg-[#e0be7e] text-black font-semibold text-[0.65rem] uppercase tracking-wider transition-all shadow"
             >
               <FaEye className="text-xs" />
-              <span>Restore Controls</span>
+              <span>Show Controls</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* ── 4. FLOATING GLASS BOTTOM CONTROLS DOCK (Hidden when in Zen Mode) ── */}
-      {!isZenMode && (
+      {/* ── 4. MOBILE BOTTOM FLOATING DOCK & SLIDE-UP SHEET (< 768px) ── */}
+      {!isZenMode && isMobile && (
+        <>
+          {/* Mobile Sleek Floating Pill Dock (height only 48px, never blocks the room!) */}
+          <div className="md:hidden fixed bottom-4 inset-x-3 z-30">
+            <div className="bg-[#141312]/92 backdrop-blur-xl border border-white/20 rounded-full px-3 py-2 shadow-2xl flex items-center justify-between">
+              {[
+                { id: "rooms", label: "Rooms", icon: FaImages },
+                { id: "frames", label: "Frames", icon: FaExpand },
+                { id: "scale", label: "Size", icon: FaRulerCombined },
+                { id: "lighting", label: "Light", icon: FaSun },
+              ].map((btn) => {
+                const Icon = btn.icon;
+                const isActive = isMobileSheetOpen && activeTab === btn.id;
+                return (
+                  <button
+                    key={btn.id}
+                    onClick={() => {
+                      setActiveTab(btn.id);
+                      setIsMobileSheetOpen(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[0.68rem] uppercase tracking-wider font-sans transition-all active:scale-95 ${
+                      isActive
+                        ? "bg-[#C9A96E] text-black font-semibold"
+                        : "text-white/70 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="text-[11px]" />
+                    <span>{btn.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Mobile Slide-Up Bottom Sheet Drawer */}
+          {isMobileSheetOpen && (
+            <div
+              className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm flex flex-col justify-end animate-fadeIn"
+              onClick={() => setIsMobileSheetOpen(false)}
+            >
+              <div
+                className="w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl max-h-[62vh] overflow-y-auto flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Pull Down Handle */}
+                <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-3" />
+
+                {/* Sheet Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#C9A96E] font-semibold">
+                      {activeTab === "rooms" && "Select Room Setting (15)"}
+                      {activeTab === "frames" && "Choose Frame Finish"}
+                      {activeTab === "scale" && "Painting Scale & Dimensions"}
+                      {activeTab === "lighting" && "Room Ambience"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setIsMobileSheetOpen(false)}
+                    className="w-7 h-7 rounded-full bg-white/10 text-white/70 flex items-center justify-center text-xs"
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+
+                {/* SHEET CONTENT: ROOMS */}
+                {activeTab === "rooms" && (
+                  <div className="space-y-3 pb-2">
+                    {/* Category Filter Pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                      {ROOM_CATEGORIES.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => setActiveCategory(cat.id)}
+                          className={`px-3 py-1 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                            activeCategory === cat.id
+                              ? "bg-white text-black font-semibold"
+                              : "bg-white/10 text-white/60 border border-white/10"
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* 2-Column Room Cards Grid */}
+                    <div className="grid grid-cols-2 gap-2.5 max-h-[42vh] overflow-y-auto pr-0.5">
+                      {visibleRooms.map((room) => {
+                        const isSelected = selectedRoom.id === room.id;
+                        return (
+                          <div
+                            key={room.id}
+                            onClick={() => switchRoom(room)}
+                            className={`relative aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                              isSelected
+                                ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/40"
+                                : "border-white/15"
+                            }`}
+                          >
+                            <img
+                              src={room.src}
+                              alt={room.title}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-2">
+                              <span className="text-[0.62rem] text-white leading-tight font-sans truncate w-full">
+                                {room.title}
+                              </span>
+                            </div>
+                            {isSelected && (
+                              <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px] shadow font-bold">
+                                <FaCheck />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* SHEET CONTENT: FRAMES */}
+                {activeTab === "frames" && (
+                  <div className="space-y-2 pb-2 max-h-[42vh] overflow-y-auto">
+                    {FRAME_STYLES.map((frame) => {
+                      const isSelected = selectedFrame.id === frame.id;
+                      return (
+                        <div
+                          key={frame.id}
+                          onClick={() => {
+                            setSelectedFrame(frame);
+                            setIsMobileSheetOpen(false);
+                          }}
+                          className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            isSelected
+                              ? "bg-[#C9A96E]/20 border-[#C9A96E]"
+                              : "bg-white/5 border-white/10"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="w-7 h-9 rounded border overflow-hidden flex-shrink-0"
+                              style={{
+                                borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.2)" : frame.frameColor,
+                                backgroundColor: frame.frameColor,
+                                borderWidth: frame.id === "canvas" ? "1px" : "3px",
+                              }}
+                            >
+                              <div className="w-full h-full bg-[#352F2B]" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-white font-medium">{frame.name}</p>
+                              <p className="text-[0.62rem] text-white/50">{frame.subtitle}</p>
+                            </div>
+                          </div>
+                          {isSelected && <FaCheck className="text-[#C9A96E] text-xs" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* SHEET CONTENT: SIZE & SCALE */}
+                {activeTab === "scale" && (
+                  <div className="space-y-4 py-2">
+                    {/* Dimension Tag Toggle */}
+                    <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
+                      <div>
+                        <p className="text-xs text-white font-medium">Show Dimensions Badge</p>
+                        <p className="text-[0.62rem] text-white/50">Display 36″ × 48″ size tag on painting</p>
+                      </div>
+                      <button
+                        onClick={() => setShowDimensions((v) => !v)}
+                        className={`w-11 h-6 rounded-full transition-colors relative ${
+                          showDimensions ? "bg-[#C9A96E]" : "bg-white/20"
+                        }`}
+                      >
+                        <span
+                          className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                            showDimensions ? "translate-x-5 bg-black" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Preset Buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { label: "Small (24×30 in)", val: 38 },
+                        { label: "Medium (36×48 in)", val: 48 },
+                        { label: "Large (48×60 in)", val: 60 },
+                        { label: "Statement (60×72 in)", val: 72 },
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          onClick={() => setMobileScale(preset.val)}
+                          className={`py-2 px-3 rounded-xl border text-xs tracking-wider uppercase transition-all ${
+                            Math.abs(mobileScale - preset.val) < 4
+                              ? "bg-[#C9A96E] text-black font-semibold border-[#C9A96E]"
+                              : "bg-white/5 border-white/10 text-white/70"
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Touch Slider */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex justify-between text-[0.68rem] text-white/60">
+                        <span>Scale: {mobileScale}% of wall width</span>
+                        <span className="text-[#C9A96E] font-mono">{mobileScale}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="30"
+                        max="76"
+                        value={mobileScale}
+                        onChange={(e) => setMobileScale(parseInt(e.target.value, 10))}
+                        className="w-full accent-[#C9A96E] h-2 bg-white/20 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* SHEET CONTENT: LIGHTING */}
+                {activeTab === "lighting" && (
+                  <div className="grid grid-cols-3 gap-2 py-2">
+                    {LIGHTING_MODES.map((mode) => {
+                      const isSelected = lighting.id === mode.id;
+                      return (
+                        <button
+                          key={mode.id}
+                          onClick={() => {
+                            setLighting(mode);
+                            setIsMobileSheetOpen(false);
+                          }}
+                          className={`p-3 rounded-xl border text-xs uppercase tracking-wider transition-all flex flex-col items-center gap-2 ${
+                            isSelected
+                              ? "bg-[#C9A96E]/20 border-[#C9A96E] text-[#C9A96E]"
+                              : "bg-white/5 border-white/10 text-white/60"
+                          }`}
+                        >
+                          <FaSun className="text-sm" />
+                          <span className="text-[0.62rem] text-center leading-tight">{mode.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── 5. DESKTOP FLOATING CONTROLS DOCK (Hidden on Mobile) ── */}
+      {!isZenMode && !isMobile && (
         <>
           {isControlsVisible ? (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
@@ -605,7 +945,6 @@ function RoomVisualizerContent() {
                 {/* TAB CONTENT 1: ROOMS SELECTOR */}
                 {activeTab === "rooms" && (
                   <div className="space-y-2">
-                    {/* Category Pills */}
                     <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
                       {ROOM_CATEGORIES.map((cat) => (
                         <button
@@ -622,7 +961,6 @@ function RoomVisualizerContent() {
                       ))}
                     </div>
 
-                    {/* Horizontal Room Carousel */}
                     <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
                       {visibleRooms.map((room) => {
                         const isSelected = selectedRoom.id === room.id;
@@ -706,7 +1044,7 @@ function RoomVisualizerContent() {
                           onClick={() => setScalePercent(preset.percent)}
                           className={`px-3 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
                             Math.abs(scalePercent - preset.percent) < 3
-                              ? "bg-[#C9A96E] text-black font-semibold"
+                              ? "bg-[#C9A96E] text-black font-semibold border border-[#C9A96E]"
                               : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
                           }`}
                         >
@@ -768,14 +1106,14 @@ function RoomVisualizerContent() {
         </>
       )}
 
-      {/* ── 5. SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
+      {/* ── 6. SWITCH ARTWORK DRAWER (Slide-Over Tray) ── */}
       {isArtworkDrawerOpen && (
         <div
           className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex justify-end animate-fadeIn"
           onClick={() => setIsArtworkDrawerOpen(false)}
         >
           <div
-            className="w-full max-w-md h-full bg-[#161514] border-l border-white/10 flex flex-col p-6 shadow-2xl"
+            className="w-full max-w-md h-full bg-[#161514] border-l border-white/10 flex flex-col p-4 sm:p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
@@ -783,7 +1121,7 @@ function RoomVisualizerContent() {
                 <span className="text-[0.6rem] uppercase tracking-[0.25em] text-[#C9A96E] font-semibold block">
                   Nancy Sikri Atelier
                 </span>
-                <h3 className="font-display text-lg text-white">Select Artwork</h3>
+                <h3 className="font-display text-base sm:text-lg text-white">Select Artwork</h3>
               </div>
               <button
                 onClick={() => setIsArtworkDrawerOpen(false)}
@@ -793,7 +1131,7 @@ function RoomVisualizerContent() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
               {artworksList.map((art) => {
                 const isSelected =
                   selectedArtwork?.id?.toString() === art.id?.toString() ||
@@ -806,13 +1144,13 @@ function RoomVisualizerContent() {
                       setSelectedArtwork(art);
                       setIsArtworkDrawerOpen(false);
                     }}
-                    className={`p-3 rounded-xl border flex items-center gap-3.5 cursor-pointer transition-all ${
+                    className={`p-2.5 sm:p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
                       isSelected
                         ? "bg-[#C9A96E]/15 border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
                         : "bg-white/5 border-white/10 hover:border-white/25 hover:bg-white/10"
                     }`}
                   >
-                    <div className="relative w-16 h-20 rounded-md overflow-hidden bg-black/40 flex-shrink-0">
+                    <div className="relative w-14 sm:w-16 h-18 sm:h-20 rounded-md overflow-hidden bg-black/40 flex-shrink-0">
                       <img
                         src={art.src}
                         alt={art.title}
@@ -820,18 +1158,18 @@ function RoomVisualizerContent() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-display text-sm text-white truncate">
+                      <h4 className="font-display text-xs sm:text-sm text-white truncate">
                         {art.title}
                       </h4>
-                      <p className="text-[0.68rem] text-white/50 truncate mt-0.5">
+                      <p className="text-[0.65rem] text-white/50 truncate mt-0.5">
                         {art.medium || "Acrylic on Canvas"}
                       </p>
-                      <p className="text-[0.62rem] text-[#C9A96E] tracking-wider uppercase mt-1">
+                      <p className="text-[0.6rem] text-[#C9A96E] tracking-wider uppercase mt-1">
                         {art.size || "Original Size"}
                       </p>
                     </div>
                     {isSelected && (
-                      <div className="w-5 h-5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[10px]">
+                      <div className="w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px]">
                         <FaCheck />
                       </div>
                     )}
