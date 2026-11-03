@@ -424,3 +424,17 @@ p, span, a, li, input, textarea, button, select, label {
   box-shadow: 0 6px 26px -6px rgba(201, 169, 110, 0.55);
   transform: translateY(-1px);
 }
+
+/* ── Universal Hide Scrollbar Utility ── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+

@@ -28,6 +28,8 @@ import {
   FaEye,
   FaEyeSlash,
   FaChevronDown,
+  FaChevronLeft,
+  FaChevronRight,
   FaMobileAlt,
   FaSyncAlt,
   FaCamera,
@@ -280,6 +282,14 @@ function RoomVisualizerContent() {
   // Stage reference for snapshot
   const stageRef = useRef(null);
   const topHoverTimeoutRef = useRef(null);
+  const roomsScrollRef = useRef(null);
+
+  const scrollRooms = (direction) => {
+    if (roomsScrollRef.current) {
+      const scrollAmount = direction === "left" ? -300 : 300;
+      roomsScrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   // ── 1. Painting Drag & Reposition Logic ──
   const [isDragging, setIsDragging] = useState(false);
@@ -953,7 +963,10 @@ Please share pricing and commissioning timeline for this specification.`
                     </div>
 
                     {/* Category Filter Pills */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    <div
+                      className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1"
+                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    >
                       {ROOM_CATEGORIES.map((cat) => (
                         <button
                           key={cat.id}
@@ -970,7 +983,10 @@ Please share pricing and commissioning timeline for this specification.`
                     </div>
 
                     {/* 2-Column Room Cards Grid (Includes Custom Wall Card if Uploaded) */}
-                    <div className="grid grid-cols-2 gap-2.5 max-h-[40vh] overflow-y-auto pr-0.5">
+                    <div
+                      className="grid grid-cols-2 gap-2.5 max-h-[40vh] overflow-y-auto no-scrollbar pr-0.5"
+                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    >
                       {/* Uploaded Custom Wall Card */}
                       {customWallUrl && (
                         <div
@@ -1286,7 +1302,10 @@ Please share pricing and commissioning timeline for this specification.`
                 {/* TAB CONTENT 1: ROOMS & CUSTOM WALL SELECTOR */}
                 {activeTab === "rooms" && (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                    <div
+                      className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5"
+                      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                    >
                       <div className="flex items-center gap-2">
                         {ROOM_CATEGORIES.map((cat) => (
                           <button
@@ -1324,94 +1343,135 @@ Please share pricing and commissioning timeline for this specification.`
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
-                      {/* Upload Card / Active Custom Wall Card */}
-                      {customWallUrl ? (
-                        <div
-                          onClick={() => {
-                            setSelectedRoom({
-                              id: "custom-user-wall",
-                              title: customWallName || "Your Wall Photo",
-                              category: "custom",
-                              src: customWallUrl,
-                              defaultPos: { x: 50, y: 38 },
-                              isCustom: true,
-                            });
-                            setPosOffset({ x: 0, y: 0 });
-                          }}
-                          className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                            selectedRoom.id === "custom-user-wall"
-                              ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
-                              : "border-white/15 opacity-70 hover:opacity-100"
-                          }`}
-                        >
-                          <img
-                            src={customWallUrl}
-                            alt="Custom Wall"
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-1">
-                            <span className="text-[0.58rem] text-[#C9A96E] font-semibold leading-tight font-sans truncate w-full text-left">
-                              ★ {customWallName}
-                            </span>
-                          </div>
-                          {selectedRoom.id === "custom-user-wall" && (
-                            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
-                              <FaCheck />
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg border-2 border-dashed border-[#C9A96E]/40 hover:border-[#C9A96E] bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-1 text-center p-1.5 transition-all group"
-                          title="Upload your room wall photo"
-                        >
-                          <FaCloudUploadAlt className="text-base text-[#C9A96E] group-hover:scale-110 transition-transform" />
-                          <span className="text-[0.58rem] text-white/80 font-medium leading-tight">
-                            + Your Wall
-                          </span>
-                        </button>
-                      )}
+                    {/* Rooms Horizontal Strip with Scroll Buttons and No Scrollbar */}
+                    <div className="relative group/rooms flex items-center">
+                      {/* Left Navigation Chevron */}
+                      <button
+                        type="button"
+                        onClick={() => scrollRooms("left")}
+                        className="absolute -left-2 z-20 w-6 h-6 rounded-full bg-black/80 hover:bg-[#C9A96E] hover:text-black border border-white/20 text-white/80 flex items-center justify-center text-[10px] shadow-xl transition-all active:scale-95 opacity-0 group-hover/rooms:opacity-100"
+                        title="Scroll Left"
+                      >
+                        <FaChevronLeft />
+                      </button>
 
-                      {/* Preset Rooms */}
-                      {visibleRooms.map((room) => {
-                        const isSelected = selectedRoom.id === room.id;
-                        return (
-                          <button
-                            key={room.id}
-                            onClick={() => switchRoom(room)}
-                            className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
-                              isSelected
+                      {/* Horizontal Rooms Container */}
+                      <div
+                        ref={roomsScrollRef}
+                        onWheel={(e) => {
+                          if (e.deltaY !== 0) {
+                            e.currentTarget.scrollLeft += e.deltaY;
+                          }
+                        }}
+                        className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar w-full scroll-smooth"
+                        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                      >
+                        {/* Upload Card / Active Custom Wall Card */}
+                        {customWallUrl ? (
+                          <div
+                            onClick={() => {
+                              setSelectedRoom({
+                                id: "custom-user-wall",
+                                title: customWallName || "Your Wall Photo",
+                                category: "custom",
+                                src: customWallUrl,
+                                defaultPos: { x: 50, y: 38 },
+                                isCustom: true,
+                              });
+                              setPosOffset({ x: 0, y: 0 });
+                            }}
+                            className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                              selectedRoom.id === "custom-user-wall"
                                 ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
-                                : "border-white/10 hover:border-white/30 opacity-70 hover:opacity-100"
+                                : "border-white/15 opacity-70 hover:opacity-100"
                             }`}
                           >
                             <img
-                              src={room.src}
-                              alt={room.title}
+                              src={customWallUrl}
+                              alt="Custom Wall"
                               className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
-                              <span className="text-[0.58rem] text-white leading-tight font-sans truncate w-full text-left">
-                                {room.title}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-1">
+                              <span className="text-[0.58rem] text-[#C9A96E] font-semibold leading-tight font-sans truncate w-full text-left">
+                                ★ {customWallName}
                               </span>
                             </div>
-                            {isSelected && (
+                            {selectedRoom.id === "custom-user-wall" && (
                               <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
                                 <FaCheck />
                               </div>
                             )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg border-2 border-dashed border-[#C9A96E]/40 hover:border-[#C9A96E] bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-1 text-center p-1.5 transition-all group"
+                            title="Upload your room wall photo"
+                          >
+                            <FaCloudUploadAlt className="text-base text-[#C9A96E] group-hover:scale-110 transition-transform" />
+                            <span className="text-[0.58rem] text-white/80 font-medium leading-tight">
+                              + Your Wall
+                            </span>
                           </button>
-                        );
-                      })}
+                        )}
+
+                        {/* Preset Rooms */}
+                        {visibleRooms.map((room) => {
+                          const isSelected = selectedRoom.id === room.id;
+                          return (
+                            <button
+                              key={room.id}
+                              onClick={() => switchRoom(room)}
+                              className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
+                                isSelected
+                                  ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
+                                  : "border-white/10 hover:border-white/30 opacity-70 hover:opacity-100"
+                              }`}
+                            >
+                              <img
+                                src={room.src}
+                                alt={room.title}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
+                                <span className="text-[0.58rem] text-white leading-tight font-sans truncate w-full text-left">
+                                  {room.title}
+                                </span>
+                              </div>
+                              {isSelected && (
+                                <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
+                                  <FaCheck />
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Right Navigation Chevron */}
+                      <button
+                        type="button"
+                        onClick={() => scrollRooms("right")}
+                        className="absolute -right-2 z-20 w-6 h-6 rounded-full bg-black/80 hover:bg-[#C9A96E] hover:text-black border border-white/20 text-white/80 flex items-center justify-center text-[10px] shadow-xl transition-all active:scale-95 opacity-0 group-hover/rooms:opacity-100"
+                        title="Scroll Right"
+                      >
+                        <FaChevronRight />
+                      </button>
                     </div>
                   </div>
                 )}
 
                 {/* TAB CONTENT 2: FRAMES SELECTOR */}
                 {activeTab === "frames" && (
-                  <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                  <div
+                    onWheel={(e) => {
+                      if (e.deltaY !== 0) {
+                        e.currentTarget.scrollLeft += e.deltaY;
+                      }
+                    }}
+                    className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar"
+                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+                  >
                     {FRAME_STYLES.map((frame) => {
                       const isSelected = selectedFrame.id === frame.id;
                       return (
