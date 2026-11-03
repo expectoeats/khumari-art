@@ -28,19 +28,36 @@ import {
   FaEye,
   FaEyeSlash,
   FaChevronDown,
+  FaMobileAlt,
+  FaSyncAlt,
 } from "react-icons/fa";
 
 function RoomVisualizerContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get("id") || searchParams.get("artworkId") || "";
 
-  // ── Mobile Device Detection ──
+  // ── Mobile Device & Orientation Detection ──
   const [isMobile, setIsMobile] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
+  const [dismissPortraitWarning, setDismissPortraitWarning] = useState(false);
+
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const handleViewportChange = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const mobile = width < 850;
+      setIsMobile(mobile);
+      // Portrait mode check on mobile devices
+      setIsPortrait(mobile && height > width);
+    };
+
+    handleViewportChange();
+    window.addEventListener("resize", handleViewportChange);
+    window.addEventListener("orientationchange", handleViewportChange);
+    return () => {
+      window.removeEventListener("resize", handleViewportChange);
+      window.removeEventListener("orientationchange", handleViewportChange);
+    };
   }, []);
 
   // ── Artworks Catalog State ──
@@ -55,6 +72,20 @@ function RoomVisualizerContent() {
     );
     return match || allWorks[0];
   });
+
+  // Natural Aspect Ratio of the active painting (prevents any stretching/distortion)
+  const [artworkAspectRatio, setArtworkAspectRatio] = useState(null);
+
+  useEffect(() => {
+    setArtworkAspectRatio(null);
+  }, [selectedArtwork]);
+
+  const handleArtworkImageLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    if (naturalWidth && naturalHeight) {
+      setArtworkAspectRatio(naturalWidth / naturalHeight);
+    }
+  };
 
   // Fetch full live catalog from /api/artworks
   useEffect(() => {
@@ -109,13 +140,13 @@ function RoomVisualizerContent() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
   const [scalePercent, setScalePercent] = useState(22); // Desktop scale percentage
-  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (40% - 75% for great presence)
+  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (40% - 75%)
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
   const [showDimensions, setShowDimensions] = useState(false);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
   const [isArtworkDrawerOpen, setIsArtworkDrawerOpen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false); // Mobile slide-up bottom sheet
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false); // Mobile slide-up sheet
   const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting
   const [isTopHovered, setIsTopHovered] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -207,7 +238,7 @@ function RoomVisualizerContent() {
     const pctChange = (deltaX / rect.width) * 100;
 
     if (isMobile) {
-      const newScale = Math.max(30, Math.min(78, resizeStartRef.current.startScale + pctChange * 1.5));
+      const newScale = Math.max(26, Math.min(76, resizeStartRef.current.startScale + pctChange * 1.5));
       setMobileScale(Math.round(newScale));
     } else {
       const newScale = Math.max(10, Math.min(48, resizeStartRef.current.startScale + pctChange));
@@ -296,16 +327,18 @@ function RoomVisualizerContent() {
     return ROOMS_DATA.filter((r) => r.category === activeCategory);
   }, [activeCategory]);
 
-  // ── Download Studio Snapshot ──
+  // ── 4. Clean Studio Snapshot Download (ONLY Room & Painting, ZERO text) ──
   const handleDownloadSnapshot = async () => {
     if (!stageRef.current) return;
     setIsDownloading(true);
+    // Wait for React to re-render so all text, badges, and handles are completely hidden
+    await new Promise((resolve) => setTimeout(resolve, 80));
     try {
       const { default: html2canvas } = await import("html2canvas");
       const canvas = await html2canvas(stageRef.current, {
         useCORS: true,
         allowTaint: true,
-        scale: 2,
+        scale: 2, // 2x crisp studio resolution
         logging: false,
       });
       const link = document.createElement("a");
@@ -326,22 +359,57 @@ function RoomVisualizerContent() {
 
   // Calculated painting coordinates (% of stage)
   const calcLeft = (selectedRoom.defaultPos?.x || 50) + posOffset.x;
-  // On mobile portrait, default position is naturally higher on the wall above the bed/sofa
   const defaultBaseY = isMobile ? (selectedRoom.defaultPos?.y || 36) - 3 : (selectedRoom.defaultPos?.y || 38);
   const calcTop = defaultBaseY + posOffset.y;
 
-  // Active scale based on viewport
   const currentRenderScale = isMobile ? mobileScale : scalePercent;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
       
+      {/* ── 📱 PORTRAIT WARNING POPUP OVERLAY (Asks mobile user to rotate phone to landscape) ── */}
+      {isPortrait && !dismissPortraitWarning && (
+        <div className="fixed inset-0 z-50 bg-[#0F0E0E]/96 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center animate-fadeIn select-none">
+          {/* Animated Rotating Phone Graphic */}
+          <div className="relative w-24 h-24 mb-6 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full bg-[#C9A96E]/10 animate-ping" />
+            <div className="w-16 h-16 rounded-full bg-[#C9A96E]/20 border border-[#C9A96E]/40 flex items-center justify-center shadow-2xl">
+              <FaSyncAlt className="text-2xl text-[#C9A96E] animate-[spin_5s_linear_infinite]" />
+            </div>
+          </div>
+
+          <span className="text-[0.62rem] uppercase tracking-[0.3em] text-[#C9A96E] font-semibold block mb-2">
+            Nancy Sikri Atelier
+          </span>
+          <h2 className="font-display text-xl sm:text-2xl text-white mb-2 leading-tight">
+            Rotate Phone to Landscape
+          </h2>
+          <p className="text-xs text-white/60 max-w-xs leading-relaxed mb-6 font-sans">
+            To view the complete architectural room, furniture and artwork in authentic proportions, please turn your phone horizontally.
+          </p>
+
+          <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+            <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C9A96E] text-black font-semibold text-xs uppercase tracking-wider shadow-lg">
+              <FaMobileAlt className="text-sm rotate-90" />
+              <span>Turn Phone Sideways</span>
+            </div>
+
+            {/* Subtle option to bypass if user has phone rotation lock enabled */}
+            <button
+              onClick={() => setDismissPortraitWarning(true)}
+              className="text-[0.68rem] text-white/40 hover:text-white/80 underline tracking-wider pt-2"
+            >
+              Or continue in portrait mode anyway
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── 1. FULL HEIGHT 100VH STAGE (Floor to Ceiling) ── */}
       <main
         className="absolute inset-0 w-full h-full overflow-hidden bg-black flex items-center justify-center z-0"
         onClick={() => {
           if (isZenMode && isMobile) {
-            // On mobile, tap anywhere in Zen mode restores controls
             setIsZenMode(false);
           }
         }}
@@ -372,7 +440,7 @@ function RoomVisualizerContent() {
             style={{ backgroundColor: lighting.overlay }}
           />
 
-          {/* ── THE PAINTING ON THE WALL ── */}
+          {/* ── THE PAINTING ON THE WALL (Zero Distortion, Natural Aspect Ratio) ── */}
           <div
             onPointerDown={handlePointerDown}
             className={`absolute transition-transform duration-75 ease-out select-none ${
@@ -399,20 +467,26 @@ function RoomVisualizerContent() {
                 backgroundColor: selectedFrame.frameColor,
               }}
             >
-              {/* Painting Canvas */}
-              <div className="relative aspect-[3/4] w-full bg-[#2A2624] overflow-hidden max-h-[58vh]">
+              {/* Painting Canvas (Dynamic Natural Ratio - Never Stretches) */}
+              <div
+                className="relative w-full bg-[#2A2624] overflow-hidden max-h-[58vh] flex items-center justify-center"
+                style={{
+                  aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : "auto",
+                }}
+              >
                 <img
                   src={selectedArtwork?.src}
                   alt={selectedArtwork?.title || "Artwork"}
-                  className="w-full h-full object-cover select-none pointer-events-none"
+                  onLoad={handleArtworkImageLoad}
+                  className="w-full h-full object-contain select-none pointer-events-none block"
                   crossOrigin="anonymous"
                   draggable={false}
                 />
               </div>
             </div>
 
-            {/* ── INTERACTIVE CORNER RESIZE HANDLE (Enlarged 36px touch target on mobile) ── */}
-            {!isZenMode && (
+            {/* Corner Resize Handle (Hidden in Zen Mode AND during Snapshot capture) */}
+            {!isZenMode && !isDownloading && (
               <div
                 onPointerDown={handleResizeStart}
                 className="resize-handle absolute -bottom-3.5 -right-3.5 sm:-bottom-3 sm:-right-3 w-8 sm:w-7 h-8 sm:h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 active:scale-110 transition-transform border-2 border-white select-none touch-manipulation group"
@@ -425,16 +499,16 @@ function RoomVisualizerContent() {
               </div>
             )}
 
-            {/* Dimensions Label Badge */}
-            {showDimensions && !isZenMode && (
+            {/* Dimensions Label Badge (Hidden in Zen Mode AND during Snapshot capture) */}
+            {showDimensions && !isZenMode && !isDownloading && (
               <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.58rem] sm:text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
                 {selectedArtwork?.size || "36″ × 48″"} • {selectedFrame.name}
               </div>
             )}
           </div>
 
-          {/* Reposition Drag Hint (Desktop only or clean subtle pill) */}
-          {!isZenMode && (
+          {/* Reposition Drag Hint (Hidden in Zen Mode AND during Snapshot capture) */}
+          {!isZenMode && !isDownloading && (
             <div className="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-10 pointer-events-none opacity-80">
               <span className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md text-[0.58rem] sm:text-[0.62rem] uppercase tracking-widest text-white/70 border border-white/10 font-sans shadow-lg">
                 Drag to move • Grab corner to scale
@@ -442,8 +516,8 @@ function RoomVisualizerContent() {
             </div>
           )}
 
-          {/* Room Label Tag (Desktop only) */}
-          {!isZenMode && (
+          {/* Room Label Tag (Hidden in Zen Mode AND during Snapshot capture) */}
+          {!isZenMode && !isDownloading && (
             <div className="absolute top-20 left-6 z-10 hidden md:block pointer-events-none">
               <span className="text-[0.55rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
                 Current Setting
@@ -462,7 +536,7 @@ function RoomVisualizerContent() {
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
       >
-        {/* ── MOBILE HEADER (under 768px: perfectly compact, zero overflow) ── */}
+        {/* Mobile Header (Under 768px: perfectly compact, zero overflow) */}
         <div className="flex md:hidden items-center justify-between w-full gap-2">
           {/* Back Exit */}
           <Link
@@ -490,7 +564,7 @@ function RoomVisualizerContent() {
             <button
               onClick={handleDownloadSnapshot}
               disabled={isDownloading}
-              title="Save Snapshot"
+              title="Save Snapshot (Room & Painting Only)"
               className="w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-[#C9A96E] active:scale-95 disabled:opacity-40"
             >
               <FaDownload className="text-xs" />
@@ -518,7 +592,7 @@ function RoomVisualizerContent() {
           </div>
         </div>
 
-        {/* ── DESKTOP HEADER (768px and above) ── */}
+        {/* Desktop Header (768px and above) */}
         <div className="hidden md:flex items-center justify-between w-full">
           {/* Left: Exit Link & Title */}
           <div className="flex items-center gap-4">
@@ -572,6 +646,7 @@ function RoomVisualizerContent() {
             <button
               onClick={handleDownloadSnapshot}
               disabled={isDownloading}
+              title="Download Room & Painting"
               className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/50 hover:bg-black/80 border border-white/20 text-xs tracking-wider uppercase text-white transition-all disabled:opacity-40 backdrop-blur-md"
             >
               <FaDownload className="text-[#C9A96E] text-xs" />
@@ -629,7 +704,7 @@ function RoomVisualizerContent() {
       {/* ── 4. MOBILE BOTTOM FLOATING DOCK & SLIDE-UP SHEET (< 768px) ── */}
       {!isZenMode && isMobile && (
         <>
-          {/* Mobile Sleek Floating Pill Dock (height only 48px, never blocks the room!) */}
+          {/* Mobile Sleek Floating Pill Dock (height only 48px) */}
           <div className="md:hidden fixed bottom-4 inset-x-3 z-30">
             <div className="bg-[#141312]/92 backdrop-blur-xl border border-white/20 rounded-full px-3 py-2 shadow-2xl flex items-center justify-between">
               {[
@@ -815,10 +890,10 @@ function RoomVisualizerContent() {
                     {/* Preset Buttons */}
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { label: "Small (24×30 in)", val: 38 },
-                        { label: "Medium (36×48 in)", val: 48 },
-                        { label: "Large (48×60 in)", val: 60 },
-                        { label: "Statement (60×72 in)", val: 72 },
+                        { label: "Small (24×30 in)", val: 36 },
+                        { label: "Medium (36×48 in)", val: 46 },
+                        { label: "Large (48×60 in)", val: 58 },
+                        { label: "Statement (60×72 in)", val: 68 },
                       ].map((preset) => (
                         <button
                           key={preset.label}
@@ -842,8 +917,8 @@ function RoomVisualizerContent() {
                       </div>
                       <input
                         type="range"
-                        min="30"
-                        max="76"
+                        min="26"
+                        max="74"
                         value={mobileScale}
                         onChange={(e) => setMobileScale(parseInt(e.target.value, 10))}
                         className="w-full accent-[#C9A96E] h-2 bg-white/20 rounded-lg cursor-pointer"
