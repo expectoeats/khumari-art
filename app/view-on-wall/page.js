@@ -945,9 +945,9 @@ Please share pricing and commissioning timeline for this specification.`
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#C9A96E]/20 via-[#C9A96E]/10 to-transparent border border-[#C9A96E]/40 hover:border-[#C9A96E] flex items-center justify-center gap-2 text-white font-medium text-xs tracking-wider uppercase active:scale-98 transition-all shadow"
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-[#C9A96E] hover:bg-[#D4B67D] text-black border border-[#F3E2B8] flex items-center justify-center gap-2 font-bold text-xs tracking-wider uppercase active:scale-98 transition-all shadow"
                       >
-                        <FaCamera className="text-[#C9A96E] text-sm" />
+                        <FaCamera className="text-black text-sm" />
                         <span>{customWallUrl ? "Change Your Wall Photo" : "Upload / Take Photo of Your Wall"}</span>
                       </button>
                       {customWallUrl && (
@@ -955,7 +955,7 @@ Please share pricing and commissioning timeline for this specification.`
                           type="button"
                           onClick={handleRemoveCustomWall}
                           title="Remove Custom Wall"
-                          className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:text-white transition-all text-xs flex-shrink-0"
+                          className="p-2.5 rounded-xl bg-red-600/30 border border-red-500/50 text-red-200 hover:text-white transition-all text-xs flex-shrink-0"
                         >
                           <FaTrashAlt />
                         </button>
@@ -971,10 +971,10 @@ Please share pricing and commissioning timeline for this specification.`
                         <button
                           key={cat.id}
                           onClick={() => setActiveCategory(cat.id)}
-                          className={`px-3 py-1 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                          className={`px-3 py-1 rounded-full text-[0.62rem] tracking-wider uppercase font-semibold whitespace-nowrap transition-all ${
                             activeCategory === cat.id
-                              ? "bg-white text-black font-semibold"
-                              : "bg-white/10 text-white/60 border border-white/10"
+                              ? "bg-white text-black font-bold ring-1 ring-white"
+                              : "bg-[#262422] text-[#E8DDD0] hover:text-white border border-white/20"
                           }`}
                         >
                           {cat.label}
@@ -1237,11 +1237,11 @@ Please share pricing and commissioning timeline for this specification.`
       {!isZenMode && !isMobile && (
         <>
           {isControlsVisible ? (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/92 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#141210] border border-white/25 rounded-2xl p-3 md:p-4 shadow-[0_12px_50px_rgba(0,0,0,0.95)] transition-all duration-300">
               <div className="flex flex-col gap-2.5">
                 {/* Control Mode Tabs & Actions */}
-                <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                  <div className="flex items-center gap-1 sm:gap-2">
+                <div className="flex items-center justify-between border-b border-white/20 pb-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     {[
                       { id: "rooms", label: "Rooms & Walls", icon: FaImages },
                       { id: "frames", label: "Frames", icon: FaExpand },
@@ -1254,13 +1254,13 @@ Please share pricing and commissioning timeline for this specification.`
                         <button
                           key={tab.id}
                           onClick={() => setActiveTab(tab.id)}
-                          className={`flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
+                          className={`flex items-center gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider font-sans transition-all ${
                             isActive
-                              ? "bg-[#C9A96E]/20 text-[#C9A96E] border border-[#C9A96E]/40"
-                              : "text-white/50 hover:text-white/80 border border-transparent"
+                              ? "bg-[#C9A96E] text-black font-bold shadow-md border border-[#C9A96E]"
+                              : "bg-[#221F1C] text-[#E8DDD0] hover:text-white hover:bg-[#2F2B27] border border-white/15 font-medium"
                           }`}
                         >
-                          <Icon className="text-xs" />
+                          <Icon className={`text-xs ${isActive ? "text-black" : "text-[#C9A96E]"}`} />
                           <span>{tab.label}</span>
                         </button>
                       );
@@ -1269,29 +1269,29 @@ Please share pricing and commissioning timeline for this specification.`
 
                   <div className="flex items-center gap-2">
                     {/* Live Dimension Readout */}
-                    <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[0.68rem] font-sans">
-                      <span className="text-[#C9A96E] font-medium">{liveDimensions.displayIn}</span>
-                      <span className="text-white/30">|</span>
-                      <span className="text-white/60 font-mono">{liveDimensions.displayCm}</span>
+                    <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/90 border border-[#C9A96E]/50 text-xs font-sans shadow-inner">
+                      <span className="text-[#C9A96E] font-bold tracking-wide">{liveDimensions.displayIn}</span>
+                      <span className="text-white/40">|</span>
+                      <span className="text-white font-mono font-medium">{liveDimensions.displayCm}</span>
                     </div>
 
                     {/* Dimension Tag Toggle */}
                     <button
                       onClick={() => setShowDimensions((v) => !v)}
-                      className={`hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.65rem] uppercase tracking-wider transition-all ${
+                      className={`hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.68rem] uppercase tracking-wider transition-all font-semibold ${
                         showDimensions
-                          ? "bg-[#C9A96E]/25 text-[#C9A96E] border border-[#C9A96E]/40"
-                          : "text-white/40 hover:text-white/70 border border-white/10"
+                          ? "bg-[#C9A96E] text-black border border-[#C9A96E] shadow-sm"
+                          : "bg-[#221F1C] text-white hover:bg-[#2F2B27] border border-white/25"
                       }`}
                     >
-                      <FaCheck className={`text-[10px] ${showDimensions ? "opacity-100" : "opacity-0"}`} />
+                      <FaCheck className={`text-[10px] ${showDimensions ? "text-black opacity-100" : "text-white/40 opacity-0"}`} />
                       <span>Dimensions Tag</span>
                     </button>
 
                     {/* Minimize Dock Button */}
                     <button
                       onClick={() => setIsControlsVisible(false)}
-                      className="p-1.5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white text-xs"
+                      className="p-2 rounded-lg bg-[#221F1C] hover:bg-white/20 text-white/80 hover:text-white text-xs border border-white/15"
                       title="Minimize Dock"
                     >
                       <FaTimes />
@@ -1303,7 +1303,7 @@ Please share pricing and commissioning timeline for this specification.`
                 {activeTab === "rooms" && (
                   <div className="space-y-2">
                     <div
-                      className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5"
+                      className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar pb-0.5"
                       style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
                       <div className="flex items-center gap-2">
@@ -1311,10 +1311,10 @@ Please share pricing and commissioning timeline for this specification.`
                           <button
                             key={cat.id}
                             onClick={() => setActiveCategory(cat.id)}
-                            className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                            className={`px-3 py-1 rounded-full text-[0.65rem] tracking-wider uppercase font-semibold whitespace-nowrap transition-all shadow-sm ${
                               activeCategory === cat.id
-                                ? "bg-white text-black font-semibold"
-                                : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+                                ? "bg-white text-black font-bold ring-1 ring-white"
+                                : "bg-[#221F1C] text-[#E8DDD0] hover:text-white hover:bg-[#2E2A26] border border-white/20"
                             }`}
                           >
                             {cat.label}
@@ -1326,16 +1326,16 @@ Please share pricing and commissioning timeline for this specification.`
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E]/20 hover:bg-[#C9A96E]/30 text-[#C9A96E] border border-[#C9A96E]/40 text-xs tracking-wider uppercase font-medium whitespace-nowrap transition-all shadow"
+                          className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C9A96E] hover:bg-[#D4B67D] text-black border border-[#F3E2B8] text-xs tracking-wider uppercase font-bold whitespace-nowrap transition-all shadow-md active:scale-95"
                         >
-                          <FaCamera className="text-xs" />
+                          <FaCamera className="text-black text-xs" />
                           <span>{customWallUrl ? "Change Wall Photo" : "Upload Your Wall"}</span>
                         </button>
                         {customWallUrl && (
                           <button
                             onClick={handleRemoveCustomWall}
                             title="Remove Custom Wall"
-                            className="p-1.5 rounded-full bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 hover:text-white transition-all text-xs"
+                            className="p-1.5 rounded-full bg-red-600/30 hover:bg-red-600/50 border border-red-500/50 text-red-200 hover:text-white transition-all text-xs"
                           >
                             <FaTrashAlt />
                           </button>
@@ -1480,14 +1480,14 @@ Please share pricing and commissioning timeline for this specification.`
                           onClick={() => setSelectedFrame(frame)}
                           className={`flex-shrink-0 px-3.5 py-2 rounded-xl border transition-all text-left flex items-center gap-2.5 ${
                             isSelected
-                              ? "bg-[#C9A96E]/15 border-[#C9A96E] ring-1 ring-[#C9A96E]/40"
-                              : "bg-white/5 border-white/10 hover:border-white/25 hover:bg-white/10"
+                              ? "bg-[#C9A96E] text-black border-[#C9A96E] ring-1 ring-[#C9A96E] font-semibold shadow-md"
+                              : "bg-[#221F1C] border-white/20 hover:border-white/40 hover:bg-[#2E2A26] text-white"
                           }`}
                         >
                           <div
                             className="w-7 h-9 rounded border overflow-hidden flex-shrink-0"
                             style={{
-                              borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.2)" : frame.frameColor,
+                              borderColor: frame.id === "canvas" ? "rgba(255,255,255,0.4)" : frame.frameColor,
                               backgroundColor: frame.frameColor,
                               borderWidth: frame.id === "canvas" ? "1px" : "3px",
                             }}
@@ -1495,8 +1495,8 @@ Please share pricing and commissioning timeline for this specification.`
                             <div className="w-full h-full bg-[#352F2B]" />
                           </div>
                           <div>
-                            <p className="text-xs text-white font-medium">{frame.name}</p>
-                            <p className="text-[0.62rem] text-white/50">{frame.subtitle}</p>
+                            <p className={`text-xs font-semibold ${isSelected ? "text-black" : "text-white"}`}>{frame.name}</p>
+                            <p className={`text-[0.65rem] ${isSelected ? "text-black/75" : "text-[#E8DDD0]"}`}>{frame.subtitle}</p>
                           </div>
                         </button>
                       );
@@ -1509,12 +1509,12 @@ Please share pricing and commissioning timeline for this specification.`
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
                     {/* Live Dimension Pill & Reset */}
                     <div className="flex items-center gap-2">
-                      <div className="px-3 py-1 rounded-lg bg-black/60 border border-[#C9A96E]/30 flex items-center gap-2">
+                      <div className="px-3.5 py-1.5 rounded-lg bg-black/90 border border-[#C9A96E] flex items-center gap-2 shadow-inner">
                         <FaRuler className="text-[#C9A96E] text-xs" />
-                        <span className="text-xs text-white font-medium">
+                        <span className="text-xs text-white font-bold tracking-wide">
                           {liveDimensions.displayIn}
                         </span>
-                        <span className="text-[0.65rem] text-white/50 font-mono">
+                        <span className="text-[0.7rem] text-[#F3E2B8] font-mono font-medium">
                           ({liveDimensions.displayCm})
                         </span>
                       </div>
@@ -1529,10 +1529,10 @@ Please share pricing and commissioning timeline for this specification.`
                         <button
                           key={preset.label}
                           onClick={() => setScalePercent(preset.pct)}
-                          className={`px-2.5 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-xs tracking-wider uppercase font-semibold transition-all ${
                             Math.abs(scalePercent - preset.pct) < 2
-                              ? "bg-[#C9A96E] text-black font-semibold border border-[#C9A96E]"
-                              : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
+                              ? "bg-[#C9A96E] text-black font-bold border border-[#C9A96E] shadow-sm"
+                              : "bg-[#221F1C] border border-white/20 text-[#E8DDD0] hover:text-white hover:bg-[#2E2A26]"
                           }`}
                         >
                           {preset.label}
@@ -1542,8 +1542,8 @@ Please share pricing and commissioning timeline for this specification.`
 
                     {/* Scale Range Slider */}
                     <div className="flex items-center gap-3 w-full sm:w-64">
-                      <span className="text-[0.62rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
-                        Scale Wall Slider:
+                      <span className="text-xs uppercase tracking-wider text-white font-semibold whitespace-nowrap">
+                        Scale: {scalePercent}%
                       </span>
                       <input
                         type="range"
@@ -1566,13 +1566,13 @@ Please share pricing and commissioning timeline for this specification.`
                         <button
                           key={mode.id}
                           onClick={() => setLighting(mode)}
-                          className={`px-4 py-2 rounded-xl border text-xs uppercase tracking-wider transition-all flex items-center gap-2 ${
+                          className={`px-4 py-2 rounded-xl border text-xs uppercase tracking-wider transition-all flex items-center gap-2 font-semibold ${
                             isSelected
-                              ? "bg-[#C9A96E]/20 border-[#C9A96E] text-[#C9A96E]"
-                              : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+                              ? "bg-[#C9A96E] text-black border-[#C9A96E] shadow-sm"
+                              : "bg-[#221F1C] border-white/20 text-white hover:bg-[#2E2A26]"
                           }`}
                         >
-                          <FaSun className="text-xs" />
+                          <FaSun className={`text-xs ${isSelected ? "text-black" : "text-[#C9A96E]"}`} />
                           <span>{mode.label}</span>
                         </button>
                       );
@@ -1585,7 +1585,7 @@ Please share pricing and commissioning timeline for this specification.`
             /* Floating Pill to Restore Dock */
             <button
               onClick={() => setIsControlsVisible(true)}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-black/75 hover:bg-black/90 backdrop-blur-xl border border-white/20 text-white text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 px-5 py-2.5 rounded-full bg-[#141210] hover:bg-black border border-white/30 text-white font-semibold text-xs uppercase tracking-wider shadow-2xl flex items-center gap-2 transition-all hover:scale-105"
             >
               <FaSlidersH className="text-[#C9A96E]" />
               <span>Show Room & Frame Controls</span>
