@@ -91,6 +91,8 @@ function RoomVisualizerContent() {
     };
   }, []);
 
+  const isLandscapeMobile = isMobile && !isPortrait;
+
   // ── Artworks Catalog State ──
   const [artworksList, setArtworksList] = useState(allWorks);
   const [selectedArtwork, setSelectedArtwork] = useState(() => {
@@ -230,7 +232,8 @@ function RoomVisualizerContent() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
   const [scalePercent, setScalePercent] = useState(22); // Desktop scale percentage (baseline = 22)
-  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (baseline = 48)
+  const [mobileScale, setMobileScale] = useState(48); // Mobile portrait scale percentage (baseline = 48)
+  const [landscapeScale, setLandscapeScale] = useState(14); // Mobile landscape scale percentage (baseline = 14)
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
   const [showDimensions, setShowDimensions] = useState(false);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
@@ -249,8 +252,8 @@ function RoomVisualizerContent() {
   }, [selectedArtwork?.size, artworkAspectRatio]);
 
   const liveDimensions = useMemo(() => {
-    const baseScale = isMobile ? 48 : 22;
-    const currentScale = isMobile ? mobileScale : scalePercent;
+    const baseScale = isMobile ? (isLandscapeMobile ? 14 : 48) : 22;
+    const currentScale = isMobile ? (isLandscapeMobile ? landscapeScale : mobileScale) : scalePercent;
     const multiplier = currentScale / baseScale;
 
     const widthIn = Math.round(baseDims.baseW * multiplier * 10) / 10;
@@ -270,7 +273,7 @@ function RoomVisualizerContent() {
       displayIn: `${widthIn}″ × ${heightIn}″`,
       displayCm: `${widthCm} × ${heightCm} cm`,
     };
-  }, [baseDims, isMobile, mobileScale, scalePercent]);
+  }, [baseDims, isMobile, isLandscapeMobile, landscapeScale, mobileScale, scalePercent]);
 
   const { content } = useSiteContent();
   const rawWhatsApp =
@@ -353,7 +356,9 @@ function RoomVisualizerContent() {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     resizeStartRef.current = {
       clientX,
-      startScale: isMobile ? mobileScale : scalePercent,
+      startScale: isMobile
+        ? (isLandscapeMobile ? landscapeScale : mobileScale)
+        : scalePercent,
     };
   };
 
@@ -365,8 +370,15 @@ function RoomVisualizerContent() {
     const pctChange = (deltaX / rect.width) * 100;
 
     if (isMobile) {
-      const newScale = Math.max(26, Math.min(76, resizeStartRef.current.startScale + pctChange * 1.5));
-      setMobileScale(Math.round(newScale));
+      if (isLandscapeMobile) {
+        // Landscape mobile: smoothly resize between 7% and 26%
+        const newScale = Math.max(7, Math.min(26, resizeStartRef.current.startScale + pctChange * 1.1));
+        setLandscapeScale(Math.round(newScale * 10) / 10);
+      } else {
+        // Portrait mobile: resize between 24% and 76%
+        const newScale = Math.max(24, Math.min(76, resizeStartRef.current.startScale + pctChange * 1.5));
+        setMobileScale(Math.round(newScale));
+      }
     } else {
       const newScale = Math.max(10, Math.min(48, resizeStartRef.current.startScale + pctChange));
       setScalePercent(Math.round(newScale));
@@ -390,7 +402,7 @@ function RoomVisualizerContent() {
       window.removeEventListener("touchmove", handleResizeMove);
       window.removeEventListener("touchend", handleResizeUp);
     };
-  }, [isResizing, isMobile]);
+  }, [isResizing, isMobile, isLandscapeMobile]);
 
   // ── 3. Zen Mode Top Hover Logic ──
   useEffect(() => {
@@ -494,7 +506,6 @@ Please share pricing and commissioning timeline for this specification.`
   )}`;
 
   // Calculated painting coordinates (% of stage)
-  const isLandscapeMobile = isMobile && !isPortrait;
   const calcLeft = (selectedRoom.defaultPos?.x || 50) + posOffset.x;
   const defaultBaseY = isMobile
     ? (isLandscapeMobile
@@ -502,8 +513,9 @@ Please share pricing and commissioning timeline for this specification.`
         : (selectedRoom.defaultPos?.y || 36) - 3)  // portrait: shifted up
     : (selectedRoom.defaultPos?.y || 38);
   const calcTop = defaultBaseY + posOffset.y;
-  // Landscape mobile: use slightly smaller default scale so painting fits naturally
-  const currentRenderScale = isMobile ? (isLandscapeMobile ? Math.min(mobileScale, 42) : mobileScale) : scalePercent;
+  const currentRenderScale = isMobile
+    ? (isLandscapeMobile ? landscapeScale : mobileScale)
+    : scalePercent;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
@@ -600,31 +612,31 @@ Please share pricing and commissioning timeline for this specification.`
               top: `${calcTop}%`,
               transform: "translate(-50%, -50%)",
               width: `${currentRenderScale}%`,
-              // aspectRatio on outer wrapper forces natural shape — NEVER square
               aspectRatio: artworkAspectRatio ? String(artworkAspectRatio) : undefined,
-              maxWidth: isMobile ? (isLandscapeMobile ? "42vw" : "80vw") : "540px",
-              maxHeight: isLandscapeMobile ? "60vh" : (isPortrait ? "42vh" : "none"),
-              minWidth: isMobile ? "90px" : "140px",
+              maxWidth: isMobile ? (isLandscapeMobile ? "32vw" : "80vw") : "540px",
+              minWidth: isMobile ? (isLandscapeMobile ? "55px" : "90px") : "140px",
               touchAction: "none",
               zIndex: 20,
             }}
           >
-              {/* Outer Frame Wrapper — inherits aspect ratio from parent */}
+            {/* Outer Frame Wrapper */}
             <div
-              className="relative overflow-hidden transition-all duration-300 w-full h-full"
+              className="relative overflow-hidden transition-all duration-300 w-full h-full flex items-center justify-center"
               style={{
                 boxShadow: selectedFrame.shadowCss,
-                border: isMobile && selectedFrame.id !== "canvas" ? "5px solid " + selectedFrame.frameColor : selectedFrame.borderCss,
-                padding: isMobile && selectedFrame.id !== "canvas" ? "2px" : selectedFrame.paddingCss,
+                border: isMobile && selectedFrame.id !== "canvas"
+                  ? (isLandscapeMobile ? "3px solid " : "5px solid ") + selectedFrame.frameColor
+                  : selectedFrame.borderCss,
+                padding: isMobile && selectedFrame.id !== "canvas" ? "1px" : selectedFrame.paddingCss,
                 backgroundColor: selectedFrame.frameColor,
               }}
             >
-              {/* Painting img — object-contain so it never crops or stretches */}
+              {/* Painting img — fills 100% of the frame with zero empty space on left or right */}
               <img
                 src={selectedArtwork?.src}
                 alt={selectedArtwork?.title || "Artwork"}
                 onLoad={handleArtworkImageLoad}
-                className="w-full h-full object-contain select-none pointer-events-none block"
+                className="w-full h-full object-cover select-none pointer-events-none block"
                 crossOrigin="anonymous"
                 draggable={false}
               />
@@ -634,10 +646,14 @@ Please share pricing and commissioning timeline for this specification.`
             {!isZenMode && !isDownloading && (
               <div
                 onPointerDown={handleResizeStart}
-                className="resize-handle absolute -bottom-3.5 -right-3.5 sm:-bottom-3 sm:-right-3 w-8 sm:w-7 h-8 sm:h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 active:scale-110 transition-transform border-2 border-white select-none touch-manipulation group"
+                className={`resize-handle absolute ${
+                  isLandscapeMobile
+                    ? "-bottom-2.5 -right-2.5 w-6 h-6"
+                    : "-bottom-3.5 -right-3.5 sm:-bottom-3 sm:-right-3 w-8 sm:w-7 h-8 sm:h-7"
+                } rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 active:scale-110 transition-transform border-2 border-white select-none touch-manipulation group`}
                 title="Drag corner to scale painting"
               >
-                <FaExpand className="text-[10px] pointer-events-none" />
+                <FaExpand className={isLandscapeMobile ? "text-[8px] pointer-events-none" : "text-[10px] pointer-events-none"} />
                 <span className="hidden sm:block absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/90 text-[#F5F0E8] px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity font-mono border border-white/10">
                   {liveDimensions.displayIn} ({liveDimensions.displayCm})
                 </span>
@@ -1133,7 +1149,7 @@ Please share pricing and commissioning timeline for this specification.`
                 {activeTab === "scale" && (
                   <div className={`space-y-2.5 py-1 overflow-y-auto ${isLandscapeMobile ? "max-h-[50vh]" : ""}`}>
                     {/* Live Accurate Dimensions Card */}
-                    <div className="bg-[#1C1A18] border border-[#C9A96E]/30 rounded-2xl p-3.5 space-y-1.5">
+                    <div className="bg-[#1C1A18] border border-[#C9A96E]/30 rounded-2xl p-3 space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-[0.6rem] uppercase tracking-widest text-[#C9A96E] font-semibold flex items-center gap-1.5">
                           <FaRuler className="text-xs" />
@@ -1151,7 +1167,7 @@ Please share pricing and commissioning timeline for this specification.`
                       </div>
                       <div className="flex items-baseline justify-between pt-1">
                         <div>
-                          <span className="font-display text-lg text-white font-medium tracking-wide">
+                          <span className="font-display text-base sm:text-lg text-white font-medium tracking-wide">
                             {liveDimensions.displayIn}
                           </span>
                           <span className="text-xs text-white/50 ml-2 font-mono">
@@ -1160,7 +1176,10 @@ Please share pricing and commissioning timeline for this specification.`
                         </div>
                         {!liveDimensions.isOriginal && (
                           <button
-                            onClick={() => setMobileScale(48)}
+                            onClick={() => {
+                              if (isLandscapeMobile) setLandscapeScale(14);
+                              else setMobileScale(48);
+                            }}
                             className="text-[0.62rem] text-[#C9A96E] underline uppercase tracking-wider"
                           >
                             Reset Original
@@ -1170,19 +1189,19 @@ Please share pricing and commissioning timeline for this specification.`
                     </div>
 
                     {/* Dimension Tag Toggle */}
-                    <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
+                    <div className="flex items-center justify-between bg-white/5 p-2.5 rounded-xl border border-white/10">
                       <div>
                         <p className="text-xs text-white font-medium">Show Dimensions Badge</p>
-                        <p className="text-[0.62rem] text-white/50">Keep size badge visible under painting</p>
+                        <p className="text-[0.6rem] text-white/50">Keep size badge visible under painting</p>
                       </div>
                       <button
                         onClick={() => setShowDimensions((v) => !v)}
-                        className={`w-11 h-6 rounded-full transition-colors relative ${
+                        className={`w-10 h-5 rounded-full transition-colors relative ${
                           showDimensions ? "bg-[#C9A96E]" : "bg-white/20"
                         }`}
                       >
                         <span
-                          className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${
+                          className={`absolute top-0.5 left-0.5 bg-white w-4 h-4 rounded-full transition-transform ${
                             showDimensions ? "translate-x-5 bg-black" : "translate-x-0"
                           }`}
                         />
@@ -1191,38 +1210,58 @@ Please share pricing and commissioning timeline for this specification.`
 
                     {/* Proportional Scale Presets */}
                     <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { label: "Original (100%)", val: 48 },
-                        { label: "Compact (-25%)", val: 36 },
-                        { label: "Statement (+25%)", val: 60 },
-                        { label: "Grand Mural (+50%)", val: 72 },
-                      ].map((preset) => (
-                        <button
-                          key={preset.label}
-                          onClick={() => setMobileScale(preset.val)}
-                          className={`py-2 px-3 rounded-xl border text-xs tracking-wider uppercase transition-all ${
-                            Math.abs(mobileScale - preset.val) < 4
-                              ? "bg-[#C9A96E] text-black font-semibold border-[#C9A96E]"
-                              : "bg-white/5 border-white/10 text-white/70"
-                          }`}
-                        >
-                          {preset.label}
-                        </button>
-                      ))}
+                      {(isLandscapeMobile
+                        ? [
+                            { label: "Original (100%)", val: 14 },
+                            { label: "Compact (-25%)", val: 10.5 },
+                            { label: "Statement (+25%)", val: 17.5 },
+                            { label: "Grand (+50%)", val: 21 },
+                          ]
+                        : [
+                            { label: "Original (100%)", val: 48 },
+                            { label: "Compact (-25%)", val: 36 },
+                            { label: "Statement (+25%)", val: 60 },
+                            { label: "Grand Mural (+50%)", val: 72 },
+                          ]
+                      ).map((preset) => {
+                        const currentVal = isLandscapeMobile ? landscapeScale : mobileScale;
+                        const isSelected = Math.abs(currentVal - preset.val) < (isLandscapeMobile ? 1.5 : 4);
+                        return (
+                          <button
+                            key={preset.label}
+                            onClick={() => {
+                              if (isLandscapeMobile) setLandscapeScale(preset.val);
+                              else setMobileScale(preset.val);
+                            }}
+                            className={`py-2 px-2.5 rounded-xl border text-[0.65rem] tracking-wider uppercase transition-all ${
+                              isSelected
+                                ? "bg-[#C9A96E] text-black font-semibold border-[#C9A96E]"
+                                : "bg-white/5 border-white/10 text-white/70"
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {/* Touch Slider */}
-                    <div className="space-y-1.5 pt-1">
-                      <div className="flex justify-between text-[0.68rem] text-white/60">
+                    <div className="space-y-1 pt-1">
+                      <div className="flex justify-between text-[0.65rem] text-white/60">
                         <span>Wall Proportion Slider</span>
                         <span className="text-[#C9A96E] font-mono">{liveDimensions.displayIn}</span>
                       </div>
                       <input
                         type="range"
-                        min="26"
-                        max="74"
-                        value={mobileScale}
-                        onChange={(e) => setMobileScale(parseInt(e.target.value, 10))}
+                        min={isLandscapeMobile ? "7" : "26"}
+                        max={isLandscapeMobile ? "27" : "74"}
+                        step={isLandscapeMobile ? "0.5" : "1"}
+                        value={isLandscapeMobile ? landscapeScale : mobileScale}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (isLandscapeMobile) setLandscapeScale(val);
+                          else setMobileScale(val);
+                        }}
                         className="w-full accent-[#C9A96E] h-2 bg-white/20 rounded-lg cursor-pointer"
                       />
                     </div>
