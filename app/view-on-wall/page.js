@@ -30,7 +30,36 @@ import {
   FaChevronDown,
   FaMobileAlt,
   FaSyncAlt,
+  FaCamera,
+  FaCloudUploadAlt,
+  FaTrashAlt,
+  FaRuler,
 } from "react-icons/fa";
+
+/**
+ * Robustly parses artwork baseline dimensions string (e.g. "24 × 30 in", "36 x 48 in", "60 x 90 cm")
+ * into numeric base width & base height in inches.
+ */
+function parseArtworkDimensions(sizeStr, fallbackRatio = null) {
+  if (typeof sizeStr === "string") {
+    const match = sizeStr.match(/(\d+(?:\.\d+)?)\s*(?:[x×*]|by)\s*(\d+(?:\.\d+)?)/i);
+    if (match) {
+      let w = parseFloat(match[1]);
+      let h = parseFloat(match[2]);
+      const isCm = /cm/i.test(sizeStr);
+      if (isCm) {
+        w = Math.round((w / 2.54) * 10) / 10;
+        h = Math.round((h / 2.54) * 10) / 10;
+      }
+      return { baseW: w, baseH: h, unit: "in" };
+    }
+  }
+  // Fallback to ratio or default 24 × 30 in
+  const ratio = fallbackRatio && fallbackRatio > 0 ? fallbackRatio : 0.8;
+  const baseH = 30;
+  const baseW = Math.round(baseH * ratio * 10) / 10;
+  return { baseW, baseH, unit: "in" };
+}
 
 function RoomVisualizerContent() {
   const searchParams = useSearchParams();
@@ -135,23 +164,111 @@ function RoomVisualizerContent() {
     };
   }, [targetId]);
 
+  // ── Custom User Wall Upload State ──
+  const [customWallUrl, setCustomWallUrl] = useState(null);
+  const [customWallName, setCustomWallName] = useState("My Room Wall");
+  const fileInputRef = useRef(null);
+
+  // Clean up Object URL on unmount or replace
+  useEffect(() => {
+    return () => {
+      if (customWallUrl) {
+        try {
+          URL.revokeObjectURL(customWallUrl);
+        } catch (_) {}
+      }
+    };
+  }, [customWallUrl]);
+
+  const handleCustomWallUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (customWallUrl) {
+      try {
+        URL.revokeObjectURL(customWallUrl);
+      } catch (_) {}
+    }
+
+    const url = URL.createObjectURL(file);
+    const fileName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "My Room Wall";
+    setCustomWallUrl(url);
+    setCustomWallName(fileName);
+
+    const customRoom = {
+      id: "custom-user-wall",
+      title: fileName || "Your Wall Photo",
+      category: "custom",
+      src: url,
+      defaultPos: { x: 50, y: 38 },
+      isCustom: true,
+    };
+    setSelectedRoom(customRoom);
+    setPosOffset({ x: 0, y: 0 });
+    if (isMobile) setIsMobileSheetOpen(false);
+
+    // Reset input value so re-selecting same file works
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleRemoveCustomWall = (e) => {
+    e?.stopPropagation?.();
+    if (customWallUrl) {
+      try {
+        URL.revokeObjectURL(customWallUrl);
+      } catch (_) {}
+    }
+    setCustomWallUrl(null);
+    setSelectedRoom(ROOMS_DATA[0]);
+    setPosOffset({ x: 0, y: 0 });
+  };
+
   // ── Visualizer State ──
   const [selectedRoom, setSelectedRoom] = useState(ROOMS_DATA[0]);
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0]);
-  const [scalePercent, setScalePercent] = useState(22); // Desktop scale percentage
-  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (40% - 75%)
+  const [scalePercent, setScalePercent] = useState(22); // Desktop scale percentage (baseline = 22)
+  const [mobileScale, setMobileScale] = useState(48); // Mobile scale percentage (baseline = 48)
   const [posOffset, setPosOffset] = useState({ x: 0, y: 0 }); // offset from defaultPos
   const [showDimensions, setShowDimensions] = useState(false);
   const [lighting, setLighting] = useState(LIGHTING_MODES[0]);
   const [isArtworkDrawerOpen, setIsArtworkDrawerOpen] = useState(false);
   const [isControlsVisible, setIsControlsVisible] = useState(true);
-  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false); // Mobile slide-up sheet
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const [isZenMode, setIsZenMode] = useState(false); // TRUE HIDE: only room and painting
   const [isTopHovered, setIsTopHovered] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTab, setActiveTab] = useState("rooms"); // "rooms" | "frames" | "scale" | "lighting"
+
+  // ── Dynamic Mathematically Accurate Dimensions Calculation ──
+  const baseDims = useMemo(() => {
+    return parseArtworkDimensions(selectedArtwork?.size, artworkAspectRatio);
+  }, [selectedArtwork?.size, artworkAspectRatio]);
+
+  const liveDimensions = useMemo(() => {
+    const baseScale = isMobile ? 48 : 22;
+    const currentScale = isMobile ? mobileScale : scalePercent;
+    const multiplier = currentScale / baseScale;
+
+    const widthIn = Math.round(baseDims.baseW * multiplier * 10) / 10;
+    const heightIn = Math.round(baseDims.baseH * multiplier * 10) / 10;
+    const widthCm = Math.round(widthIn * 2.54);
+    const heightCm = Math.round(heightIn * 2.54);
+
+    const isOriginal = Math.abs(multiplier - 1.0) < 0.04;
+
+    return {
+      widthIn,
+      heightIn,
+      widthCm,
+      heightCm,
+      multiplier,
+      isOriginal,
+      displayIn: `${widthIn}″ × ${heightIn}″`,
+      displayCm: `${widthCm} × ${heightCm} cm`,
+    };
+  }, [baseDims, isMobile, mobileScale, scalePercent]);
 
   const { content } = useSiteContent();
   const rawWhatsApp =
@@ -216,7 +333,7 @@ function RoomVisualizerContent() {
     };
   }, [isDragging]);
 
-  // ── 2. Interactive Direct Painting Resize Logic (Dragging Corner Handle) ──
+  // ── 2. Interactive Direct Painting Resize Logic (Corner Handle) ──
   const [isResizing, setIsResizing] = useState(false);
   const resizeStartRef = useRef({ clientX: 0, startScale: 22 });
 
@@ -353,8 +470,17 @@ function RoomVisualizerContent() {
     }
   };
 
+  // WhatsApp inquiry URL pre-filling accurate live dimensions
+  const customSizeNote = liveDimensions.isOriginal
+    ? `in its original size (${liveDimensions.displayIn} / ${liveDimensions.displayCm})`
+    : `customized to ${liveDimensions.displayIn} (${liveDimensions.displayCm})`;
+
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hello Nancy, I am viewing your painting "${selectedArtwork?.title}" in the "${selectedRoom?.title}" with the "${selectedFrame?.name}" on your Studio Room Visualizer. I would love to inquire about pricing and acquisition details.`
+    `Hello Nancy, I am viewing your painting "${selectedArtwork?.title}" in the "${selectedRoom?.title}" with "${selectedFrame?.name}" on your Studio Room Visualizer.
+
+I have customized the size to ${customSizeNote}.
+
+Please share pricing and commissioning timeline for this specification.`
   )}`;
 
   // Calculated painting coordinates (% of stage)
@@ -366,7 +492,15 @@ function RoomVisualizerContent() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-[#F5F0E8] select-none font-sans">
-      
+      {/* Hidden File Input for Custom Room Wall Upload */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleCustomWallUpload}
+        className="hidden"
+      />
+
       {/* ── 📱 PORTRAIT WARNING POPUP OVERLAY (Asks mobile user to rotate phone to landscape) ── */}
       {isPortrait && !dismissPortraitWarning && (
         <div className="fixed inset-0 z-50 bg-[#0F0E0E]/96 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center animate-fadeIn select-none">
@@ -394,7 +528,7 @@ function RoomVisualizerContent() {
               <span>Turn Phone Sideways</span>
             </div>
 
-            {/* Subtle option to bypass if user has phone rotation lock enabled */}
+            {/* Option to bypass if user has phone rotation lock enabled */}
             <button
               onClick={() => setDismissPortraitWarning(true)}
               className="text-[0.68rem] text-white/40 hover:text-white/80 underline tracking-wider pt-2"
@@ -490,19 +624,35 @@ function RoomVisualizerContent() {
               <div
                 onPointerDown={handleResizeStart}
                 className="resize-handle absolute -bottom-3.5 -right-3.5 sm:-bottom-3 sm:-right-3 w-8 sm:w-7 h-8 sm:h-7 rounded-full bg-[#C9A96E] text-black shadow-2xl flex items-center justify-center cursor-nwse-resize z-30 hover:scale-125 active:scale-110 transition-transform border-2 border-white select-none touch-manipulation group"
-                title="Drag to resize painting directly"
+                title="Drag corner to scale painting"
               >
                 <FaExpand className="text-[10px] pointer-events-none" />
-                <span className="hidden sm:block absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/85 text-white px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity">
-                  Drag to Resize ({currentRenderScale}%)
+                <span className="hidden sm:block absolute -top-7 right-0 opacity-0 group-hover:opacity-100 bg-black/90 text-[#F5F0E8] px-2 py-0.5 rounded text-[9px] whitespace-nowrap pointer-events-none transition-opacity font-mono border border-white/10">
+                  {liveDimensions.displayIn} ({liveDimensions.displayCm})
                 </span>
               </div>
             )}
 
-            {/* Dimensions Label Badge (Hidden in Zen Mode AND during Snapshot capture) */}
-            {showDimensions && !isZenMode && !isDownloading && (
-              <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap px-2.5 py-0.5 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[0.58rem] sm:text-[0.6rem] uppercase tracking-widest text-[#E8DDD0] font-sans pointer-events-none shadow-md">
-                {selectedArtwork?.size || "36″ × 48″"} • {selectedFrame.name}
+            {/* ── ACCURATE DYNAMIC DIMENSIONS BADGE ── */}
+            {/* Visible whenever showDimensions is toggled ON or actively dragging/resizing, stripped during snapshot download & Zen mode */}
+            {(showDimensions || isResizing) && !isZenMode && !isDownloading && (
+              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 rounded-full bg-black/85 backdrop-blur-md border border-[#C9A96E]/50 text-[0.6rem] sm:text-[0.65rem] text-[#F5F0E8] font-sans pointer-events-none shadow-xl flex items-center gap-1.5 animate-fadeIn z-30">
+                <span className="text-[#C9A96E] font-medium tracking-wide">
+                  {liveDimensions.displayIn}
+                </span>
+                <span className="text-white/30">|</span>
+                <span className="text-white/70">
+                  {liveDimensions.displayCm}
+                </span>
+                {liveDimensions.isOriginal ? (
+                  <span className="ml-1 text-[0.52rem] px-1.5 py-0.5 rounded bg-white/15 text-white/90 font-semibold tracking-wider uppercase">
+                    Original
+                  </span>
+                ) : (
+                  <span className="ml-1 text-[0.52rem] px-1.5 py-0.5 rounded bg-[#C9A96E]/30 text-[#C9A96E] font-semibold tracking-wider uppercase">
+                    Custom
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -520,7 +670,7 @@ function RoomVisualizerContent() {
           {!isZenMode && !isDownloading && (
             <div className="absolute top-20 left-6 z-10 hidden md:block pointer-events-none">
               <span className="text-[0.55rem] uppercase tracking-[0.25em] text-[#C9A96E] block font-semibold drop-shadow">
-                Current Setting
+                {selectedRoom.isCustom ? "Your Custom Wall" : "Current Setting"}
               </span>
               <p className="font-display text-sm md:text-base text-white/90 drop-shadow-md">
                 {selectedRoom.title}
@@ -536,7 +686,7 @@ function RoomVisualizerContent() {
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
       >
-        {/* Mobile Header (Under 768px: perfectly compact, zero overflow) */}
+        {/* Mobile Header (Under 768px: compact, zero overflow) */}
         <div className="flex md:hidden items-center justify-between w-full gap-2">
           {/* Back Exit */}
           <Link
@@ -570,7 +720,7 @@ function RoomVisualizerContent() {
               <FaDownload className="text-xs" />
             </button>
 
-            {/* WhatsApp */}
+            {/* WhatsApp with Live Customized Dimensions */}
             <a
               href={whatsappUrl}
               target="_blank"
@@ -623,6 +773,16 @@ function RoomVisualizerContent() {
               <FaImages className="text-[#C9A96E] text-xs" />
               <span>Artwork</span>
               <span className="text-[0.65rem] opacity-60">({artworksList.length})</span>
+            </button>
+
+            {/* Upload Wall Shortcut */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 hover:bg-black/75 border border-[#C9A96E]/40 text-xs tracking-wider uppercase text-[#C9A96E] transition-all backdrop-blur-md"
+              title="Upload your own wall photo"
+            >
+              <FaCamera className="text-xs" />
+              <span>{customWallUrl ? "My Wall" : "Upload Wall"}</span>
             </button>
 
             {(posOffset.x !== 0 || posOffset.y !== 0) && (
@@ -704,7 +864,7 @@ function RoomVisualizerContent() {
       {/* ── 4. MOBILE BOTTOM FLOATING DOCK & SLIDE-UP SHEET (< 768px) ── */}
       {!isZenMode && isMobile && (
         <>
-          {/* Mobile Sleek Floating Pill Dock (height only 48px) */}
+          {/* Mobile Floating Pill Dock */}
           <div className="md:hidden fixed bottom-4 inset-x-3 z-30">
             <div className="bg-[#141312]/92 backdrop-blur-xl border border-white/20 rounded-full px-3 py-2 shadow-2xl flex items-center justify-between">
               {[
@@ -743,7 +903,7 @@ function RoomVisualizerContent() {
               onClick={() => setIsMobileSheetOpen(false)}
             >
               <div
-                className="w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl max-h-[62vh] overflow-y-auto flex flex-col"
+                className="w-full bg-[#161514] border-t border-white/20 rounded-t-3xl p-4 shadow-2xl max-h-[64vh] overflow-y-auto flex flex-col"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Pull Down Handle */}
@@ -753,9 +913,9 @@ function RoomVisualizerContent() {
                 <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
                   <div className="flex items-center gap-2">
                     <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#C9A96E] font-semibold">
-                      {activeTab === "rooms" && "Select Room Setting (15)"}
+                      {activeTab === "rooms" && "Select Room or Upload Wall"}
                       {activeTab === "frames" && "Choose Frame Finish"}
-                      {activeTab === "scale" && "Painting Scale & Dimensions"}
+                      {activeTab === "scale" && "Live Dimensions & Scale"}
                       {activeTab === "lighting" && "Room Ambience"}
                     </span>
                   </div>
@@ -767,9 +927,31 @@ function RoomVisualizerContent() {
                   </button>
                 </div>
 
-                {/* SHEET CONTENT: ROOMS */}
+                {/* SHEET CONTENT: ROOMS & CUSTOM WALL */}
                 {activeTab === "rooms" && (
                   <div className="space-y-3 pb-2">
+                    {/* User Wall Upload Action Button */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#C9A96E]/20 via-[#C9A96E]/10 to-transparent border border-[#C9A96E]/40 hover:border-[#C9A96E] flex items-center justify-center gap-2 text-white font-medium text-xs tracking-wider uppercase active:scale-98 transition-all shadow"
+                      >
+                        <FaCamera className="text-[#C9A96E] text-sm" />
+                        <span>{customWallUrl ? "Change Your Wall Photo" : "Upload / Take Photo of Your Wall"}</span>
+                      </button>
+                      {customWallUrl && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveCustomWall}
+                          title="Remove Custom Wall"
+                          className="p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:text-white transition-all text-xs flex-shrink-0"
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      )}
+                    </div>
+
                     {/* Category Filter Pills */}
                     <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
                       {ROOM_CATEGORIES.map((cat) => (
@@ -787,8 +969,48 @@ function RoomVisualizerContent() {
                       ))}
                     </div>
 
-                    {/* 2-Column Room Cards Grid */}
-                    <div className="grid grid-cols-2 gap-2.5 max-h-[42vh] overflow-y-auto pr-0.5">
+                    {/* 2-Column Room Cards Grid (Includes Custom Wall Card if Uploaded) */}
+                    <div className="grid grid-cols-2 gap-2.5 max-h-[40vh] overflow-y-auto pr-0.5">
+                      {/* Uploaded Custom Wall Card */}
+                      {customWallUrl && (
+                        <div
+                          onClick={() => {
+                            setSelectedRoom({
+                              id: "custom-user-wall",
+                              title: customWallName || "Your Wall Photo",
+                              category: "custom",
+                              src: customWallUrl,
+                              defaultPos: { x: 50, y: 38 },
+                              isCustom: true,
+                            });
+                            setPosOffset({ x: 0, y: 0 });
+                            setIsMobileSheetOpen(false);
+                          }}
+                          className={`relative aspect-[16/10] rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${
+                            selectedRoom.id === "custom-user-wall"
+                              ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/40"
+                              : "border-white/15"
+                          }`}
+                        >
+                          <img
+                            src={customWallUrl}
+                            alt="Your Wall"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-2">
+                            <span className="text-[0.62rem] text-[#C9A96E] font-semibold leading-tight font-sans truncate w-full">
+                              ★ {customWallName}
+                            </span>
+                          </div>
+                          {selectedRoom.id === "custom-user-wall" && (
+                            <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[9px] shadow font-bold">
+                              <FaCheck />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Preset Rooms */}
                       {visibleRooms.map((room) => {
                         const isSelected = selectedRoom.id === room.id;
                         return (
@@ -864,14 +1086,51 @@ function RoomVisualizerContent() {
                   </div>
                 )}
 
-                {/* SHEET CONTENT: SIZE & SCALE */}
+                {/* SHEET CONTENT: SIZE & DYNAMIC DIMENSIONS */}
                 {activeTab === "scale" && (
-                  <div className="space-y-4 py-2">
+                  <div className="space-y-3.5 py-1">
+                    {/* Live Accurate Dimensions Card */}
+                    <div className="bg-[#1C1A18] border border-[#C9A96E]/30 rounded-2xl p-3.5 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[0.6rem] uppercase tracking-widest text-[#C9A96E] font-semibold flex items-center gap-1.5">
+                          <FaRuler className="text-xs" />
+                          <span>Exact Scaled Dimensions</span>
+                        </span>
+                        {liveDimensions.isOriginal ? (
+                          <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-white/10 text-white/80 font-semibold tracking-wider uppercase">
+                            Original Size
+                          </span>
+                        ) : (
+                          <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[#C9A96E]/20 text-[#C9A96E] font-semibold tracking-wider uppercase">
+                            Custom Scaled
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-baseline justify-between pt-1">
+                        <div>
+                          <span className="font-display text-lg text-white font-medium tracking-wide">
+                            {liveDimensions.displayIn}
+                          </span>
+                          <span className="text-xs text-white/50 ml-2 font-mono">
+                            ({liveDimensions.displayCm})
+                          </span>
+                        </div>
+                        {!liveDimensions.isOriginal && (
+                          <button
+                            onClick={() => setMobileScale(48)}
+                            className="text-[0.62rem] text-[#C9A96E] underline uppercase tracking-wider"
+                          >
+                            Reset Original
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
                     {/* Dimension Tag Toggle */}
                     <div className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10">
                       <div>
                         <p className="text-xs text-white font-medium">Show Dimensions Badge</p>
-                        <p className="text-[0.62rem] text-white/50">Display 36″ × 48″ size tag on painting</p>
+                        <p className="text-[0.62rem] text-white/50">Keep size badge visible under painting</p>
                       </div>
                       <button
                         onClick={() => setShowDimensions((v) => !v)}
@@ -887,13 +1146,13 @@ function RoomVisualizerContent() {
                       </button>
                     </div>
 
-                    {/* Preset Buttons */}
+                    {/* Proportional Scale Presets */}
                     <div className="grid grid-cols-2 gap-2">
                       {[
-                        { label: "Small (24×30 in)", val: 36 },
-                        { label: "Medium (36×48 in)", val: 46 },
-                        { label: "Large (48×60 in)", val: 58 },
-                        { label: "Statement (60×72 in)", val: 68 },
+                        { label: "Original (100%)", val: 48 },
+                        { label: "Compact (-25%)", val: 36 },
+                        { label: "Statement (+25%)", val: 60 },
+                        { label: "Grand Mural (+50%)", val: 72 },
                       ].map((preset) => (
                         <button
                           key={preset.label}
@@ -912,8 +1171,8 @@ function RoomVisualizerContent() {
                     {/* Touch Slider */}
                     <div className="space-y-1.5 pt-1">
                       <div className="flex justify-between text-[0.68rem] text-white/60">
-                        <span>Scale: {mobileScale}% of wall width</span>
-                        <span className="text-[#C9A96E] font-mono">{mobileScale}%</span>
+                        <span>Wall Proportion Slider</span>
+                        <span className="text-[#C9A96E] font-mono">{liveDimensions.displayIn}</span>
                       </div>
                       <input
                         type="range"
@@ -962,15 +1221,15 @@ function RoomVisualizerContent() {
       {!isZenMode && !isMobile && (
         <>
           {isControlsVisible ? (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/90 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl bg-[#121110]/92 backdrop-blur-2xl border border-white/15 rounded-2xl p-3 md:p-4 shadow-2xl transition-all duration-300">
               <div className="flex flex-col gap-2.5">
-                {/* Control Mode Tabs & Tag Toggle */}
+                {/* Control Mode Tabs & Actions */}
                 <div className="flex items-center justify-between border-b border-white/10 pb-2">
                   <div className="flex items-center gap-1 sm:gap-2">
                     {[
                       { id: "rooms", label: "Rooms & Walls", icon: FaImages },
                       { id: "frames", label: "Frames", icon: FaExpand },
-                      { id: "scale", label: "Size & Scale", icon: FaRulerCombined },
+                      { id: "scale", label: "Size & Dimensions", icon: FaRulerCombined },
                       { id: "lighting", label: "Ambience", icon: FaSun },
                     ].map((tab) => {
                       const Icon = tab.icon;
@@ -993,6 +1252,13 @@ function RoomVisualizerContent() {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    {/* Live Dimension Readout */}
+                    <div className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[0.68rem] font-sans">
+                      <span className="text-[#C9A96E] font-medium">{liveDimensions.displayIn}</span>
+                      <span className="text-white/30">|</span>
+                      <span className="text-white/60 font-mono">{liveDimensions.displayCm}</span>
+                    </div>
+
                     {/* Dimension Tag Toggle */}
                     <button
                       onClick={() => setShowDimensions((v) => !v)}
@@ -1017,26 +1283,98 @@ function RoomVisualizerContent() {
                   </div>
                 </div>
 
-                {/* TAB CONTENT 1: ROOMS SELECTOR */}
+                {/* TAB CONTENT 1: ROOMS & CUSTOM WALL SELECTOR */}
                 {activeTab === "rooms" && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5">
-                      {ROOM_CATEGORIES.map((cat) => (
+                    <div className="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-0.5">
+                      <div className="flex items-center gap-2">
+                        {ROOM_CATEGORIES.map((cat) => (
+                          <button
+                            key={cat.id}
+                            onClick={() => setActiveCategory(cat.id)}
+                            className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
+                              activeCategory === cat.id
+                                ? "bg-white text-black font-semibold"
+                                : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
+                            }`}
+                          >
+                            {cat.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Desktop Wall Photo Upload Button */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         <button
-                          key={cat.id}
-                          onClick={() => setActiveCategory(cat.id)}
-                          className={`px-3 py-0.5 rounded-full text-[0.62rem] tracking-wider uppercase font-medium whitespace-nowrap transition-all ${
-                            activeCategory === cat.id
-                              ? "bg-white text-black font-semibold"
-                              : "bg-white/5 text-white/50 hover:text-white hover:bg-white/10 border border-white/10"
-                          }`}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#C9A96E]/20 hover:bg-[#C9A96E]/30 text-[#C9A96E] border border-[#C9A96E]/40 text-xs tracking-wider uppercase font-medium whitespace-nowrap transition-all shadow"
                         >
-                          {cat.label}
+                          <FaCamera className="text-xs" />
+                          <span>{customWallUrl ? "Change Wall Photo" : "Upload Your Wall"}</span>
                         </button>
-                      ))}
+                        {customWallUrl && (
+                          <button
+                            onClick={handleRemoveCustomWall}
+                            title="Remove Custom Wall"
+                            className="p-1.5 rounded-full bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-300 hover:text-white transition-all text-xs"
+                          >
+                            <FaTrashAlt />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+                      {/* Upload Card / Active Custom Wall Card */}
+                      {customWallUrl ? (
+                        <div
+                          onClick={() => {
+                            setSelectedRoom({
+                              id: "custom-user-wall",
+                              title: customWallName || "Your Wall Photo",
+                              category: "custom",
+                              src: customWallUrl,
+                              defaultPos: { x: 50, y: 38 },
+                              isCustom: true,
+                            });
+                            setPosOffset({ x: 0, y: 0 });
+                          }}
+                          className={`group relative flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
+                            selectedRoom.id === "custom-user-wall"
+                              ? "border-[#C9A96E] ring-2 ring-[#C9A96E]/30 scale-[1.02]"
+                              : "border-white/15 opacity-70 hover:opacity-100"
+                          }`}
+                        >
+                          <img
+                            src={customWallUrl}
+                            alt="Custom Wall"
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent flex items-end p-1">
+                            <span className="text-[0.58rem] text-[#C9A96E] font-semibold leading-tight font-sans truncate w-full text-left">
+                              ★ {customWallName}
+                            </span>
+                          </div>
+                          {selectedRoom.id === "custom-user-wall" && (
+                            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-[#C9A96E] text-black flex items-center justify-center text-[8px] shadow">
+                              <FaCheck />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex-shrink-0 w-24 sm:w-32 aspect-[16/10] rounded-lg border-2 border-dashed border-[#C9A96E]/40 hover:border-[#C9A96E] bg-white/5 hover:bg-white/10 flex flex-col items-center justify-center gap-1 text-center p-1.5 transition-all group"
+                          title="Upload your room wall photo"
+                        >
+                          <FaCloudUploadAlt className="text-base text-[#C9A96E] group-hover:scale-110 transition-transform" />
+                          <span className="text-[0.58rem] text-white/80 font-medium leading-tight">
+                            + Your Wall
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Preset Rooms */}
                       {visibleRooms.map((room) => {
                         const isSelected = selectedRoom.id === room.id;
                         return (
@@ -1106,19 +1444,33 @@ function RoomVisualizerContent() {
                   </div>
                 )}
 
-                {/* TAB CONTENT 3: SIZE & SCALE SELECTOR */}
+                {/* TAB CONTENT 3: SIZE & DYNAMIC DIMENSIONS SELECTOR */}
                 {activeTab === "scale" && (
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-1">
+                    {/* Live Dimension Pill & Reset */}
                     <div className="flex items-center gap-2">
-                      <span className="text-[0.62rem] uppercase tracking-wider text-white/40 mr-1 hidden sm:inline">
-                        Presets:
-                      </span>
-                      {SCALE_PRESETS.map((preset) => (
+                      <div className="px-3 py-1 rounded-lg bg-black/60 border border-[#C9A96E]/30 flex items-center gap-2">
+                        <FaRuler className="text-[#C9A96E] text-xs" />
+                        <span className="text-xs text-white font-medium">
+                          {liveDimensions.displayIn}
+                        </span>
+                        <span className="text-[0.65rem] text-white/50 font-mono">
+                          ({liveDimensions.displayCm})
+                        </span>
+                      </div>
+
+                      {/* Presets */}
+                      {[
+                        { label: "Original (100%)", pct: 22 },
+                        { label: "Compact (75%)", pct: 17 },
+                        { label: "Statement (125%)", pct: 28 },
+                        { label: "Grand (150%)", pct: 34 },
+                      ].map((preset) => (
                         <button
-                          key={preset.id}
-                          onClick={() => setScalePercent(preset.percent)}
-                          className={`px-3 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
-                            Math.abs(scalePercent - preset.percent) < 3
+                          key={preset.label}
+                          onClick={() => setScalePercent(preset.pct)}
+                          className={`px-2.5 py-1 rounded-lg text-xs tracking-wider uppercase transition-all ${
+                            Math.abs(scalePercent - preset.pct) < 2
                               ? "bg-[#C9A96E] text-black font-semibold border border-[#C9A96E]"
                               : "bg-white/5 border border-white/10 text-white/60 hover:text-white"
                           }`}
@@ -1128,9 +1480,10 @@ function RoomVisualizerContent() {
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-3 w-full sm:w-60">
+                    {/* Scale Range Slider */}
+                    <div className="flex items-center gap-3 w-full sm:w-64">
                       <span className="text-[0.62rem] uppercase tracking-wider text-white/40 whitespace-nowrap">
-                        Scale: {scalePercent}%
+                        Scale Wall Slider:
                       </span>
                       <input
                         type="range"
