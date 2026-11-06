@@ -74,9 +74,23 @@ function RoomVisualizerContent() {
 
   useEffect(() => {
     const handleViewportChange = () => {
+      if (typeof window === "undefined") return;
       const width = window.innerWidth;
       const height = window.innerHeight;
-      const mobile = width < 850;
+
+      const hasTouch =
+        navigator.maxTouchPoints > 0 ||
+        (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches) ||
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+
+      // Landscape phone mode:
+      // Mobile phones held horizontally strictly have height <= 560px and width > height.
+      // Flagship phones like iPhone 14/15/16 Pro Max (~932x430) and Galaxy S24 Ultra (~915x412) are accounted for.
+      const isLandscapePhone = height <= 560 && width > height && (hasTouch || width < 1100);
+
+      // Mobile device: width < 850, landscape phone, or touch device under 1024px
+      const mobile = width < 850 || isLandscapePhone || (hasTouch && width < 1024);
+
       setIsMobile(mobile);
       // Portrait mode check on mobile devices
       setIsPortrait(mobile && height > width);
@@ -424,6 +438,8 @@ function RoomVisualizerContent() {
   // Screen click handler for Zen Mode: click reveals button for 1s; click again/outside hides immediately
   const handleZenScreenClick = () => {
     if (!isZenMode) return;
+    if (isDragging || isResizing) return;
+
     if (zenControlsVisible) {
       // User tapped screen while visible -> immediately hide so only room & painting are visible
       if (zenHideTimerRef.current) clearTimeout(zenHideTimerRef.current);
@@ -439,8 +455,11 @@ function RoomVisualizerContent() {
   };
 
   useEffect(() => {
-    // Only listen for mousemove on desktop pointer devices
+    // Only listen for mousemove on desktop pointer devices without touch
     if (isMobile) return;
+    const hasTouch = typeof window !== "undefined" && (navigator.maxTouchPoints > 0 || ("ontouchstart" in window));
+    if (hasTouch) return;
+
     const onMouseMove = (e) => {
       if (!isZenMode) return;
       if (e.clientY < 60) {
@@ -745,7 +764,11 @@ Please share pricing and commissioning timeline for this specification.`
         } backdrop-blur-sm ${
           isZenMode ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
         }`}
-        style={{ paddingTop: isMobile ? `max(${isLandscapeMobile ? "0.35rem" : "0.55rem"}, env(safe-area-inset-top))` : undefined }}
+        style={{
+          paddingTop: isMobile ? `max(${isLandscapeMobile ? "0.35rem" : "0.55rem"}, env(safe-area-inset-top))` : undefined,
+          paddingLeft: isMobile ? "max(0.75rem, env(safe-area-inset-left))" : undefined,
+          paddingRight: isMobile ? "max(0.75rem, env(safe-area-inset-right))" : undefined,
+        }}
       >
         {/* ── MOBILE HEADER: state-driven, landscape-optimized, no overflow ── */}
         {isMobile ? (
@@ -923,14 +946,13 @@ Please share pricing and commissioning timeline for this specification.`
           onClick={(e) => e.stopPropagation()}
           className={`fixed z-50 transition-all duration-300 ${
             zenControlsVisible
-              ? "opacity-100 scale-100 pointer-events-auto"
-              : "opacity-0 scale-95 pointer-events-none"
+              ? "opacity-100 scale-100 pointer-events-auto translate-y-0"
+              : "opacity-0 scale-95 pointer-events-none -translate-y-3"
           }`}
           style={{
-            top: "max(0.75rem, env(safe-area-inset-top))",
-            right: "max(1rem, env(safe-area-inset-right))",
+            top: "max(0.75rem, env(safe-area-inset-top, 0.75rem))",
+            right: "max(1rem, env(safe-area-inset-right, 1rem))",
             left: "auto",
-            transform: zenControlsVisible ? "translateY(0)" : "translateY(-1.2rem)",
           }}
         >
           <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 rounded-full bg-black/90 backdrop-blur-2xl border border-white/20 shadow-2xl">

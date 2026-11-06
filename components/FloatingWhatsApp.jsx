@@ -15,8 +15,15 @@ export default function FloatingWhatsApp() {
     "919818817291"
   ).replace(/[^0-9]/g, "");
 
-  // Do not show on any admin panel page or view-on-wall studio visualizer
-  if (pathname && (pathname.startsWith("/admin") || pathname.startsWith("/view-on-wall"))) {
+  // Do not show on admin panel, studio visualizer, or login/signup pages
+  if (
+    pathname &&
+    (pathname.startsWith("/admin") ||
+      pathname.startsWith("/view-on-wall") ||
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/signup") ||
+      pathname.startsWith("/forgot-password"))
+  ) {
     return null;
   }
   const defaultMessage = encodeURIComponent(

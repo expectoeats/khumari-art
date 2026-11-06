@@ -179,6 +179,53 @@ p, span, a, li, input, textarea, button, select, label {
   animation-play-state: paused;
 }
 
+/* ── Art Collage Vertical Sliding Keyframes ── */
+@keyframes collageSlideUp {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes collageSlideDown {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes collageFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-collage-fade-in {
+  animation: collageFadeIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-collage-up-slow {
+  animation: collageSlideUp 50s linear infinite;
+  will-change: transform;
+}
+
+.animate-collage-down-slow {
+  animation: collageSlideDown 58s linear infinite;
+  will-change: transform;
+}
+
+.animate-collage-up-medium {
+  animation: collageSlideUp 42s linear infinite;
+  will-change: transform;
+}
+
+.animate-collage-up-slow:hover,
+.animate-collage-down-slow:hover,
+.animate-collage-up-medium:hover {
+  animation-play-state: paused;
+}
+
 /* Crisp SVG separators inside marquee */
 .marquee-sep {
   display: inline-flex;
@@ -438,3 +485,29 @@ p, span, a, li, input, textarea, button, select, label {
   scrollbar-width: none !important; /* Firefox */
 }
 
+
+/* ── Expecto shimmer — slow luxury ── */
+@keyframes expectoShimmer {
+  0%   { background-position: -900px 0; }
+  100% { background-position: 900px 0; }
+}
+.expecto-shimmer {
+  background: linear-gradient(
+    90deg,
+    #5a4428 0%,
+    #5a4428 38%,
+    #a07840 44%,
+    #C9A96E 48%,
+    #EDD9A3 50%,
+    #C9A96E 52%,
+    #a07840 56%,
+    #5a4428 62%,
+    #5a4428 100%
+  );
+  background-size: 900px 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: expectoShimmer 7s linear infinite;
+  display: inline-block;
+}
