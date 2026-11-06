@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import ArtCollageSlider from "../../components/ArtCollageSlider";
 import { useToast } from "../../components/ToastProvider";
@@ -39,7 +38,21 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-between" style={{ background: "#FDFAF5" }}>
-      <Navbar />
+      {/* Minimal Brand Header — No marketing navbar or WhatsApp banner on Login */}
+      <header className="w-full max-w-[1380px] mx-auto px-6 sm:px-10 pt-6 sm:pt-8 flex items-center justify-between">
+        <Link
+          href="/"
+          className="text-[#1C1C1C] tracking-[0.22em] uppercase font-light text-xs sm:text-sm hover:text-[#C9A96E] transition-colors"
+        >
+          Kala Samputah
+        </Link>
+        <Link
+          href="/"
+          className="text-[0.7rem] sm:text-[0.72rem] tracking-wider uppercase text-[#8C8276] hover:text-[#1C1C1C] transition-colors flex items-center gap-1.5"
+        >
+          <span>← Back to Gallery</span>
+        </Link>
+      </header>
 
       <section className="flex-1 flex items-center justify-center px-4 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-12">
         <div className="w-full max-w-[1380px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-14 items-center">
